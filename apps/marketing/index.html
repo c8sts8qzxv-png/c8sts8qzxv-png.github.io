@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="en" data-mode="light" data-school="UPSA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kay Rides — campus rides in Ghana</title>
+<meta name="description" content="Kay Rides is a ride-sharing app for university campuses in Ghana. Book a ride, share one to pay less, reserve ahead, or set a routine ride. This is a working walkthrough of the rider app.">
+<meta name="theme-color" content="#0E1F3D">
+<meta name="color-scheme" content="light dark">
+
+<meta property="og:title" content="Kay Rides — campus rides in Ghana">
+<meta property="og:description" content="Book a ride, share one to pay less, and pay from a wallet that works with campus MoMo. A working walkthrough of the rider app.">
+<meta property="og:type" content="website">
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%230E1F3D'/><path d='M26 62h48M32 62l6-22h24l6 22M38 70a5 5 0 100-10 5 5 0 000 10zM62 70a5 5 0 100-10 5 5 0 000 10z' stroke='%23C9962C' stroke-width='6' stroke-linecap='round' stroke-linejoin='round' fill='none'/></svg>">
+
+<!-- Before the stylesheets, so the class is set on the first style resolution
+     and no frame is painted with reveals hidden-but-unmanaged. Everything that
+     animates in is gated on it: with scripting off or broken, .reveal never
+     goes transparent and the page is simply a static page rather than a blank
+     one. Entrance animation is a nicety; the content is not. -->
+<script>document.documentElement.classList.add('js');</script>
+
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/landing.css">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<!-- ==========================================================================
+     Icon sprite. Inline rather than linked so a phone on a bad connection gets
+     the icons in the same request as the markup — the app's own splash screen
+     exists because unloaded icon fonts render as tofu boxes, and the web has
+     the identical failure mode.
+     ====================================================================== -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <g id="i-base" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></g>
+  </defs>
+  <symbol id="ic-car" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14M4 17v-4.2a2 2 0 0 1 .2-.9l1.9-3.8A2 2 0 0 1 7.9 7h8.2a2 2 0 0 1 1.8 1.1l1.9 3.8a2 2 0 0 1 .2.9V17M4 13h16"/><circle cx="7.5" cy="17" r="1.6"/><circle cx="16.5" cy="17" r="1.6"/></symbol>
+  <symbol id="ic-car-estate" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17h18M3 17v-4.4a2 2 0 0 1 .2-.9l1.7-3.5A2 2 0 0 1 6.7 7h11.1a2 2 0 0 1 1.7 1l2 3.4a2 2 0 0 1 .3 1V17M3 13h18M9 7v5"/><circle cx="7" cy="17" r="1.6"/><circle cx="17" cy="17" r="1.6"/></symbol>
+  <symbol id="ic-car-key" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16h11M3 16v-3.8a2 2 0 0 1 .2-.9l1.7-3.4A2 2 0 0 1 6.7 7h6.6a2 2 0 0 1 1.8 1l1.4 2.9M3 12.5h12"/><circle cx="6.4" cy="16" r="1.5"/><circle cx="12.4" cy="16" r="1.5"/><circle cx="18.5" cy="14.5" r="2.5"/><path d="M20.3 16.3 22.5 18.5M21 19.9l1-1"/></symbol>
+  <symbol id="ic-route" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="5.5" r="2.5"/><circle cx="18" cy="18.5" r="2.5"/><path d="M6 8v4a4 4 0 0 0 4 4h4a4 4 0 0 1 4 2.5"/></symbol>
+  <symbol id="ic-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.5 12 4l8 6.5V19a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 19z"/><path d="M9.5 20.5v-6h5v6"/></symbol>
+  <symbol id="ic-wallet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5A2 2 0 0 1 5.5 6.5H18a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5.5a2 2 0 0 1-2-2z"/><path d="M3.5 9.5V7a1.5 1.5 0 0 1 1.5-1.5h10"/><circle cx="16.5" cy="13" r="1.3"/></symbol>
+  <symbol id="ic-history" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1"/><path d="M3.5 4.5V9H8"/><path d="M12 8v4.4l3 1.8"/></symbol>
+  <symbol id="ic-account" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="3.4"/><path d="M5 19.5a7.4 7.4 0 0 1 14 0"/><circle cx="12" cy="12" r="9"/></symbol>
+  <symbol id="ic-arrow-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></symbol>
+  <symbol id="ic-arrow-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="ic-chevron-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></symbol>
+  <symbol id="ic-chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 9l7 7 7-7"/></symbol>
+  <symbol id="ic-calendar-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V6.5a1.5 1.5 0 0 0-1.5-1.5h-13A1.5 1.5 0 0 0 4 6.5v12A1.5 1.5 0 0 0 5.5 20H12M4 9.5h16M8 3v3.5M16 3v3.5"/><circle cx="17.5" cy="17.5" r="4"/><path d="M17.5 15.8v1.8l1.2.8"/></symbol>
+  <symbol id="ic-calendar-sync" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11V6.5A1.5 1.5 0 0 0 18.5 5h-13A1.5 1.5 0 0 0 4 6.5v12A1.5 1.5 0 0 0 5.5 20H11M4 9.5h16M8 3v3.5M16 3v3.5"/><path d="M14.5 17.5a3.5 3.5 0 0 1 5.9-2.5M21.5 17.5a3.5 3.5 0 0 1-5.9 2.5"/><path d="M14.5 14.5v3h3M21.5 20.5v-3h-3"/></symbol>
+  <symbol id="ic-compass" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5z"/></symbol>
+  <symbol id="ic-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+  <symbol id="ic-check-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8 12.3 2.6 2.7L16 9.5"/></symbol>
+  <symbol id="ic-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="ic-phone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 3.5h3l1.5 4-2 1.5a12 12 0 0 0 6 6l1.5-2 4 1.5v3a2 2 0 0 1-2.2 2A16.5 16.5 0 0 1 4.5 5.7a2 2 0 0 1 2-2.2z"/></symbol>
+  <symbol id="ic-message" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 12a7.5 8 0 0 1-7.5 8 9 9 0 0 1-3.3-.6L4.5 21l1.3-4a7.7 7.7 0 0 1-1.3-5 7.5 8 0 0 1 7.5-8 7.5 8 0 0 1 8.5 8z"/></symbol>
+  <symbol id="ic-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 5 6v6c0 4.2 2.9 7.6 7 9 4.1-1.4 7-4.8 7-9V6z"/><path d="m9 12 2.2 2.2L15.5 10"/></symbol>
+  <symbol id="ic-star" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="m12 4 2.4 4.9 5.4.8-3.9 3.8.9 5.4-4.8-2.6-4.8 2.6.9-5.4L4.2 9.7l5.4-.8z"/></symbol>
+  <symbol id="ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.2 5.2l1.4 1.4M17.4 17.4l1.4 1.4M18.8 5.2l-1.4 1.4M6.6 17.4l-1.4 1.4"/></symbol>
+  <symbol id="ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.2A8.4 8.4 0 0 1 9.8 4 8.5 8.5 0 1 0 20 14.2z"/></symbol>
+  <symbol id="ic-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8.5" r="3.2"/><path d="M3 19.5a6 6 0 0 1 12 0"/><path d="M16.5 5.6a3.2 3.2 0 0 1 0 6.1M17.5 14.2a6 6 0 0 1 3.5 5.3"/></symbol>
+  <symbol id="ic-person" viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="12" cy="8" r="3.6"/><path d="M12 13c-3.6 0-6.5 2.3-6.5 5.2V20h13v-1.8c0-2.9-2.9-5.2-6.5-5.2z"/></symbol>
+  <symbol id="ic-gate" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V8l8-4 8 4v12M4 20h16M9 20v-6h6v6M4 11h16"/></symbol>
+  <symbol id="ic-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5z"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5z"/></symbol>
+  <symbol id="ic-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6 7-11a7 7 0 1 0-14 0c0 5 7 11 7 11z"/><circle cx="12" cy="10" r="2.6"/></symbol>
+  <symbol id="ic-building" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4.5A1.5 1.5 0 0 1 6.5 3h8A1.5 1.5 0 0 1 16 4.5V21M16 10h2.5A1.5 1.5 0 0 1 20 11.5V21M3 21h18M8.5 7h4M8.5 11h4M8.5 15h4"/></symbol>
+  <symbol id="ic-ticket" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V7a1.5 1.5 0 0 1 1.5-1.5h13A1.5 1.5 0 0 1 20 7v2a3 3 0 0 0 0 6v2a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17v-2a3 3 0 0 0 0-6z"/><path d="M14 6v3M14 12v3M14 17.5V19"/></symbol>
+  <symbol id="ic-cash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/><path d="M6.5 12h.01M17.5 12h.01"/></symbol>
+  <symbol id="ic-gift" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="9" width="17" height="11" rx="1.5"/><path d="M2.5 9h19v3.5h-19zM12 9v11"/><path d="M12 9S10 4 7.8 4a2.2 2.2 0 0 0 0 5zM12 9s2-5 4.2-5a2.2 2.2 0 0 1 0 5z"/></symbol>
+  <symbol id="ic-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="ic-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></symbol>
+  <symbol id="ic-expand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4H4v5M15 4h5v5M15 20h5v-5M9 20H4v-5"/></symbol>
+  <symbol id="ic-swap" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4v14M4 15l3 3 3-3M17 20V6M14 9l3-3 3 3"/></symbol>
+  <symbol id="ic-bolt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3 5 13.5h6L11 21l8-10.5h-6z"/></symbol>
+</svg>
+
+<!-- ========================================================================
+     Nav
+     ==================================================================== -->
+<header class="nav" id="nav">
+  <div class="nav__inner">
+    <a class="brand" href="#top">
+      <span class="brand__mark"><svg class="icon icon--sm" aria-hidden="true"><use href="#ic-car"/></svg></span>
+      Kay Rides
+    </a>
+
+    <nav class="nav__links" aria-label="Sections">
+      <a class="nav__link" href="#demo">The app</a>
+      <a class="nav__link" href="#features">What you can do</a>
+      <a class="nav__link" href="#fares">Fares</a>
+      <a class="nav__link" href="#sharing">Sharing</a>
+      <a class="nav__link" href="#drivers">Drivers</a>
+      <a class="nav__link" href="#campuses">Campuses</a>
+    </nav>
+
+    <div class="nav__right">
+      <div class="switcher" id="switcher">
+        <button class="switcher__btn press" id="switcher-btn" aria-haspopup="true" aria-expanded="false" aria-controls="switcher-menu">
+          <span class="switcher__swatch" aria-hidden="true"></span>
+          <span id="switcher-label">UPSA</span>
+          <svg class="icon icon--sm switcher__caret" aria-hidden="true"><use href="#ic-chevron-down"/></svg>
+        </button>
+        <div class="switcher__menu" id="switcher-menu" role="menu" aria-label="Choose a campus"></div>
+      </div>
+
+      <button class="nav__icon-btn press" id="mode-toggle" aria-label="Switch to dark mode">
+        <svg class="icon icon--sm" aria-hidden="true"><use href="#ic-moon" id="mode-icon"/></svg>
+      </button>
+
+      <button class="btn btn--primary press" data-open-demo>Open the app</button>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ======================================================================
+       Hero
+       ================================================================== -->
+  <section class="hero">
+    <div class="wrap hero__grid">
+      <div>
+        <p class="eyebrow reveal" style="margin-bottom:var(--sp-md)">Built for campuses in Ghana</p>
+        <h1 class="hero__title reveal" style="--reveal-delay:60ms">
+          Get across campus for <em id="hero-fare">GHS 5</em>.
+        </h1>
+        <p class="lede hero__lede reveal" style="--reveal-delay:120ms">
+          Kay Rides matches students with drivers who already serve their campus.
+          Ride on your own, or share with someone already heading the same way and
+          pay less for it. Pay from a wallet topped up with campus MoMo, or settle
+          with the driver after the trip.
+        </p>
+        <div class="hero__actions reveal" style="--reveal-delay:180ms">
+          <button class="btn btn--primary press" data-open-demo>
+            Try the rider app
+            <svg class="icon icon--sm" aria-hidden="true"><use href="#ic-arrow-right"/></svg>
+          </button>
+          <a class="btn btn--secondary press" href="#features">What you can do</a>
+        </div>
+        <div class="hero__stats reveal" style="--reveal-delay:240ms">
+          <div>
+            <div class="hero__stat-value" id="stat-campuses">5</div>
+            <div class="hero__stat-label">campuses configured</div>
+          </div>
+          <div>
+            <div class="hero__stat-value" id="stat-stops">31</div>
+            <div class="hero__stat-label">mapped stops</div>
+          </div>
+          <div>
+            <div class="hero__stat-value">3</div>
+            <div class="hero__stat-label">ride types</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="reveal" style="--reveal-delay:120ms">
+        <div class="book-widget">
+          <h2 class="book-widget__title">Where are you going?</h2>
+          <div class="book-widget__fields">
+            <button class="book-widget__field press" data-open-demo data-demo-screen="plan">
+              <span class="picker__dot" aria-hidden="true"></span>
+              <span id="widget-origin">Main Gate</span>
+            </button>
+            <button class="book-widget__field press" data-open-demo data-demo-screen="plan">
+              <span class="picker__square" aria-hidden="true"></span>
+              <span id="widget-destination">Joshua Alabi Library</span>
+            </button>
+          </div>
+          <button class="btn btn--primary press" style="width:100%" data-open-demo data-demo-screen="drivers">
+            See available drivers
+          </button>
+          <p class="book-widget__meta" id="widget-meta">From GHS 5.00 per rider · 10% off for 3+ seats</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       Live demo
+       ================================================================== -->
+  <section class="section section--tint" id="demo">
+    <div class="wrap demo">
+      <div class="demo__copy">
+        <div class="section__head reveal">
+          <p class="eyebrow">The rider app</p>
+          <h2>Not a screenshot. The actual flow.</h2>
+          <p class="lede">
+            Everything to the right runs. Pick your stops, choose a ride type,
+            watch a driver get matched, adjust seats and see the fare change,
+            then follow the trip to drop-off. The prices are the ones the
+            backend computes — base fare, tier surcharge and group discount all
+            come from the same rules the product ships with.
+          </p>
+        </div>
+
+        <div class="demo__steps" id="demo-steps" role="list"></div>
+      </div>
+
+      <div class="reveal" style="--reveal-delay:100ms">
+        <div class="device" id="device-inline">
+          <div class="device__island" aria-hidden="true"></div>
+          <div class="device__screen" id="device-screen">
+            <!-- filled by js/app.js -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       Features
+       ================================================================== -->
+  <section class="section" id="features">
+    <div class="wrap">
+      <div class="section__head reveal">
+        <p class="eyebrow">What you can do</p>
+        <h2>A ride for how students actually move.</h2>
+        <p class="lede">
+          Campus travel is not a series of unrelated trips. It is the same 7am
+          lecture every weekday, the same walk back from the library at 9pm, and
+          three friends going to the same place at the same time.
+        </p>
+      </div>
+      <div class="grid" id="feature-grid"></div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       Fares / tiers
+       ================================================================== -->
+  <section class="section section--tint" id="fares">
+    <div class="wrap">
+      <div class="section__head reveal">
+        <p class="eyebrow">Ride types</p>
+        <h2>One question: how much of the car do you want?</h2>
+        <p class="lede">
+          Every tier is the same drivers and the same campus. What changes is how
+          many seats get sold. Prices below are live — they follow whichever
+          campus is selected in the switcher.
+        </p>
+      </div>
+      <div class="tier-cards reveal" id="tier-cards"></div>
+
+      <div class="split" style="margin-top:var(--sp-xxl)">
+        <div class="reveal">
+          <h3 style="margin-bottom:var(--sp-md)">Paying for it</h3>
+          <div class="bullets">
+            <div class="bullet"><svg class="icon icon--sm" aria-hidden="true"><use href="#ic-check"/></svg><span><strong>Wallet.</strong> Top up over MTN MoMo to the campus number. The forwarder credits it without a payment provider in between.</span></div>
+            <div class="bullet"><svg class="icon icon--sm" aria-hidden="true"><use href="#ic-check"/></svg><span><strong>Pay later.</strong> Low balance is not a blocker. Book anyway and settle with the driver, or top up before drop-off.</span></div>
+            <div class="bullet"><svg class="icon icon--sm" aria-hidden="true"><use href="#ic-check"/></svg><span><strong>Nothing is charged up front.</strong> The wallet is debited when the driver accepts, not when you tap.</span></div>
+            <div class="bullet"><svg class="icon icon--sm" aria-hidden="true"><use href="#ic-check"/></svg><span><strong>Passes and bundles.</strong> A pass covers <em>your own seat</em>. Book for friends and you pay their fares — said plainly, before the car, not at drop-off.</span></div>
+          </div>
+        </div>
+        <div class="reveal" style="--reveal-delay:80ms">
+          <div class="card" style="padding:var(--sp-lg)">
+            <p class="eyebrow" style="margin-bottom:var(--sp-md)">Passes on this campus</p>
+            <div id="pass-list"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       Sharing
+       ================================================================== -->
+  <section class="section" id="sharing">
+    <div class="wrap">
+      <div class="section__head reveal">
+        <p class="eyebrow">Sharing a ride</p>
+        <h2>The car was already going that way.</h2>
+        <p class="lede">
+          Pooling is not a discount bolted onto a normal ride. It is the app
+          noticing that a driver already carrying someone can pick you up without
+          going far out of their way — and refusing the match when they can't.
+        </p>
+      </div>
+      <div class="pool-demo">
+        <div class="pool-demo__stage reveal" id="pool-stage"></div>
+        <div class="pool-steps reveal" style="--reveal-delay:80ms">
+          <div class="pool-step"><span class="pool-step__dot">1</span><div><div class="pool-step__title">Ama is already in a car</div><p class="pool-step__body">Heading from the Canteen to the JCR. Three seats still empty.</p></div></div>
+          <div class="pool-step"><span class="pool-step__dot">2</span><div><div class="pool-step__title">You ask for a ride nearby</div><p class="pool-step__body">Main Gate to the Library. The matcher checks what adding you would cost the trip already running.</p></div></div>
+          <div class="pool-step"><span class="pool-step__dot">3</span><div><div class="pool-step__title">The detour is measured, not guessed</div><p class="pool-step__body">If picking you up adds more delay than the campus cap allows, the match is rejected and you get your own car. Ama is not made late so that you can save GHS 2.</p></div></div>
+          <div class="pool-step"><span class="pool-step__dot">4</span><div><div class="pool-step__title">One car, two students, two fares</div><p class="pool-step__body">Same driver, one route that already made sense. The seat count on the card tells you exactly what you're joining — <strong>1/4</strong> means one seat taken, three free.</p></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       Drivers
+       ================================================================== -->
+  <section class="section section--ink" id="drivers">
+    <div class="wrap split">
+      <div class="reveal">
+        <p class="eyebrow">For drivers</p>
+        <h2 style="margin:var(--sp-sm) 0 var(--sp-md)">Drive the campus you already know.</h2>
+        <p class="lede">
+          Kay Rides drivers are approved per campus, not dropped into a city-wide
+          pool. You get requests from the stops you already serve, you see the
+          fare before you accept, and earnings land in the same wallet the riders
+          pay from.
+        </p>
+        <div class="stat-row">
+          <div><div class="stat__value">Per campus</div><div class="stat__label">approval and coverage</div></div>
+          <div><div class="stat__value">Before accepting</div><div class="stat__label">you see route and fare</div></div>
+          <div><div class="stat__value">At drop-off</div><div class="stat__label">fare is taken, not up front</div></div>
+        </div>
+      </div>
+      <div class="reveal" style="--reveal-delay:80ms">
+        <div class="grid" style="grid-template-columns:1fr">
+          <div class="card" style="padding:var(--sp-lg)">
+            <h3 style="font-size:var(--fs-lg);margin-bottom:var(--sp-sm)">A request, as a driver sees it</h3>
+            <div class="row"><span class="row__label" style="color:inherit;opacity:.72">Route</span><span class="row__value">Main Gate → Library</span></div>
+            <div class="row"><span class="row__label" style="color:inherit;opacity:.72">Rider is</span><span class="row__value">3 min away</span></div>
+            <div class="row"><span class="row__label" style="color:inherit;opacity:.72">Seats</span><span class="row__value">1 of 4</span></div>
+            <div class="row row--total"><span class="row__label">You earn</span><span class="row__value" id="driver-earn">GHS 5.00</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       Campuses
+       ================================================================== -->
+  <section class="section" id="campuses">
+    <div class="wrap">
+      <div class="section__head reveal">
+        <p class="eyebrow">For campuses</p>
+        <h2>The whole app wears your colours.</h2>
+        <p class="lede">
+          A school is not a config flag. Its palette drives every surface in both
+          light and dark, its own stops are the only stops riders can pick, and
+          its operator sets the base fare, the group discount, and which ride
+          types are offered at all. Switch campus in the header and watch this
+          page and the app change together.
+        </p>
+      </div>
+      <div class="grid" id="campus-grid"></div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       FAQ
+       ================================================================== -->
+  <section class="section section--tint">
+    <div class="wrap">
+      <div class="section__head reveal">
+        <p class="eyebrow">Questions</p>
+        <h2>The ones that actually get asked.</h2>
+      </div>
+      <div class="faq reveal" id="faq"></div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       CTA
+       ================================================================== -->
+  <section class="section">
+    <div class="wrap">
+      <div class="cta-band reveal">
+        <div class="cta-band__inner">
+          <p class="eyebrow" style="color:color-mix(in srgb, var(--on-primary) 76%, transparent)">See it for yourself</p>
+          <h2>Walk the whole flow, end to end.</h2>
+          <p class="lede" style="color:color-mix(in srgb, var(--on-primary) 82%, transparent);margin-bottom:var(--sp-lg)">
+            Book a ride, add seats and watch the discount appear, get matched,
+            follow the trip, then check the wallet it came out of.
+          </p>
+          <button class="btn btn--secondary press" data-open-demo>
+            Open the rider app
+            <svg class="icon icon--sm" aria-hidden="true"><use href="#ic-arrow-right"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer__grid">
+      <div>
+        <a class="brand" href="#top" style="margin-bottom:var(--sp-sm)">
+          <span class="brand__mark"><svg class="icon icon--sm" aria-hidden="true"><use href="#ic-car"/></svg></span>
+          Kay Rides
+        </a>
+        <p style="font-size:var(--fs-sm);color:var(--on-surface-variant);max-width:32ch">
+          Ride-sharing for university campuses in Ghana.
+        </p>
+      </div>
+      <div>
+        <p class="footer__title">Riders</p>
+        <div class="footer__list">
+          <a href="#demo">Book a ride</a>
+          <a href="#fares">Fares and passes</a>
+          <a href="#sharing">Sharing a ride</a>
+        </div>
+      </div>
+      <div>
+        <p class="footer__title">Drivers</p>
+        <div class="footer__list">
+          <a href="#drivers">Driving on Kay Rides</a>
+          <a href="#drivers">Earnings</a>
+        </div>
+      </div>
+      <div>
+        <p class="footer__title">Campuses</p>
+        <div class="footer__list">
+          <a href="#campuses">Bring Kay Rides to your school</a>
+          <a href="#campuses">Operator controls</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <span>Kay Rides — demonstration build.</span>
+      <span id="footer-note">Showing UPSA · light</span>
+    </div>
+  </div>
+</footer>
+
+<!-- Full-screen demo. On a phone this is the only way the app is shown; on a
+     desktop it is the "expand" state of the inline device. -->
+<div class="demo-overlay" id="demo-overlay" role="dialog" aria-modal="true" aria-label="Kay Rides rider app demo">
+  <button class="demo-overlay__close press" id="demo-close" aria-label="Close the demo">
+    <svg class="icon icon--sm" aria-hidden="true"><use href="#ic-close"/></svg>
+  </button>
+  <div class="device" id="device-overlay">
+    <div class="device__island" aria-hidden="true"></div>
+    <div class="device__screen" id="device-screen-overlay"></div>
+  </div>
+</div>
+
+<script src="js/theme.js"></script>
+<script src="js/data.js"></script>
+<script src="js/map.js"></script>
+<script src="js/app.js"></script>
+<script src="js/landing.js"></script>
+</body>
+</html>
