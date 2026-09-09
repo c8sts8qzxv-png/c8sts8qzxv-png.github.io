@@ -28,15 +28,38 @@ This matters if you are showing it to someone who will ask.
 | Spacing grid, radii, type weights | `rider-app/src/theme/spacing.ts` + screen StyleSheets |
 | Press feedback (0.97 / 160ms / critically damped) | `rider-app/src/components/ui/PressableScale.tsx` |
 | Campuses, stops, coordinates | `prisma/seed.ts` |
-| Base fare, tier surcharges, group discount | `prisma/schema.prisma` School defaults |
+| Tier surcharges, group discount rule | `prisma/schema.prisma` School defaults |
 | Fare arithmetic | `rider-app/src/fare.ts` |
 | Formatting (GHS, seat ratio, ETA range) | `rider-app/src/format.ts` |
 | Ride tier names and copy | `rider-app/src/rideTier.ts` |
 | Pass wording | `rider-app/src/campusPassCopy.ts` |
 
-Verified: standard GHS 5.00/seat, comfort GHS 7.50 (+50%), independent
-GHS 12.50 (+150%); three seats = GHS 15.00 less a 10% group discount = GHS
-13.50.
+### The landing page quotes no fares
+
+Removed on 2026-09-09, and worth stating why rather than leaving it as an
+absence somebody re-adds later.
+
+Every campus operator sets its own `baseFarePesewas`. The schema says so, and
+`School.baseFarePesewas` carries the note that *"nothing in the app may state
+a fare without reading it - three screens used to claim a flat GHS 5.00 for
+every school."* The landing page was doing exactly that: quoting one school's
+number to readers at five. Uber Ghana quotes no fare on either its rider or
+its driver page for the same reason - a price is a function of a specific
+trip, not a headline.
+
+What stays is the part that really is constant: the tier surcharges
+(+50% / +150%), the group-discount rule ("10% off for 3+ seats"), and what a
+pass covers. What went is every amount - hero, booking widget, tier cards,
+pass list, driver earnings row.
+
+The pass price came out of `describeProduct()` in `js/data.js` rather than the
+markup, so it survived a source-level search and was only caught by reading
+the rendered DOM. If you re-check this, check the rendered page.
+
+**The demo inside the phone frame still shows fares**, because a fare
+calculator that shows no fare demonstrates nothing - watching the group
+discount appear is the point of it. The copy beside it says the amounts are
+illustrative and campus-set.
 
 **Not real:**
 
