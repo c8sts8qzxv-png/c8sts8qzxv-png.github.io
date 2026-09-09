@@ -1,7 +1,7 @@
 import { apiRequest } from './api';
 
 export interface Driver { id: string; schoolId: string; fullName: string; phone: string; email: string | null; }
-export interface School { id: string; name: string; alias: string | null; code: string; primaryColor?: string | null; }
+export interface School { id: string; name: string; alias: string | null; code: string; }
 export interface CampusNodeRef { id: string; name: string; latitude: number | null; longitude: number | null; }
 
 export interface LoginResponse {

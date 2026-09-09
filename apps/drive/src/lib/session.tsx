@@ -52,7 +52,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         if (cancelled) return;
         const mine = schools.find((s) => s.id === driver.schoolId) ?? null;
         setSchool(mine);
-        applyCampus(mine?.primaryColor ?? null);
+        applyCampus(mine?.code ?? null);
       })
       .catch(() => { /* colour is a nicety; never block the app on it */ });
     return () => { cancelled = true; };
