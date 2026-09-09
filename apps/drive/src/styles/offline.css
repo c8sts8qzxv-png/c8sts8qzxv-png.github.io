@@ -1,0 +1,71 @@
+/* ==========================================================================
+   Offline banner
+   --------------------------------------------------------------------------
+   Enters from above its own height, so the distance is correct whatever the
+   text wraps to. Slate rather than red, keeping the native app's reasoning:
+   no connection is a condition of the world, not an error the rider made.
+   ========================================================================== */
+.offline {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 90;
+  display: flex; justify-content: center;
+  padding: calc(env(safe-area-inset-top) + var(--sp-2)) var(--sp-3) 0;
+  pointer-events: none;
+
+  /* Percentage travel, not a pixel guess: -140% clears the pill and its own
+     top padding on any text length or font scale. */
+  transform: translateY(-140%);
+  opacity: 0;
+
+  /* Transitions, not keyframes. A flapping connection retargets a
+     transition from wherever it currently is; a keyframe would restart from
+     the top every time and stutter. */
+  transition:
+    transform var(--d-normal) var(--ease-out),
+    opacity   var(--d-fast)   var(--ease-out),
+    visibility 0s linear var(--d-normal);
+  visibility: hidden;
+}
+
+.offline[data-phase='offline'],
+.offline[data-phase='restored'] {
+  transform: translateY(0);
+  opacity: 1;
+  visibility: visible;
+  transition:
+    transform var(--d-normal) var(--ease-out),
+    opacity   var(--d-fast)   var(--ease-out),
+    visibility 0s;
+}
+
+.offline__pill {
+  display: flex; align-items: center; gap: var(--sp-2);
+  max-width: 520px;
+  padding: 10px var(--sp-4);
+  border-radius: var(--r-pill);
+  background: #475569;
+  color: #fff;
+  font-size: var(--t-small); font-weight: 600; line-height: 1.35;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.28);
+  transition: background-color var(--d-normal) var(--ease-out);
+}
+.offline[data-phase='restored'] .offline__pill { background: #2F7D5B; }
+
+.offline__dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: currentColor; flex: none;
+  opacity: 0.85;
+}
+/* Only while offline, and only as a slow pulse - a fast blink on a
+   persistent state becomes an irritant within seconds. */
+.offline[data-phase='offline'] .offline__dot { animation: pulse 1.8s ease-in-out infinite; }
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.35; }
+  50%      { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .offline[data-phase='offline'] .offline__dot { animation: none; opacity: 0.9; }
+}
