@@ -1,0 +1,167 @@
+/* ============================================================================
+   Traverse — design tokens
+   ----------------------------------------------------------------------------
+   Ported 1:1 from the rider app's theme layer so the web demo and the shipped
+   app cannot drift:
+
+     rider-app/src/theme/spacing.ts        -> --sp-*      (8dp grid)
+     rider-app/src/theme/schoolPalettes.ts -> injected by js/theme.js
+     rider-app/src/theme/index.ts          -> --success / --danger / elevation
+     rider-app/src/components/ui/PressableScale.tsx -> --press-scale, --dur-press
+
+   Colour tokens are NOT written here. They are computed at runtime by
+   js/theme.js, which is a straight port of theme/color.ts + schoolPalettes.ts
+   (including deriveDarkPalette's tonal maths), so switching campus or mode
+   produces exactly the values the app would produce. The values below the
+   `fallback` comment exist only so the first paint before JS runs is the UPSA
+   light palette rather than unstyled black-on-white.
+   ========================================================================== */
+
+:root {
+  /* -- 8dp grid (spacing.ts) ------------------------------------------ */
+  --sp-xs: 4px;
+  --sp-sm: 8px;
+  --sp-md: 16px;
+  --sp-lg: 24px;
+  --sp-xl: 32px;
+  --sp-xxl: 40px;
+
+  /* -- radii, read off the app's StyleSheets ------------------------- */
+  --r-sm: 10px;    /* book-confirmation button */
+  --r-md: 12px;    /* tier row, back button, fare error box */
+  --r-lg: 14px;    /* CTA, candidate card, icon badge */
+  --r-xl: 16px;    /* home primary/secondary buttons */
+  --r-2xl: 20px;   /* driver-list bottom sheet */
+  --r-3xl: 24px;   /* home bottom panel */
+  --r-pill: 999px; /* greeting chip, saved commute chip */
+
+  /* -- type scale ----------------------------------------------------
+     The app's sizes (22/17/16/15/13/12 at weight 800/700/600) extended
+     upward for the marketing page, which has no equivalent in the app.
+     Display sizes get negative tracking; small caps-y labels get positive. */
+  --fs-display: clamp(2.5rem, 1.4rem + 4.6vw, 4.5rem);
+  --fs-h1: clamp(2rem, 1.3rem + 2.8vw, 3.25rem);
+  --fs-h2: clamp(1.5rem, 1.15rem + 1.5vw, 2.25rem);
+  --fs-h3: 1.375rem;   /* 22px — app's screen title */
+  --fs-lg: 1.0625rem;  /* 17px — app's primary button / candidate name */
+  --fs-md: 1rem;       /* 16px — app's CTA text */
+  --fs-base: 0.9375rem;/* 15px — app's link text */
+  --fs-sm: 0.8125rem;  /* 13px — app's subtitle / meta */
+  --fs-xs: 0.75rem;    /* 12px — app's uppercase section label */
+
+  --tracking-display: -0.03em;
+  --tracking-tight: -0.015em;
+  --tracking-label: 0.06em;   /* savedTitle letterSpacing 0.6 at 12px */
+
+  --font-sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+
+  /* -- motion --------------------------------------------------------
+     Custom curves, not the CSS built-ins. The built-ins are too weak to read
+     as intentional; these are the strong variants. `ease-in` is deliberately
+     absent — it delays the first frame, which is the frame the user is
+     watching hardest. */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1); /* iOS drawer curve */
+
+  /* Durations, banded by what is moving. Everything interactive stays
+     under 300ms; only the sheet — a large surface travelling a long way —
+     is allowed more. */
+  --dur-press: 160ms;   /* PressableScale: 100–160ms band */
+  --dur-tip: 140ms;
+  --dur-pop: 200ms;
+  --dur-screen: 260ms;
+  --dur-sheet: 420ms;
+
+  --press-scale: 0.97;  /* PressableScale.PRESS_SCALE, unchanged */
+
+  /* -- elevation -----------------------------------------------------
+     The app shadows off #0F172A (slate-900) rather than pure black, which
+     is why its cards read as cool rather than muddy. Kept. */
+  --shadow-hue: 15 23 42;
+  --shadow-1: 0 2px 8px rgb(var(--shadow-hue) / 0.06);
+  --shadow-2: 0 4px 12px rgb(var(--shadow-hue) / 0.10);
+  --shadow-3: 0 8px 24px rgb(var(--shadow-hue) / 0.10);
+  --shadow-4: 0 16px 40px rgb(var(--shadow-hue) / 0.12);
+  --shadow-sheet: 0 -4px 24px rgb(var(--shadow-hue) / 0.10);
+  --shadow-cta: 0 8px 20px rgb(var(--shadow-hue) / 0.22);
+
+  /* -- layout -------------------------------------------------------- */
+  --page-max: 1200px;
+  --page-pad: clamp(1rem, 0.5rem + 2.4vw, 3rem);
+  --nav-h: 64px;
+
+  /* -- fallback palette: UPSA / light (schoolPalettes.ts UPSA) -------- */
+  --primary: #0E1F3D;
+  --on-primary: #FFFFFF;
+  --primary-container: #1C3259;
+  --on-primary-container: #FFFFFF;
+  --secondary: #C9962C;
+  --on-secondary: #2A1F00;
+  --secondary-container: #F3E2C0;
+  --on-secondary-container: #3A2C00;
+  --tertiary: #C9962C;
+  --on-tertiary: #2A1F00;
+
+  --background: #F8FAFC;
+  --surface: #FFFFFF;
+  --on-surface: #1C1B1F;
+  --on-surface-variant: #49454F;
+  --surface-variant: #E7E0EC;
+  --outline: #79747E;
+  --outline-variant: #CAC4D0;
+
+  --success: #059669;
+  --danger: #DC2626;
+
+  /* Contrast-corrected brand accent — see readableOn() in js/theme.js.
+     UPSA's gold already clears 4.5:1, so the fallback is the gold itself. */
+  --accent-text: #8A6415;
+  --accent-on-surface: #8A6415;
+
+  --elev-1: #FFFFFF;
+  --elev-2: #FFFFFF;
+  --elev-3: #FFFFFF;
+
+  /* Map ink — derived from primary at runtime; fallback is UPSA navy. */
+  --map-land: #EEF2F7;
+  --map-road: #FFFFFF;
+  --map-road-line: #DCE3EC;
+  --map-green: #DCEBDE;
+  --map-water: #CFE0F0;
+}
+
+/* Dark-mode fallback for first paint. js/theme.js replaces these with values
+   derived by the same deriveDarkPalette() maths the app uses. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-mode="light"]) {
+    --primary: #8FA4CC;
+    --on-primary: #1B2740;
+    --primary-container: #17284A;
+    --on-primary-container: #C3CFE6;
+    --secondary: #E7C88E;
+    --on-secondary: #4A3708;
+    --secondary-container: #E8CD96;
+    --on-secondary-container: #F1DEB8;
+    --tertiary: #E7C88E;
+
+    --background: #1C1B1F;
+    --surface: #1C1B1F;
+    --on-surface: #E6E1E5;
+    --on-surface-variant: #CAC4D0;
+    --surface-variant: #49454F;
+    --outline: #938F99;
+    --outline-variant: #49454F;
+
+    --accent-text: #E7C88E;
+    --accent-on-surface: #E7C88E;
+    --shadow-hue: 0 0 0;
+    --map-land: #23252B;
+    --map-road: #2E3138;
+    --map-road-line: #3A3E47;
+    --map-green: #223026;
+    --map-water: #1E2A38;
+  }
+}

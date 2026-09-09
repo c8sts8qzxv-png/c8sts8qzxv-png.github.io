@@ -1,0 +1,938 @@
+/* ============================================================================
+   app.css — the rider app, on the web
+   ----------------------------------------------------------------------------
+   Geometry is read off the app's StyleSheets rather than eyeballed: the bottom
+   panel's 24px top radii, the 44x44 icon badge at radius 14, the 44x4 sheet
+   handle, the 52px candidate avatar, the 64px tab bar, the 16px primary button
+   with 18px vertical padding. Where a number here differs from the app it is
+   because the app's value was a react-native unit that has no web equivalent,
+   not because it was redesigned by accident.
+   ========================================================================== */
+
+/* ---------------------------------------------------------------------------
+   Device frame
+   -------------------------------------------------------------------------- */
+
+.device {
+  position: relative;
+  width: 390px;              /* iPhone 15 Pro logical width — the app's target */
+  height: 844px;
+  max-height: min(844px, calc(100dvh - 120px));
+  border-radius: 46px;
+  padding: 12px;
+  background: linear-gradient(160deg, #2b2f38, #14161b 60%, #23262d);
+  box-shadow:
+    0 40px 80px -20px rgb(var(--shadow-hue) / 0.45),
+    0 0 0 1px rgb(255 255 255 / 0.06) inset,
+    0 2px 6px rgb(255 255 255 / 0.12) inset;
+  flex: none;
+}
+
+.device__screen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 34px;
+  overflow: hidden;
+  background: var(--background);
+  display: flex;
+  flex-direction: column;
+  isolation: isolate;
+}
+
+/* Dynamic Island. Cosmetic, but its absence is the thing that makes a device
+   mock look like a rounded rectangle instead of a phone. */
+.device__island {
+  position: absolute;
+  top: 10px; left: 50%;
+  transform: translateX(-50%);
+  width: 104px; height: 30px;
+  border-radius: var(--r-pill);
+  background: #0b0c0f;
+  z-index: 60;
+  pointer-events: none;
+}
+
+.device__status {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 26px 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--on-surface);
+  z-index: 55;
+  pointer-events: none;
+  /* The status bar sits over the map on some screens and over a plain
+     background on others; a mix-blend keeps it legible on both without
+     needing per-screen overrides. */
+  mix-blend-mode: normal;
+}
+.device__status-right { display: flex; align-items: center; gap: 5px; }
+
+/* On a phone the frame is theatre — the demo simply is the page. */
+@media (max-width: 860px) {
+  .device {
+    width: 100%;
+    /* A real height, not 100%: the inline frame's parent is auto-height, so a
+       percentage collapses it to nothing. dvh (not vh) so the mobile browser's
+       collapsing address bar does not crop the tab bar off the bottom. */
+    height: min(760px, 78dvh);
+    max-height: none;
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
+    background: none;
+  }
+  .device__screen { border-radius: 0; }
+  .device__island { display: none; }
+}
+
+/* ---------------------------------------------------------------------------
+   Screen stack
+   ---------------------------------------------------------------------------
+   Push = incoming slides in from the right, outgoing drifts a third of the way
+   left and dims. Pop reverses it. This is spatial consistency: the direction a
+   screen leaves in is the direction it comes back from, which is what makes a
+   back gesture feel like undo rather than like a new navigation.
+
+   260ms, ease-out. Never ease-in: it holds the first frame still, and the
+   first frame is the one the user is watching hardest.
+   -------------------------------------------------------------------------- */
+
+.screens {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+}
+
+.screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--background);
+  overflow: hidden;
+  visibility: hidden;
+  opacity: 0;
+  transform: translateX(100%);
+}
+
+.screen.is-active {
+  visibility: visible;
+  opacity: 1;
+  transform: none;
+  z-index: 2;
+}
+
+.screen.is-animating {
+  transition: transform var(--dur-screen) var(--ease-out),
+              opacity var(--dur-screen) var(--ease-out),
+              visibility 0s;
+}
+
+.screen.is-leaving {
+  visibility: visible;
+  opacity: 0.6;
+  transform: translateX(-33%);
+  z-index: 1;
+}
+
+.screen.is-leaving-back {
+  visibility: visible;
+  opacity: 0.6;
+  transform: translateX(100%);
+  z-index: 3;
+}
+
+.screen.is-entering-back {
+  transform: translateX(-33%);
+  opacity: 0.6;
+}
+
+.screen--map { background: transparent; }
+
+.screen__body {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: 0 var(--sp-md) var(--sp-lg);
+}
+
+/* ---------------------------------------------------------------------------
+   App bar
+   -------------------------------------------------------------------------- */
+
+.appbar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-md);
+  padding: 58px var(--sp-md) var(--sp-md);
+  background: var(--background);
+  flex: none;
+}
+
+.appbar__back,
+.map-fab {
+  width: 40px; height: 40px;
+  border-radius: var(--r-md);
+  display: grid;
+  place-items: center;
+  background: var(--surface-variant);
+  color: var(--on-surface);
+  flex: none;
+}
+
+.appbar__title {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.appbar__sub {
+  font-size: var(--fs-sm);
+  color: var(--on-surface-variant);
+  margin-top: 2px;
+}
+
+/* ---------------------------------------------------------------------------
+   Map layer
+   -------------------------------------------------------------------------- */
+
+.map {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: var(--map-land);
+}
+.map svg { width: 100%; height: 100%; display: block; }
+
+.map-label {
+  font-family: var(--font-sans);
+  font-size: 17px;
+  font-weight: 700;
+  fill: var(--on-surface);
+  paint-order: stroke;
+  stroke: var(--surface);
+  stroke-width: 5px;
+  stroke-linejoin: round;
+}
+
+.map-stop.is-active { filter: drop-shadow(0 3px 6px rgb(var(--shadow-hue) / 0.28)); }
+
+.map-car {
+  filter: drop-shadow(0 2px 3px rgb(var(--shadow-hue) / 0.35));
+}
+
+.map-fab--float {
+  position: absolute;
+  left: var(--sp-md);
+  top: 58px;
+  z-index: 10;
+  background: var(--surface);
+  box-shadow: var(--shadow-2);
+  border-radius: 20px;
+}
+
+/* Greeting chip — home screen, top-left (app: borderRadius 999, shadow 0/4/10) */
+.greet {
+  position: absolute;
+  left: var(--sp-md);
+  top: 58px;
+  z-index: 10;
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-xs);
+  padding: var(--sp-sm) 12px;
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  box-shadow: var(--shadow-2);
+}
+.greet__hi { font-size: 13px; font-weight: 600; color: var(--on-surface-variant); }
+.greet__name { font-size: 15px; font-weight: 800; }
+
+/* ---------------------------------------------------------------------------
+   Bottom sheet
+   ---------------------------------------------------------------------------
+   translateY in percent, so the sheet hides by exactly its own height no
+   matter what it contains. The iOS drawer curve, and 420ms — a large surface
+   travelling a long way is the one case where the sub-300ms rule is wrong;
+   at 200ms this reads as a snap rather than as a sheet.
+   -------------------------------------------------------------------------- */
+
+.sheet {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  z-index: 20;
+  background: var(--background);
+  border-radius: var(--r-3xl) var(--r-3xl) 0 0;
+  box-shadow: var(--shadow-sheet);
+  padding: var(--sp-sm) var(--sp-md) var(--sp-lg);
+  transform: translateY(0);
+  transition: transform var(--dur-sheet) var(--ease-sheet);
+  max-height: 88%;
+  display: flex;
+  flex-direction: column;
+}
+
+.sheet.is-hidden { transform: translateY(100%); }
+
+.sheet__handle {
+  width: 44px; height: 4px;
+  border-radius: 2px;
+  background: var(--outline-variant);
+  margin: 0 auto var(--sp-md);
+  flex: none;
+}
+
+.sheet__scroll {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  margin-inline: calc(var(--sp-md) * -1);
+  padding-inline: var(--sp-md);
+}
+
+.sheet__head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-md);
+  margin-bottom: var(--sp-lg);
+}
+
+.sheet__badge {
+  width: 44px; height: 44px;
+  border-radius: var(--r-lg);
+  display: grid; place-items: center;
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+  flex: none;
+}
+
+.sheet__title {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  margin-bottom: var(--sp-xs);
+}
+.sheet__sub {
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--on-surface-variant);
+}
+
+/* ---------------------------------------------------------------------------
+   App buttons (home screen geometry)
+   -------------------------------------------------------------------------- */
+
+.a-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-sm);
+  width: 100%;
+  border-radius: var(--r-xl);
+  padding: 18px var(--sp-md);
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.a-btn--primary {
+  background: var(--primary);
+  color: var(--on-primary);
+  box-shadow: 0 8px 16px rgb(var(--shadow-hue) / 0.22);
+}
+
+.a-btn--secondary {
+  background: var(--surface);
+  color: var(--on-surface);
+  border: 1px solid var(--outline);
+  padding: 16px var(--sp-md);
+  font-size: 16px;
+  font-weight: 700;
+  margin-top: var(--sp-sm);
+  box-shadow: none;
+}
+
+.a-btn[disabled] {
+  background: var(--surface-variant);
+  color: var(--on-surface-variant);
+  border-color: transparent;
+  box-shadow: none;
+  pointer-events: none;
+}
+
+.a-links {
+  display: flex;
+  justify-content: center;
+  gap: var(--sp-lg);
+  margin-top: var(--sp-md);
+  flex-wrap: wrap;
+}
+
+.a-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-xs);
+  padding: var(--sp-xs);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+/* Saved commutes */
+.saved { margin-top: var(--sp-md); }
+.saved__title {
+  font-size: 12px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--on-surface-variant);
+  margin-bottom: var(--sp-xs);
+}
+.saved__row {
+  display: flex; gap: var(--sp-sm);
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 2px;
+}
+.saved__row::-webkit-scrollbar { display: none; }
+.saved__chip {
+  flex: none;
+  max-width: 220px;
+  padding: var(--sp-sm) var(--sp-md);
+  border-radius: var(--r-pill);
+  background: var(--surface-variant);
+  color: var(--on-surface);
+  font-size: 13px; font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---------------------------------------------------------------------------
+   Stop picker
+   -------------------------------------------------------------------------- */
+
+.picker { display: flex; flex-direction: column; gap: var(--sp-sm); }
+
+.picker__field {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-md);
+  width: 100%;
+  padding: var(--sp-md);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  border: 1px solid var(--outline-variant);
+  text-align: left;
+  min-height: 56px;
+}
+.picker__field.is-active {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 14%, transparent);
+}
+.picker__field > span:not([class]) { flex: 1; min-width: 0; }
+.picker__dot { width: 10px; height: 10px; border-radius: 50%; background: var(--primary); flex: none; }
+.picker__square { width: 10px; height: 10px; border-radius: 2px; background: var(--primary); flex: none; }
+.picker__label { display: block; font-size: 12px; font-weight: 700; color: var(--on-surface-variant); text-transform: uppercase; letter-spacing: 0.05em; }
+.picker__value { display: block; font-size: 15px; font-weight: 700; margin-top: 1px; }
+.picker__value.is-empty { font-weight: 500; color: var(--on-surface-variant); }
+
+.stops { margin-top: var(--sp-md); display: flex; flex-direction: column; gap: 2px; }
+
+.stop {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-md);
+  width: 100%;
+  padding: 12px var(--sp-sm);
+  border-radius: var(--r-md);
+  text-align: left;
+  min-height: 56px;
+  color: var(--on-surface);
+  /* Rows enter staggered as the list renders. 45ms apart: enough to read as a
+     cascade, short enough that the last row is in under a quarter second. */
+  animation: stop-in 260ms var(--ease-out) both;
+  animation-delay: var(--stop-delay, 0ms);
+}
+@keyframes stop-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+.stop:disabled { opacity: 0.38; pointer-events: none; }
+.stop__icon {
+  width: 38px; height: 38px; border-radius: var(--r-md);
+  display: grid; place-items: center;
+  background: var(--surface-variant);
+  color: var(--on-surface-variant);
+  flex: none;
+}
+.stop__name { display: block; font-size: 15px; font-weight: 700; }
+.stop__meta { font-size: 12px; color: var(--on-surface-variant); margin-top: 1px; }
+
+/* ---------------------------------------------------------------------------
+   Ride tier picker (RideTierPicker.tsx: radius 12, minHeight 56, gap 8)
+   -------------------------------------------------------------------------- */
+
+.tiers { display: flex; flex-direction: column; gap: var(--sp-sm); }
+
+.tier {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-md);
+  width: 100%;
+  min-height: 56px;
+  padding: var(--sp-md);
+  border-radius: var(--r-md);
+  border: 1px solid var(--outline-variant);
+  background: var(--surface);
+  color: var(--on-surface);
+  text-align: left;
+}
+
+/* Selected fills with primaryContainer and pairs it with its OWN on- colour.
+   The app has a comment about exactly this: pairing the container with
+   `primary` put navy text on a navy background and made the one option the
+   rider had chosen the only one they could not read. */
+.tier.is-selected {
+  border-color: var(--primary);
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+}
+.tier.is-selected .tier__blurb { color: inherit; opacity: 0.9; }
+
+.tier__label { font-size: 15px; font-weight: 700; }
+.tier__blurb { font-size: 13px; color: var(--on-surface-variant); margin-top: 1px; }
+.tier__price { font-size: 15px; font-weight: 800; margin-left: auto; white-space: nowrap; }
+
+/* ---------------------------------------------------------------------------
+   Driver candidate card (DriverCandidateCard.tsx: radius 14, avatar 52)
+   -------------------------------------------------------------------------- */
+
+.cand {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-md);
+  width: 100%;
+  padding: var(--sp-md);
+  margin-bottom: 6px;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--outline-variant);
+  background: var(--surface);
+  color: var(--on-surface);
+  box-shadow: var(--shadow-1);
+  text-align: left;
+  animation: stop-in 300ms var(--ease-out) both;
+  animation-delay: var(--stop-delay, 0ms);
+}
+.cand.is-selecting { background: var(--primary-container); color: var(--on-primary-container); }
+
+.cand__avatar {
+  width: 52px; height: 52px;
+  border-radius: 26px;
+  display: grid; place-items: center;
+  background: var(--surface-variant);
+  color: var(--on-surface-variant);
+  font-weight: 800; font-size: 17px;
+  flex: none;
+}
+.cand__body { flex: 1; min-width: 0; }
+.cand__top { display: flex; justify-content: space-between; align-items: center; gap: var(--sp-sm); }
+.cand__name { font-size: 17px; font-weight: 800; letter-spacing: -0.01em; }
+.cand__eta { font-size: 15px; font-weight: 700; }
+.cand__meta { font-size: 13px; color: var(--on-surface-variant); margin-top: var(--sp-xs); }
+.cand.is-selecting .cand__meta, .cand.is-selecting .cand__route { color: inherit; opacity: 0.92; }
+.cand__route { font-size: 12px; font-weight: 600; color: var(--on-surface-variant); margin-top: var(--sp-xs); }
+.cand__chev { color: var(--on-surface-variant); flex: none; }
+
+.pool-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  margin-top: var(--sp-xs);
+  padding: 3px 9px;
+  border-radius: var(--r-pill);
+  background: var(--secondary-container);
+  color: var(--on-secondary-container);
+  font-size: 11px; font-weight: 700;
+}
+
+/* ---------------------------------------------------------------------------
+   Rows, fare breakdown, steppers
+   -------------------------------------------------------------------------- */
+
+.a-card {
+  background: var(--elev-1);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--r-lg);
+  padding: var(--sp-md);
+  margin-bottom: var(--sp-md);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-md);
+  padding: var(--sp-sm) 0;
+}
+.row + .row { border-top: 1px solid var(--outline-variant); }
+.row__label { font-size: 14px; color: var(--on-surface-variant); }
+.row__value { font-size: 14px; font-weight: 700; }
+.row__value--good { color: var(--success); }
+.row__label--good { color: var(--success); }
+.row--total .row__label { color: var(--on-surface); font-weight: 700; }
+.row--total .row__value { font-size: 17px; font-weight: 800; }
+
+.stepper { display: flex; align-items: center; gap: var(--sp-sm); }
+.stepper__btn {
+  width: 32px; height: 32px;
+  border-radius: var(--r-pill);
+  display: grid; place-items: center;
+  background: var(--secondary-container);
+  color: var(--on-secondary-container);
+  font-size: 18px; font-weight: 800; line-height: 1;
+}
+.stepper__btn:disabled { opacity: 0.4; pointer-events: none; }
+.stepper__value { min-width: 22px; text-align: center; font-size: 16px; font-weight: 800; }
+
+.seg {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3px;
+  padding: 3px;
+  border-radius: var(--r-md);
+  background: var(--surface-variant);
+  margin: var(--sp-sm) 0;
+}
+.seg__btn {
+  padding: 9px;
+  border-radius: 9px;
+  font-size: 14px; font-weight: 700;
+  color: var(--on-surface-variant);
+}
+.seg__btn.is-on {
+  background: var(--surface);
+  color: var(--on-surface);
+  box-shadow: var(--shadow-1);
+}
+.seg__btn:disabled { opacity: 0.4; pointer-events: none; }
+
+.field {
+  display: flex; gap: var(--sp-sm); margin-top: var(--sp-xs);
+}
+.field input {
+  flex: 1; min-width: 0;
+  padding: 11px var(--sp-md);
+  border-radius: var(--r-md);
+  border: 1px solid var(--outline);
+  background: var(--surface);
+  font-size: 15px;
+  text-transform: uppercase;
+}
+.field input::placeholder { text-transform: none; color: var(--on-surface-variant); }
+.field input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 14%, transparent); }
+
+.field__btn {
+  padding: 11px var(--sp-md);
+  border-radius: var(--r-md);
+  border: 1px solid var(--outline);
+  font-size: 14px; font-weight: 700;
+  color: var(--on-surface);
+}
+
+.note { font-size: 12px; margin-top: var(--sp-xs); }
+.note--good { color: var(--success); }
+.note--bad { color: var(--danger); }
+.note--muted { color: var(--on-surface-variant); }
+
+.label-cap {
+  font-size: 12px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.05em;
+  color: var(--on-surface-variant);
+  margin-top: var(--sp-sm);
+}
+
+.disclaimer {
+  font-size: 12px;
+  color: var(--on-surface-variant);
+  text-align: center;
+  margin: var(--sp-md) 0;
+  line-height: 1.5;
+}
+
+/* ---------------------------------------------------------------------------
+   Empty / waiting states
+   -------------------------------------------------------------------------- */
+
+.center-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--sp-xl);
+  gap: var(--sp-sm);
+}
+.center-state__title { font-size: 17px; font-weight: 700; margin-top: var(--sp-sm); }
+.center-state__body { font-size: 14px; color: var(--on-surface-variant); line-height: 1.5; }
+
+/* A faster spinner makes the same wait feel shorter. 640ms, not the usual 1s. */
+.spinner {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  border: 3px solid var(--outline-variant);
+  border-top-color: var(--primary);
+  animation: spin 640ms linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Radar pulse for "finding a driver" — expanding rings that never fully
+   vanish, so it reads as searching outward rather than as a blinking dot. */
+.radar { position: relative; width: 96px; height: 96px; display: grid; place-items: center; }
+.radar__core { width: 18px; height: 18px; border-radius: 50%; background: var(--primary); }
+.radar__ring {
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  border: 2px solid var(--primary);
+  opacity: 0;
+  animation: radar 2000ms var(--ease-out) infinite;
+}
+.radar__ring:nth-child(2) { animation-delay: 660ms; }
+.radar__ring:nth-child(3) { animation-delay: 1320ms; }
+@keyframes radar {
+  0%   { transform: scale(0.25); opacity: 0.55; }
+  100% { transform: scale(1);    opacity: 0; }
+}
+
+/* ---------------------------------------------------------------------------
+   Trip / driver-assigned card
+   -------------------------------------------------------------------------- */
+
+.driver-card { display: flex; align-items: center; gap: var(--sp-md); }
+.driver-card__avatar {
+  width: 56px; height: 56px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--primary-container); color: var(--on-primary-container);
+  font-size: 19px; font-weight: 800;
+  flex: none;
+}
+.driver-card__name { font-size: 19px; font-weight: 800; letter-spacing: -0.015em; }
+.driver-card__car { font-size: 13px; color: var(--on-surface-variant); margin-top: 2px; }
+.driver-card__actions { display: flex; gap: var(--sp-sm); margin-left: auto; }
+.icon-btn {
+  width: 42px; height: 42px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--surface-variant); color: var(--on-surface);
+  flex: none;
+}
+.icon-btn--gold { background: var(--secondary); color: var(--on-secondary); }
+
+.timeline { margin: var(--sp-md) 0; }
+.timeline__row { display: flex; gap: var(--sp-md); align-items: flex-start; }
+.timeline__rail { display: flex; flex-direction: column; align-items: center; padding-top: 5px; }
+.timeline__dot { width: 10px; height: 10px; border-radius: 50%; background: var(--primary); }
+.timeline__dot--sq { border-radius: 2px; }
+.timeline__line { width: 2px; flex: 1; min-height: 26px; background: var(--outline-variant); }
+.timeline__label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--on-surface-variant); }
+.timeline__value { font-size: 15px; font-weight: 700; margin-bottom: var(--sp-md); }
+
+.progress {
+  height: 5px;
+  border-radius: var(--r-pill);
+  background: var(--surface-variant);
+  overflow: hidden;
+  margin: var(--sp-sm) 0 var(--sp-md);
+}
+.progress__bar {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--primary);
+  width: 0%;
+  /* linear, because constant motion is what a progress bar depicts; an eased
+     progress bar claims the trip sped up and slowed down. */
+  transition: width 900ms linear;
+}
+
+/* ---------------------------------------------------------------------------
+   Tab bar (tabBar.ts: height 64, radius 0, label 11/600, shadow 0/-4/12)
+   -------------------------------------------------------------------------- */
+
+.tabbar {
+  flex: none;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  height: 64px;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: var(--surface);
+  box-shadow: 0 -4px 12px rgb(var(--shadow-hue) / 0.06);
+  z-index: 30;
+  position: relative;
+}
+
+.tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  color: var(--on-surface-variant);
+  transition: color var(--dur-pop) var(--ease-out);
+}
+.tab.is-on { color: var(--primary); }
+.tab__label { font-size: 11px; font-weight: 600; }
+.tab__icon { transition: transform var(--dur-press) var(--ease-out); }
+.tab.is-on .tab__icon { transform: translateY(-1px); }
+
+/* ---------------------------------------------------------------------------
+   Wallet / history / profile
+   -------------------------------------------------------------------------- */
+
+.balance {
+  border-radius: var(--r-2xl);
+  padding: var(--sp-lg);
+  background: linear-gradient(150deg, var(--primary), var(--primary-container));
+  color: var(--on-primary);
+  box-shadow: var(--shadow-3);
+  position: relative;
+  overflow: hidden;
+}
+/* A single soft highlight, angled off the corner. Flat brand colour on a card
+   this large reads as a placeholder; a gradient plus one highlight reads as an
+   object. */
+.balance::after {
+  content: "";
+  position: absolute;
+  top: -60%; right: -20%;
+  width: 260px; height: 260px;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--secondary) 34%, transparent), transparent 68%);
+  pointer-events: none;
+}
+.balance__label { font-size: 13px; font-weight: 600; opacity: 0.82; }
+.balance__amount { font-size: 38px; font-weight: 800; letter-spacing: -0.03em; margin: 2px 0 var(--sp-sm); }
+.balance__hint { font-size: 13px; font-weight: 600; opacity: 0.82; }
+
+.ledger__row {
+  display: flex; align-items: center; gap: var(--sp-md);
+  padding: 12px 0;
+}
+.ledger__row + .ledger__row { border-top: 1px solid var(--outline-variant); }
+.ledger__icon {
+  width: 38px; height: 38px; border-radius: var(--r-md);
+  display: grid; place-items: center; flex: none;
+  background: var(--surface-variant); color: var(--on-surface-variant);
+}
+.ledger__kind { font-size: 15px; font-weight: 700; }
+.ledger__detail { font-size: 12px; color: var(--on-surface-variant); margin-top: 1px; }
+.ledger__amt { margin-left: auto; font-size: 15px; font-weight: 800; white-space: nowrap; }
+.ledger__amt--in { color: var(--success); }
+
+.trip-row { display: flex; align-items: flex-start; gap: var(--sp-md); padding: 14px 0; }
+.trip-row + .trip-row { border-top: 1px solid var(--outline-variant); }
+.trip-row__route { font-size: 15px; font-weight: 700; }
+.trip-row__when { font-size: 12px; color: var(--on-surface-variant); margin-top: 2px; }
+.trip-row__note { font-size: 12px; color: var(--on-surface-variant); margin-top: 3px; }
+.trip-row__fare { margin-left: auto; font-size: 15px; font-weight: 800; white-space: nowrap; }
+
+.profile-hero {
+  background: linear-gradient(150deg, var(--primary), var(--primary-container));
+  color: var(--on-primary);
+  padding: 62px var(--sp-md) var(--sp-lg);
+  text-align: center;
+}
+.profile-hero__avatar {
+  width: 72px; height: 72px; border-radius: 50%;
+  margin: 0 auto var(--sp-sm);
+  display: grid; place-items: center;
+  background: var(--on-primary); color: var(--primary);
+  font-size: 25px; font-weight: 800;
+}
+.profile-hero__name { font-size: 22px; font-weight: 800; letter-spacing: -0.02em; }
+.profile-hero__school { font-size: 13px; opacity: 0.85; margin-top: 2px; }
+
+.glance { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-sm); margin-top: var(--sp-md); }
+.glance__cell {
+  background: var(--elev-1);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--r-md);
+  padding: 12px var(--sp-sm);
+  text-align: center;
+}
+.glance__value { font-size: 17px; font-weight: 800; }
+.glance__label { font-size: 11px; color: var(--on-surface-variant); margin-top: 1px; }
+
+.menu__item {
+  display: flex; align-items: center; gap: var(--sp-md);
+  width: 100%; padding: 13px var(--sp-sm);
+  border-radius: var(--r-md);
+  color: var(--on-surface);
+  text-align: left;
+}
+.menu__item + .menu__item { border-top: 1px solid var(--outline-variant); border-radius: 0; }
+.menu__label { font-size: 15px; font-weight: 600; flex: 1; }
+.menu__value { font-size: 14px; color: var(--on-surface-variant); }
+
+/* ---------------------------------------------------------------------------
+   Toast
+   ---------------------------------------------------------------------------
+   Enters and exits from the same edge, so a swipe-away would feel like the
+   direction it already moves in. A transition, not a keyframe, because toasts
+   can be replaced faster than one finishes and a keyframe would restart from
+   zero mid-flight.
+   -------------------------------------------------------------------------- */
+
+.toast {
+  position: absolute;
+  left: var(--sp-md); right: var(--sp-md);
+  bottom: 84px;
+  z-index: 50;
+  display: flex; align-items: center; gap: var(--sp-sm);
+  padding: 13px var(--sp-md);
+  border-radius: var(--r-lg);
+  background: var(--on-surface);
+  color: var(--surface);
+  font-size: 14px; font-weight: 600;
+  box-shadow: var(--shadow-3);
+  opacity: 0;
+  transform: translateY(120%);
+  transition: transform 380ms var(--ease-out), opacity 240ms var(--ease-out);
+  pointer-events: none;
+}
+.toast.is-on { opacity: 1; transform: none; }
+
+/* ---------------------------------------------------------------------------
+   Login
+   -------------------------------------------------------------------------- */
+
+.login {
+  flex: 1;
+  display: flex; flex-direction: column;
+  justify-content: flex-end;
+  padding: var(--sp-lg) var(--sp-md) var(--sp-xl);
+  background:
+    radial-gradient(120% 70% at 50% 0%, color-mix(in srgb, var(--primary) 16%, transparent), transparent 70%),
+    var(--background);
+}
+.login__mark {
+  width: 62px; height: 62px; border-radius: 20px;
+  display: grid; place-items: center;
+  background: var(--primary); color: var(--on-primary);
+  box-shadow: var(--shadow-3);
+  margin-bottom: var(--sp-lg);
+}
+.login__title { font-size: 30px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; }
+.login__sub { font-size: 15px; color: var(--on-surface-variant); margin-top: var(--sp-sm); margin-bottom: var(--sp-xl); }
+.login__field { margin-bottom: var(--sp-md); }
+.login__field label { display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--on-surface-variant); margin-bottom: 6px; }
+.login__field input {
+  width: 100%;
+  padding: 14px var(--sp-md);
+  border-radius: var(--r-md);
+  border: 1px solid var(--outline);
+  background: var(--surface);
+  font-size: 16px; font-weight: 600;
+}
+.login__field input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 14%, transparent); }
