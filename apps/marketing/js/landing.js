@@ -143,9 +143,13 @@
         '<div style="display:flex;align-items:center;gap:10px">' + icon(t.icon, 'icon--lg') +
           '<span class="tier-card__name">' + esc(t.label) + '</span></div>' +
         (on
-          ? '<div class="tier-card__price">' + D.formatGhs(D.tierPerSeatPesewas(t.tier)) + '</div>' +
+          ? '<div class="tier-card__price" style="font-size:1.5rem">' +
+              (t.tier === 'standard'
+                ? 'Base fare'
+                : '+' + (t.tier === 'comfort' ? D.FARE.comfortSurchargePct : D.FARE.independentSurchargePct) + '%') +
+            '</div>' +
             '<div class="tier-card__unit">per seat' +
-              (t.tier === 'standard' ? '' : ' · +' + (t.tier === 'comfort' ? D.FARE.comfortSurchargePct : D.FARE.independentSurchargePct) + '% on the base fare') +
+              (t.tier === 'standard' ? ', as your campus sets it' : ' on your campus\u2019s base fare') +
             '</div>'
           : '<div class="tier-card__price" style="font-size:1.25rem">Not offered</div>' +
             '<div class="tier-card__unit">' + esc(s.short) + ' has this tier switched off</div>') +
@@ -161,7 +165,7 @@
         '<span class="row__label" style="color:var(--on-surface);font-weight:700">' + esc(p.name) +
           '<span style="display:block;font-weight:400;font-size:var(--fs-sm);color:var(--on-surface-variant)">' +
             esc(D.describeProduct(p)) + '</span></span>' +
-        '<span class="row__value">' + D.formatGhs(p.pricePesewas) + '</span>' +
+        '<span class="row__value" style="font-size:var(--fs-sm)">Set by campus</span>' +
       '</div>';
     }).join('');
   }
@@ -194,12 +198,12 @@
 
   function renderHeroBits() {
     var s = school();
-    $('#hero-fare').textContent = 'GHS ' + (D.FARE.baseFarePesewas / 100).toFixed(0);
     $('#widget-origin').textContent = s.nodes[0].name;
     $('#widget-destination').textContent = s.nodes[3].name;
+    // The discount summary stays because it is a rule ("10% off for 3+
+    // seats"), not an amount. The amount itself is the school's to publish.
     $('#widget-meta').textContent =
-      'From ' + D.formatGhs(D.FARE.baseFarePesewas) + ' per rider · ' + D.formatPartyDiscountSummary();
-    $('#driver-earn').textContent = D.formatGhs(D.FARE.baseFarePesewas);
+      'Your campus sets the fare · ' + D.formatPartyDiscountSummary();
     $('#stat-campuses').textContent = D.SCHOOLS.length;
     $('#stat-stops').textContent = D.SCHOOLS.reduce(function (n, x) { return n + x.nodes.length; }, 0);
     $('#footer-note').textContent = 'Showing ' + s.short + ' · ' + T.mode;

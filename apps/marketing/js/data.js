@@ -225,7 +225,12 @@
   ];
 
   function describeProduct(p) {
-    var parts = [formatGhs(p.pricePesewas)];
+    // The price is deliberately not part of this description. A pass costs
+    // whatever the school charges for it, and this page is read by people at
+    // five different campuses - quoting one number here would be wrong for at
+    // least four of them. What a pass *covers* is the same everywhere, so
+    // that is what the description carries.
+    var parts = [];
     if (p.ridesIncluded != null) {
       parts.push(p.ridesIncluded + ' ride' + (p.ridesIncluded === 1 ? '' : 's'));
       parts.push('use within ' + p.durationDays + ' days');

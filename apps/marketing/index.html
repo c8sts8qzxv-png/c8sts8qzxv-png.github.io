@@ -91,7 +91,7 @@
     <nav class="nav__links" aria-label="Sections">
       <a class="nav__link" href="#demo">The app</a>
       <a class="nav__link" href="#features">What you can do</a>
-      <a class="nav__link" href="#fares">Fares</a>
+      <a class="nav__link" href="#fares">Ride types</a>
       <a class="nav__link" href="#sharing">Sharing</a>
       <a class="nav__link" href="#drivers">Drivers</a>
       <a class="nav__link" href="#campuses">Campuses</a>
@@ -126,7 +126,7 @@
       <div>
         <p class="eyebrow reveal" style="margin-bottom:var(--sp-md)">Built for campuses in Ghana</p>
         <h1 class="hero__title reveal" style="--reveal-delay:60ms">
-          Get across campus for <em id="hero-fare">GHS 5</em>.
+          Get across <em>campus</em>.
         </h1>
         <p class="lede hero__lede reveal" style="--reveal-delay:120ms">
           Traverse matches students with drivers who already serve their campus.
@@ -173,7 +173,7 @@
           <button class="btn btn--primary press" style="width:100%" data-open-demo data-demo-screen="drivers">
             See available drivers
           </button>
-          <p class="book-widget__meta" id="widget-meta">From GHS 5.00 per rider · 10% off for 3+ seats</p>
+          <p class="book-widget__meta" id="widget-meta">Your campus sets the fare · less per seat when you share</p>
         </div>
       </div>
     </div>
@@ -191,9 +191,10 @@
           <p class="lede">
             Everything to the right runs. Pick your stops, choose a ride type,
             watch a driver get matched, adjust seats and see the fare change,
-            then follow the trip to drop-off. The prices are the ones the
-            backend computes — base fare, tier surcharge and group discount all
-            come from the same rules the product ships with.
+            then follow the trip to drop-off. The fare comes from the same rules the
+            product ships with — base fare, tier surcharge and group discount —
+            and every campus sets its own base fare, so the amounts inside the
+            demo are illustrative rather than a price list.
           </p>
         </div>
 
@@ -239,8 +240,8 @@
         <h2>One question: how much of the car do you want?</h2>
         <p class="lede">
           Every tier is the same drivers and the same campus. What changes is how
-          many seats get sold. Prices below are live — they follow whichever
-          campus is selected in the switcher.
+          many seats get sold. What each one costs is set by your campus, not by
+          Traverse — the surcharges below are the rule, not the amount.
         </p>
       </div>
       <div class="tier-cards reveal" id="tier-cards"></div>
@@ -284,7 +285,7 @@
         <div class="pool-steps reveal" style="--reveal-delay:80ms">
           <div class="pool-step"><span class="pool-step__dot">1</span><div><div class="pool-step__title">Ama is already in a car</div><p class="pool-step__body">Heading from the Canteen to the JCR. Three seats still empty.</p></div></div>
           <div class="pool-step"><span class="pool-step__dot">2</span><div><div class="pool-step__title">You ask for a ride nearby</div><p class="pool-step__body">Main Gate to the Library. The matcher checks what adding you would cost the trip already running.</p></div></div>
-          <div class="pool-step"><span class="pool-step__dot">3</span><div><div class="pool-step__title">The detour is measured, not guessed</div><p class="pool-step__body">If picking you up adds more delay than the campus cap allows, the match is rejected and you get your own car. Ama is not made late so that you can save GHS 2.</p></div></div>
+          <div class="pool-step"><span class="pool-step__dot">3</span><div><div class="pool-step__title">The detour is measured, not guessed</div><p class="pool-step__body">If picking you up adds more delay than the campus cap allows, the match is rejected and you get your own car. Ama is not made late so that your ride costs less.</p></div></div>
           <div class="pool-step"><span class="pool-step__dot">4</span><div><div class="pool-step__title">One car, two students, two fares</div><p class="pool-step__body">Same driver, one route that already made sense. The seat count on the card tells you exactly what you're joining — <strong>1/4</strong> means one seat taken, three free.</p></div></div>
         </div>
       </div>
@@ -318,7 +319,7 @@
             <div class="row"><span class="row__label" style="color:inherit;opacity:.72">Route</span><span class="row__value">Main Gate → Library</span></div>
             <div class="row"><span class="row__label" style="color:inherit;opacity:.72">Rider is</span><span class="row__value">3 min away</span></div>
             <div class="row"><span class="row__label" style="color:inherit;opacity:.72">Seats</span><span class="row__value">1 of 4</span></div>
-            <div class="row row--total"><span class="row__label">You earn</span><span class="row__value" id="driver-earn">GHS 5.00</span></div>
+            <div class="row row--total"><span class="row__label">You earn</span><span class="row__value" id="driver-earn">The fare, less the campus cut</span></div>
           </div>
         </div>
       </div>
@@ -397,7 +398,7 @@
         <p class="footer__title">Riders</p>
         <div class="footer__list">
           <a href="#demo">Book a ride</a>
-          <a href="#fares">Fares and passes</a>
+          <a href="#fares">Ride types and passes</a>
           <a href="#sharing">Sharing a ride</a>
         </div>
       </div>
