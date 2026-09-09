@@ -3,7 +3,6 @@ import { apiRequest } from './api';
 export interface Rider { id: string; schoolId: string; fullName: string; phone: string; email: string | null; }
 export interface School {
   id: string; name: string; alias: string | null; code: string;
-  primaryColor?: string | null; secondaryColor?: string | null;
 }
 export interface CampusNodeRef { id: string; name: string; latitude: number | null; longitude: number | null; }
 
@@ -68,3 +67,96 @@ export interface Trip {
 }
 export const listMyTrips = (status?: string) =>
   apiRequest<Trip[]>(`/trips/mine${status ? `?status=${status}` : ''}`);
+
+/* ==========================================================================
+   Booking
+   --------------------------------------------------------------------------
+   Three calls, in order, and none of them is optional:
+
+     1. available-drivers  who could take this at all
+     2. matching/candidates  which of them the engine will actually offer,
+        with an ETA and, for a pooled ride, the detour it costs the people
+        already aboard
+     3. ride-offers  the offer itself, which a driver then accepts or declines
+
+   Step 2 exists because step 1 does not decide anything - it is a list of
+   cars, not a list of matches. The driver list is round-tripped rather than
+   re-derived so the engine scores exactly what the rider was shown.
+   ========================================================================== */
+
+export interface RouteStop {
+  nodeId: string; participantId: string;
+  participantStatus: 'booked' | 'picked_up';
+  stopKind: 'pickup' | 'dropoff';
+  pickupDeadlineMs?: number;
+}
+
+export interface AvailableDriver {
+  driverId: string;
+  currentNodeId: string;
+  seatsAvailable: number;
+  capacity: number;
+  activeRoute?: { remainingStops: RouteStop[]; tripId: string };
+  currentNodeName?: string;
+  routeHeadline?: string;
+  remainingStopLabels?: { nodeName: string; stopKind: 'pickup' | 'dropoff' }[];
+}
+
+export type MatchCandidateType = 'idle' | 'pooled';
+
+export interface MatchCandidate {
+  driverId: string;
+  type: MatchCandidateType;
+  etaSeconds: number;
+  distanceMeters: number;
+  seatsAvailable: number;
+  capacity: number;
+  addedDetourSeconds?: number;
+  /** Only on pooled candidates — the trip to attach this offer to. */
+  tripId?: string;
+}
+
+export interface MatchResult { requestId: string; candidates: MatchCandidate[]; }
+
+export type RideOfferStatus = 'pending' | 'processing' | 'accepted' | 'declined';
+
+export interface RideOffer {
+  id: string; schoolId: string; riderId: string; driverId: string;
+  originNodeId: string; destinationNodeId: string;
+  type: 'idle' | 'pooled';
+  tripId: string | null;
+  farePesewas: number;
+  addedDetourSeconds: number | null;
+  quotedEtaSeconds: number | null;
+  partySize: number;
+  status: RideOfferStatus;
+  scheduledFor: string | null;
+  createdAt: string;
+}
+
+export function listAvailableDrivers(schoolId: string, tier?: RideTier, seats?: number) {
+  // Omitted rather than defaulted when absent, so the server's own defaults
+  // apply and the request matches what the native app sends.
+  const p = new URLSearchParams();
+  if (tier) p.set('tier', tier);
+  if (seats != null && seats > 1) p.set('seats', String(seats));
+  const q = p.toString();
+  return apiRequest<AvailableDriver[]>(`/schools/${schoolId}/available-drivers${q ? `?${q}` : ''}`);
+}
+
+export function requestMatch(input: {
+  originNodeId: string; destinationNodeId: string; availableDrivers: AvailableDriver[];
+}) {
+  return apiRequest<MatchResult>('/matching/candidates', { method: 'POST', body: input });
+}
+
+export function createRideOffer(input: {
+  driverId: string; originNodeId: string; destinationNodeId: string;
+  tripId?: string; addedDetourSeconds?: number; partySize?: number;
+  paymentMode?: 'prepaid' | 'pay_after'; tier?: RideTier; promoCode?: string;
+}) {
+  return apiRequest<RideOffer>('/ride-offers', { method: 'POST', body: input });
+}
+
+/** Polled after creating an offer — there is no push for this on the web. */
+export const getRideOffer = (id: string) => apiRequest<RideOffer>(`/ride-offers/${id}`);

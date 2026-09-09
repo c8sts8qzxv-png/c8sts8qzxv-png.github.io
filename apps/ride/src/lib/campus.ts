@@ -1,3 +1,5 @@
+import { schoolPrimary } from './palettes';
+
 /**
  * Campus accent, corrected for contrast.
  *
@@ -73,9 +75,16 @@ export function inkOn(accent: string): string {
   return contrastRatio('#FFFFFF', accent) >= 4.5 ? '#FFFFFF' : '#0B0E13';
 }
 
-export function applyCampus(brand: string | null | undefined): void {
+/**
+ * Paint the app in a campus's colours.
+ *
+ * Takes School.code rather than a colour: the API has no brand-colour field,
+ * and an earlier version of this read `school.primaryColor`, which is simply
+ * not a thing the backend returns - so the accent silently never changed.
+ */
+export function applyCampus(code: string | null | undefined): void {
   const root = document.documentElement;
-  if (!brand) return;
+  const brand = schoolPrimary(code);
   const styles = getComputedStyle(root);
   const ground = styles.getPropertyValue('--ground').trim() || '#0B0E13';
   const accent = legibleAccent(brand, ground);

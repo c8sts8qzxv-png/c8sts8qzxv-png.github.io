@@ -61,7 +61,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         if (cancelled) return;
         const mine = rider ? schools.find((s) => s.id === rider.schoolId) ?? null : null;
         setSchool(mine);
-        applyCampus(mine?.primaryColor ?? null);
+        applyCampus(mine?.code ?? null);
       })
       .catch(() => { /* colour is a nicety; never block the app on it */ })
       .finally(() => { if (!cancelled) setReady(true); });

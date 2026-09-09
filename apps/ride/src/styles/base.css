@@ -249,3 +249,27 @@ h1, h2, h3, h4 {
   padding: var(--sp-7) var(--sp-4);
   text-align: center; color: var(--text-muted);
 }
+
+/* A determinate-looking bar for an indeterminate wait. It sweeps rather than
+   fills, because pretending to know the progress of a 7-second batch window
+   would be a lie the user can catch. */
+.pulse-bar {
+  display: block; width: 120px; height: 3px;
+  border-radius: 2px; overflow: hidden;
+  background: var(--line);
+  position: relative;
+}
+.pulse-bar::after {
+  content: ''; position: absolute; inset: 0;
+  border-radius: 2px; background: var(--accent);
+  transform-origin: left;
+  animation: sweep 1.5s var(--ease-in-out) infinite;
+}
+@keyframes sweep {
+  0%   { transform: translateX(-100%) scaleX(0.4); }
+  50%  { transform: translateX(0%)    scaleX(0.6); }
+  100% { transform: translateX(100%)  scaleX(0.4); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pulse-bar::after { animation: none; transform: scaleX(0.5); }
+}
