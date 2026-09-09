@@ -12,9 +12,9 @@
 (function (global) {
   'use strict';
 
-  var D = global.KayData;
-  var T = global.KayTheme;
-  var M = global.KayMap;
+  var D = global.TraverseData;
+  var T = global.TraverseTheme;
+  var M = global.TraverseMap;
 
   /* ---- helpers ----------------------------------------------------- */
 
@@ -1086,7 +1086,7 @@
     render('none');
   });
 
-  global.KayApp = {
+  global.TraverseApp = {
     mountInto: mountInto,
     jumpTo: jumpTo,
     get state() { return state; },

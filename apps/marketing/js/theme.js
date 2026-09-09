@@ -267,8 +267,8 @@
 
   /* ---- applying to the document ------------------------------------ */
 
-  var STORAGE_MODE = 'kayrides_demo_mode';
-  var STORAGE_SCHOOL = 'kayrides_demo_school';
+  var STORAGE_MODE = 'traverse_demo_mode';
+  var STORAGE_SCHOOL = 'traverse_demo_school';
 
   function safeGet(key) {
     try { return global.localStorage.getItem(key); } catch (e) { return null; }
@@ -367,7 +367,7 @@
     else if (mq.addListener) mq.addListener(onSystemChange);
   }
 
-  global.KayTheme = {
+  global.TraverseTheme = {
     SCHOOL_PALETTES: SCHOOL_PALETTES,
     DEFAULT_SCHOOL_CODE: DEFAULT_SCHOOL_CODE,
     buildTheme: buildTheme,

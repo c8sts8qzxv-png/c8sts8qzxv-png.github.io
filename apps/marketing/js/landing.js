@@ -4,10 +4,10 @@
 (function (global) {
   'use strict';
 
-  var D = global.KayData;
-  var T = global.KayTheme;
-  var App = global.KayApp;
-  var M = global.KayMap;
+  var D = global.TraverseData;
+  var T = global.TraverseTheme;
+  var App = global.TraverseApp;
+  var M = global.TraverseMap;
 
   function $(sel, ctx) { return (ctx || document).querySelector(sel); }
   function $$(sel, ctx) { return Array.prototype.slice.call((ctx || document).querySelectorAll(sel)); }

@@ -1,6 +1,6 @@
-# Kay Rides — web demo
+# Traverse — web demo
 
-A working walkthrough of the Kay Rides rider app, as a static site. Built to be
+A working walkthrough of the Traverse rider app, as a static site. Built to be
 shown to a client on a laptop or a phone when the real build will not install.
 
 **No build step, no dependencies, no network calls.** Plain HTML, CSS and
@@ -101,7 +101,7 @@ there are no ES modules and nothing is fetched.
 ## Deploying to GitHub Pages
 
 ```bash
-git init && git add -A && git commit -m "Kay Rides web demo"
+git init && git add -A && git commit -m "Traverse web demo"
 git branch -M main
 git remote add origin git@github.com:<you>/<repo>.git
 git push -u origin main

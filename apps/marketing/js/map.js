@@ -128,7 +128,7 @@
 
   /**
    * @param {SVGElement} svg      target <svg>
-   * @param {object}     school   a KayData school
+   * @param {object}     school   a TraverseData school
    * @param {object}     opts     { originId, destinationId, cars, labels }
    */
   function render(svg, school, opts) {
@@ -275,5 +275,5 @@
     return { points: pts, byId: byId };
   }
 
-  global.KayMap = { render: render, W: W, H: H };
+  global.TraverseMap = { render: render, W: W, H: H };
 })(window);

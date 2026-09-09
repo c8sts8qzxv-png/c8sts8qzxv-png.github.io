@@ -1,7 +1,7 @@
 /* ============================================================================
    data.js — the demo's fixtures
    ----------------------------------------------------------------------------
-   Campuses, stops and coordinates are copied from Kay_Rides/prisma/seed.ts, and
+   Campuses, stops and coordinates are copied from traverse/prisma/seed.ts, and
    the fare rules from prisma/schema.prisma's School defaults, so numbers on
    screen are the numbers the product actually computes rather than plausible
    placeholders. Where seed.ts carries a correction note (UPSA's coordinates
@@ -268,7 +268,7 @@
     { kind: 'Top-up', detail: 'MTN MoMo · 024•••0142', amountPesewas: +5000, when: 'Mon' },
   ];
 
-  global.KayData = {
+  global.TraverseData = {
     FARE: FARE,
     RIDE_TIERS: RIDE_TIERS,
     SCHOOLS: SCHOOLS,
