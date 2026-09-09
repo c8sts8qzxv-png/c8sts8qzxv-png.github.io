@@ -1,0 +1,251 @@
+*, *::before, *::after { box-sizing: border-box; }
+* { margin: 0; }
+
+html, body, #root { height: 100%; }
+
+body {
+  background: var(--ground);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: var(--t-body);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.08;
+  /* Archivo sets loose by default at display sizes; pulling it in is what
+     makes a heading read as set rather than typed. */
+  letter-spacing: -0.021em;
+}
+
+/* The signage voice: condensed, uppercase, wide-tracked. Used for anything
+   that behaves like a platform sign - section eyebrows, field labels, stop
+   categories - and nowhere else, so it stays meaningful. */
+.sign {
+  font-family: var(--font-display);
+  font-variation-settings: 'wdth' 88;
+  font-size: var(--t-label);
+  font-weight: 600;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.data { font-family: var(--font-data); font-variant-numeric: tabular-nums; }
+
+/* ---- Focus: visible, and only for keyboards -------------------------- */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--r-sm);
+}
+:focus:not(:focus-visible) { outline: none; }
+
+/* ==========================================================================
+   Pressables
+   ========================================================================== */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: var(--sp-2);
+  min-height: 48px; padding: 0 var(--sp-5);
+  border: 1px solid transparent; border-radius: var(--r-pill);
+  font-family: var(--font-body); font-size: var(--t-body); font-weight: 600;
+  cursor: pointer;
+  /* Named properties, never `all`: `all` animates colour, shadow and layout
+     alike and quietly puts non-composited properties on the animation path. */
+  transition: transform var(--d-press) var(--ease-out),
+              background-color var(--d-fast) ease,
+              border-color var(--d-fast) ease,
+              opacity var(--d-fast) ease;
+}
+/* Instant physical acknowledgement. Without it the interface feels like it
+   did not hear the tap, however fast the response actually is. */
+.btn:active:not(:disabled) { transform: scale(0.97); }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.btn--primary { background: var(--accent); color: var(--accent-ink); }
+.btn--ghost   { background: transparent; color: var(--text); border-color: var(--line-strong); }
+.btn--quiet   { background: var(--raised); color: var(--text); }
+.btn--block   { display: flex; width: 100%; }
+
+@media (hover: hover) and (pointer: fine) {
+  .btn--primary:hover:not(:disabled) { filter: brightness(1.08); }
+  .btn--ghost:hover:not(:disabled)   { background: var(--raised); }
+}
+
+/* ==========================================================================
+   Fields
+   ========================================================================== */
+.field { display: flex; flex-direction: column; gap: var(--sp-2); }
+.field__input {
+  width: 100%; min-height: 48px;
+  padding: 0 var(--sp-4);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  color: var(--text);
+  font-family: var(--font-body); font-size: var(--t-body);
+  transition: border-color var(--d-fast) ease, background-color var(--d-fast) ease;
+}
+.field__input::placeholder { color: var(--text-faint); }
+.field__input:focus { border-color: var(--accent); outline: none; }
+.field__input[inputmode='numeric'] {
+  font-family: var(--font-data); letter-spacing: 0.34em; font-size: 1.0625rem;
+}
+
+/* ==========================================================================
+   Route spine — the signature
+   --------------------------------------------------------------------------
+   Replaces the map. A campus has a knowable list of stops with names people
+   already use, so a line with labelled nodes says more than a pin on tarmac:
+   it shows order, direction, who else is aboard, and what a detour costs.
+   ========================================================================== */
+.spine { position: relative; padding-left: 34px; }
+
+/* The rail every node sits on. Drawn as a background so it cannot be knocked
+   out of alignment by a node's own box. */
+.spine::before {
+  content: ''; position: absolute;
+  left: 11px; top: 10px; bottom: 10px; width: 2px;
+  background: var(--line);
+  border-radius: 1px;
+}
+
+/* The travelled portion, drawn over the rail. scaleY from the top is used
+   rather than height so the reveal stays on the compositor. */
+.spine__progress {
+  position: absolute; left: 11px; top: 10px; width: 2px;
+  background: var(--accent);
+  border-radius: 1px;
+  transform-origin: top;
+  transition: transform var(--d-sheet) var(--ease-drawer);
+}
+
+.spine__stop { position: relative; padding: var(--sp-3) 0; min-height: 56px; }
+
+.spine__node {
+  position: absolute; left: -34px; top: 50%;
+  width: 20px; height: 20px; margin-top: -10px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  background: var(--ground);
+  border: 2px solid var(--line-strong);
+  transition: border-color var(--d-fast) var(--ease-out),
+              background-color var(--d-fast) var(--ease-out),
+              transform var(--d-fast) var(--ease-out);
+}
+.spine__stop[data-active='true'] .spine__node {
+  border-color: var(--accent);
+  /* 1.15, not a pop: the node is confirming a choice, not celebrating it. */
+  transform: scale(1.15);
+}
+.spine__stop[data-role='origin'] .spine__node::after {
+  content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--accent);
+}
+/* Destination reads as a square: a different shape, not just a different
+   colour, so the two ends stay distinguishable without relying on hue. */
+.spine__stop[data-role='destination'] .spine__node::after {
+  content: ''; width: 7px; height: 7px; background: var(--accent);
+}
+
+.spine__name { font-weight: 600; }
+.spine__meta { color: var(--text-muted); font-size: var(--t-small); }
+
+/* Seat occupancy, as pips rather than a number alone. Four pips is the real
+   capacity, so the row is a picture of the car and not an abstraction. */
+.pips { display: inline-flex; gap: 3px; vertical-align: middle; }
+.pip {
+  width: 6px; height: 10px; border-radius: 2px;
+  background: var(--line-strong);
+  transition: background-color var(--d-fast) var(--ease-out);
+}
+.pip[data-taken='true'] { background: var(--accent); }
+
+/* ==========================================================================
+   Surfaces
+   ========================================================================== */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: var(--sp-4);
+}
+.card--raised { background: var(--raised); }
+
+.stack   { display: flex; flex-direction: column; gap: var(--sp-4); }
+.stack-2 { display: flex; flex-direction: column; gap: var(--sp-2); }
+.row     { display: flex; align-items: center; gap: var(--sp-3); }
+.row--between { justify-content: space-between; }
+.grow    { flex: 1; min-width: 0; }
+
+/* ==========================================================================
+   Entrance
+   --------------------------------------------------------------------------
+   Nothing starts at scale(0) - things that appear from nothing read as
+   glitches. 8px and 0.98 is enough to register as arrival.
+   ========================================================================== */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+.rise { animation: rise var(--d-normal) var(--ease-out) both; }
+.rise:nth-child(1) { animation-delay: 0ms; }
+.rise:nth-child(2) { animation-delay: 45ms; }
+.rise:nth-child(3) { animation-delay: 90ms; }
+.rise:nth-child(4) { animation-delay: 135ms; }
+.rise:nth-child(5) { animation-delay: 180ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  /* Reduced motion means gentler, not none: opacity and colour still carry
+     meaning, only travel is removed. */
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .btn:active:not(:disabled) { transform: none; }
+}
+
+/* ==========================================================================
+   Selection cards — tiers and seat counts
+   ========================================================================== */
+.tier {
+  display: flex; align-items: center; gap: var(--sp-3);
+  width: 100%; cursor: pointer; text-align: left;
+  transition: border-color var(--d-fast) var(--ease-out),
+              background-color var(--d-fast) var(--ease-out),
+              transform var(--d-press) var(--ease-out);
+}
+.tier:active { transform: scale(0.99); }
+/* Border and background both shift, so the selected card is distinguishable
+   without relying on colour alone. */
+.tier[data-selected='true'] { border-color: var(--accent); background: var(--accent-dim); }
+
+.seat {
+  flex: 1; min-width: 0; padding: 0;
+  transition: border-color var(--d-fast) var(--ease-out),
+              background-color var(--d-fast) var(--ease-out),
+              color var(--d-fast) var(--ease-out),
+              transform var(--d-press) var(--ease-out);
+}
+.seat[data-selected='true'] { background: var(--accent); color: var(--accent-ink); }
+
+/* The one figure per screen that earns the display face at its widest. */
+.fare__total {
+  font-family: var(--font-display);
+  font-variation-settings: 'wdth' 112;
+  font-size: var(--t-hero);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.empty {
+  display: grid; place-items: center; gap: var(--sp-2);
+  padding: var(--sp-7) var(--sp-4);
+  text-align: center; color: var(--text-muted);
+}
