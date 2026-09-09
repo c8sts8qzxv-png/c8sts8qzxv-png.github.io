@@ -89,11 +89,10 @@ jobs:
       # file that does not exist. It serves 404.html instead, and handing
       # that file the app shell is what turns the 404 into the app.
       #
-      # Both a per-app 404.html and a dispatching one at the root are written,
-      # because whether Pages honours a *nested* 404.html is not something to
-      # take on faith. If it does, the nested files answer and the root one
-      # never runs for app paths. If it does not, the root one catches them.
-      # Verified against the deployed site, not assumed - see README.
+      # Measured against the deployed site: Pages serves the ROOT 404.html for
+      # /ride/<anything>, never /ride/404.html. So the root dispatcher is what
+      # actually makes deep links work; the per-app copies are belt-and-braces.
+      # Do not delete the root one - see README.
       - name: SPA fallbacks
         run: |
           cp dist/ride/index.html  dist/ride/404.html

@@ -49,9 +49,17 @@ GitHub Pages has no rewrite rules. Reloading `/ride/wallet` asks for a file
 that does not exist, so Pages serves `404.html` — and handing that file the
 app shell is what turns the miss back into the app.
 
-With three apps under one origin there is a question with a real answer:
+With three apps under one origin there was a question with a real answer:
 **does Pages honour a `404.html` inside `/ride/`, or only the one at the
-root?** Rather than pick the likely answer, the deploy ships both:
+root?**
+
+**Answered, against the deployed site: only the root one.** A request for
+`/ride/some-deep-route` is served by `/404.html`, not by `/ride/404.html`.
+So the root dispatcher below is load-bearing - delete it and every deep link
+into either app shows GitHub's own 404 page. The per-app `404.html` files are
+now belt-and-braces and cost nothing.
+
+The deploy ships both:
 
 - `dist/ride/404.html` and `dist/drive/404.html` — each app's own shell.
 - `dist/404.html` — a marketing 404 that first checks whether the missed path
@@ -59,9 +67,9 @@ root?** Rather than pick the likely answer, the deploy ships both:
   original path in `?_p=`. Each app's `index.html` puts it back in the address
   bar before the router reads it.
 
-Whichever way Pages behaves, deep links work. If the nested files turn out to
-be honoured, the root dispatcher simply never fires for app paths and can be
-simplified away — check before deleting it.
+Verified end to end in a browser: `/ride/wallet` on a cold load bounces
+through the 404 page and lands on `/ride/wallet` with the Wallet tab active
+and the `?_p=` gone from the address bar.
 
 The `?_p=` restore accepts only a same-origin absolute path. `//evil.example`
 is a protocol-relative URL, not a path, and is rejected: otherwise the 404
