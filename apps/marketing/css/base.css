@@ -16,6 +16,7 @@ body {
   font-family: var(--font-sans);
   font-size: var(--fs-md);
   line-height: 1.55;
+  letter-spacing: var(--tracking-body);
   color: var(--on-surface);
   background: var(--background);
   -webkit-font-smoothing: antialiased;
@@ -31,7 +32,16 @@ body {
 img, svg { max-width: 100%; }
 img { height: auto; display: block; }
 
-h1, h2, h3, h4 { margin: 0; line-height: 1.12; font-weight: 800; }
+h1, h2, h3, h4 {
+  margin: 0; line-height: 1.12; font-weight: 800;
+  font-family: var(--font-display);
+  /* The width axis. Archivo ships 75..125 and almost nobody moves it; set
+     slightly expanded, the headline reads as signage rather than as body copy
+     scaled up. font-stretch is the standards-track way in; the low-level
+     variation setting is the fallback for engines that ignore it. */
+  font-stretch: calc(var(--wdth-display) * 1%);
+  font-variation-settings: "wdth" var(--wdth-display);
+}
 h1 { font-size: var(--fs-h1); letter-spacing: var(--tracking-display); }
 h2 { font-size: var(--fs-h2); letter-spacing: var(--tracking-display); }
 h3 { font-size: var(--fs-h3); letter-spacing: var(--tracking-tight); }
@@ -170,11 +180,14 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   align-items: center;
   justify-content: center;
   gap: var(--sp-sm);
-  border-radius: var(--r-xl);
+  /* A pill, because Uber (999px), Bolt (40px) and Apple (980px) have all
+     independently landed there for the same control. Measured, not copied
+     from a screenshot. */
+  border-radius: var(--r-pill);
   padding: 14px var(--sp-lg);
-  font-size: var(--fs-md);
-  font-weight: 800;
-  letter-spacing: -0.01em;
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  letter-spacing: var(--tracking-body);
   white-space: nowrap;
 }
 
@@ -185,9 +198,16 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 }
 
 .btn--secondary {
-  background: var(--surface);
+  /* Bolt's secondary is a translucent wash of the ink colour rather than a
+     grey: rgba(1,34,18,.067) on their green-cast black. Doing the same with
+     the campus ink means the secondary button re-tints itself on every campus
+     and in dark mode, with no second token to keep in sync. */
+  background: color-mix(in srgb, var(--on-surface) 7%, transparent);
   color: var(--on-surface);
-  border: 1px solid var(--outline-variant);
+  border: 1px solid transparent;
+}
+@supports not (background: color-mix(in srgb, red 7%, transparent)) {
+  .btn--secondary { background: var(--surface); border-color: var(--outline-variant); }
 }
 
 .btn--ghost { color: var(--on-surface); }

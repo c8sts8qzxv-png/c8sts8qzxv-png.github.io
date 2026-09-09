@@ -21,6 +21,12 @@
      one. Entrance animation is a nicety; the content is not. -->
 <script>document.documentElement.classList.add('js');</script>
 
+<!-- The same three faces the rider and driver apps load, so the site and the
+     apps are one type system rather than two that drift. Archivo is variable
+     on BOTH axes - the width axis is what the display type actually uses. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,400..800&family=Inter:wght@400..700&family=JetBrains+Mono:wght@400..600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/tokens.css">
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/landing.css">
@@ -129,8 +135,23 @@
     <div class="wrap hero__grid">
       <div>
         <p class="eyebrow reveal" style="margin-bottom:var(--sp-md)">Built for campuses in Ghana</p>
+        <!-- The campus name is a control, not a word. Picking one here
+             repaints the entire page - and the app inside it - in that
+             school's colours. It is the one thing this page does that a
+             city-wide ride app has no reason to do, so it belongs in the
+             headline rather than in a corner of the nav. The nav keeps its
+             copy for anyone who scrolls back up. -->
         <h1 class="hero__title reveal" style="--reveal-delay:60ms">
-          Get across <em>campus</em>.
+          Get across
+          <span class="switcher campus-pick" id="hero-switcher">
+            <button class="campus-pick__btn" id="hero-switcher-btn"
+                    aria-haspopup="true" aria-expanded="false"
+                    aria-controls="hero-switcher-menu">
+              <span id="hero-switcher-label">UPSA</span>
+              <svg class="icon campus-pick__caret switcher__caret" aria-hidden="true"><use href="#ic-chevron-down"/></svg>
+            </button>
+            <div class="switcher__menu campus-pick__menu" id="hero-switcher-menu" role="menu" aria-label="Choose a campus"></div>
+          </span>
         </h1>
         <p class="lede hero__lede reveal" style="--reveal-delay:120ms">
           Traverse matches students with drivers who already serve their campus.
@@ -151,15 +172,15 @@
         <div class="hero__stats reveal" style="--reveal-delay:240ms">
           <div>
             <div class="hero__stat-value" id="stat-campuses">5</div>
-            <div class="hero__stat-label">campuses configured</div>
+            <div class="hero__stat-label">campuses</div>
           </div>
           <div>
             <div class="hero__stat-value" id="stat-stops">31</div>
-            <div class="hero__stat-label">mapped stops</div>
+            <div class="hero__stat-label">stops you already know</div>
           </div>
           <div>
             <div class="hero__stat-value">3</div>
-            <div class="hero__stat-label">ride types</div>
+            <div class="hero__stat-label">ways to ride</div>
           </div>
         </div>
       </div>
@@ -168,20 +189,67 @@
         <div class="book-widget">
           <h2 class="book-widget__title">Where are you going?</h2>
           <div class="book-widget__fields">
-            <button class="book-widget__field press" data-open-demo data-demo-screen="plan">
+            <!-- These used to open the fixtures walkthrough. They are the
+                 most app-like thing on the page and sit right beside the two
+                 real buttons, so pointing them anywhere else made the front
+                 door a dead end. They go to the rider app. -->
+            <a class="book-widget__field press" href="ride/">
               <span class="picker__dot" aria-hidden="true"></span>
               <span id="widget-origin">Main Gate</span>
-            </button>
-            <button class="book-widget__field press" data-open-demo data-demo-screen="plan">
+            </a>
+            <a class="book-widget__field press" href="ride/">
               <span class="picker__square" aria-hidden="true"></span>
               <span id="widget-destination">Joshua Alabi Library</span>
-            </button>
+            </a>
           </div>
-          <button class="btn btn--primary press" style="width:100%" data-open-demo data-demo-screen="drivers">
-            See available drivers
-          </button>
+          <a class="btn btn--primary press" style="width:100%" href="ride/">
+            Find a ride
+          </a>
           <p class="book-widget__meta" id="widget-meta">Your campus sets the fare · less per seat when you share</p>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       The two doors
+
+       Uber, Bolt and Lyft all split the homepage exactly here, and for a
+       reason worth repeating: the two audiences want opposite things. A
+       rider wants to know it will show up; a driver wants to know it pays.
+       One blended pitch serves neither.
+       ================================================================== -->
+  <section class="section doors" aria-labelledby="doors-title">
+    <div class="wrap">
+      <h2 id="doors-title" class="sr-only">Ride or drive with Traverse</h2>
+      <div class="doors__grid">
+
+        <a class="door press reveal" href="ride/">
+          <span class="door__label">For students</span>
+          <span class="door__title">Ride</span>
+          <span class="door__body">
+            Pick two stops you already call by name. See who is heading that
+            way, go on your own, or share with someone going the same way.
+          </span>
+          <span class="door__go">
+            Open the rider app
+            <svg class="icon icon--sm" aria-hidden="true"><use href="#ic-arrow-right"/></svg>
+          </span>
+        </a>
+
+        <a class="door press reveal" href="drive/" style="--reveal-delay:80ms">
+          <span class="door__label">For drivers</span>
+          <span class="door__title">Drive</span>
+          <span class="door__body">
+            Serve the campus you already work. Go on duty when it suits you,
+            report your stop, and see what the week actually came to.
+          </span>
+          <span class="door__go">
+            Open the driver app
+            <svg class="icon icon--sm" aria-hidden="true"><use href="#ic-arrow-right"/></svg>
+          </span>
+        </a>
+
       </div>
     </div>
   </section>

@@ -163,15 +163,114 @@
   line-height: 1.02;
   margin-bottom: var(--sp-md);
 }
-.hero__title em {
-  font-style: normal;
-  /* "GHS 5" is one price, so it breaks as one unit. Without this the currency
-     and the number land on separate lines and the headline's one memorable
-     figure reads as two fragments. */
-  white-space: nowrap;
-  /* The brand accent, corrected for contrast against the page. Using raw
-     --secondary here is what put a 1.1:1 lemon-yellow headline on Legon. */
+/* The campus picker, living inside the headline ---------------------------- */
+
+.campus-pick {
+  /* .switcher already sets position:relative, which the menu anchors to. */
+  display: inline-block;
+}
+.campus-pick__btn {
+  /* Inherits the headline's size, weight, width axis and tracking, so it
+     reads as part of the sentence rather than as a widget dropped into it.
+     Only the colour and the underline say "you can change this". */
+  font: inherit;
+  letter-spacing: inherit;
+  font-stretch: inherit;
+  font-variation-settings: inherit;
+  /* The accent, contrast-corrected. Raw --secondary here is what once put a
+     1.08:1 lemon-yellow word on Legon. */
   color: var(--accent-text);
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.12em;
+  cursor: pointer;
+  /* An underline drawn as a border would sit too far from the glyphs at this
+     size; a gradient keeps it optically attached and lets it thicken on
+     hover without shifting the baseline. */
+  background-image: linear-gradient(var(--accent-text), var(--accent-text));
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 100% 0.055em;
+  padding-bottom: 0.04em;
+  transition: background-size var(--dur-pop) var(--ease-out),
+              opacity var(--dur-pop) var(--ease-out);
+}
+.campus-pick__btn:hover { background-size: 100% 0.09em; }
+.campus-pick__btn:active { opacity: 0.72; }
+
+.campus-pick__caret {
+  width: 0.42em; height: 0.42em;
+  align-self: center;
+  flex: none;
+}
+
+.campus-pick__menu {
+  /* .switcher__menu hangs off the right edge for the nav. In the headline it
+     has to hang off the left, and grow from that corner. */
+  right: auto; left: 0;
+  transform-origin: top left;
+}
+
+@media (max-width: 560px) {
+  /* At the narrowest sizes the menu would overflow the viewport from a left
+     anchor near the right margin. Pin it to the hero's left gutter instead. */
+  .campus-pick__menu { width: min(290px, calc(100vw - 2 * var(--sp-md))); }
+}
+
+/* The two doors ------------------------------------------------------------ */
+
+.doors__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-md);
+}
+@media (max-width: 760px) { .doors__grid { grid-template-columns: 1fr; } }
+
+.door {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sp-sm);
+  padding: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+  border-radius: var(--r-3xl);
+  background: var(--surface);
+  border: 1px solid var(--outline-variant);
+  color: var(--on-surface);
+}
+.door:hover { border-color: var(--primary); }
+
+.door__label {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--on-surface-variant);
+}
+.door__title {
+  font-family: var(--font-display);
+  font-stretch: calc(var(--wdth-display) * 1%);
+  font-variation-settings: "wdth" var(--wdth-display);
+  font-size: var(--fs-h2);
+  font-weight: 800;
+  letter-spacing: var(--tracking-display);
+  line-height: 1.05;
+}
+.door__body {
+  color: var(--on-surface-variant);
+  max-width: 34ch;
+  margin-bottom: var(--sp-sm);
+}
+.door__go {
+  display: inline-flex; align-items: center; gap: var(--sp-sm);
+  font-weight: 700;
+  color: var(--accent-text);
+  margin-top: auto;
+}
+.door__go .icon { transition: transform var(--dur-pop) var(--ease-out); }
+.door:hover .door__go .icon { transform: translateX(3px); }
+@media (prefers-reduced-motion: reduce) {
+  .door:hover .door__go .icon { transform: none; }
+  .campus-pick__btn { transition: none; }
 }
 
 .hero__lede { max-width: 46ch; margin-bottom: var(--sp-lg); }
@@ -179,7 +278,15 @@
 .hero__actions { display: flex; flex-wrap: wrap; gap: var(--sp-sm); margin-bottom: var(--sp-lg); }
 
 .hero__stats { display: flex; flex-wrap: wrap; gap: var(--sp-lg); }
-.hero__stat-value { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.02em; }
+.hero__stat-value {
+  font-family: var(--font-display);
+  font-stretch: calc(var(--wdth-display) * 1%);
+  font-variation-settings: "wdth" var(--wdth-display);
+  font-size: 1.75rem; font-weight: 800; letter-spacing: var(--tracking-tight);
+  /* Lining, equal-width figures: 5 / 31 / 3 sit in a row, and proportional
+     digits make the three columns look accidentally misaligned. */
+  font-variant-numeric: tabular-nums lining-nums;
+}
 .hero__stat-label { font-size: var(--fs-sm); color: var(--on-surface-variant); }
 
 /* Booking widget — the hero's own miniature of the app's first screen. */

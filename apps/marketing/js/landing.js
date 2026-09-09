@@ -26,56 +26,84 @@
 
   /* ======================================================================
      Campus switcher
+
+     Two of these now: the one in the nav, and the campus name inside the
+     headline. One factory builds both - a hand-wired second copy is exactly
+     how the two would drift apart.
      ====================================================================== */
 
-  var switcher = $('#switcher');
-  var switcherBtn = $('#switcher-btn');
-  var switcherMenu = $('#switcher-menu');
+  var SWITCHERS = [];
+
+  function makeSwitcher(rootId, btnId, menuId, labelId) {
+    var root = $('#' + rootId), btn = $('#' + btnId), menu = $('#' + menuId);
+    if (!root || !btn || !menu) return null;
+
+    var api = {
+      root: root,
+      btn: btn,
+      isOpen: function () { return root.classList.contains('is-open'); },
+      close: function () {
+        root.classList.remove('is-open');
+        btn.setAttribute('aria-expanded', 'false');
+      },
+      render: function () {
+        menu.innerHTML = D.SCHOOLS.map(function (s) {
+          var pal = T.getSchoolPalette(s.code);
+          var on = s.code === T.school;
+          /* is-on was styled in landing.css but never applied by the original
+             render, so the selected row had no highlight. */
+          return '<button class="switcher__item press' + (on ? ' is-on' : '') + '"' +
+            ' role="menuitemradio" aria-checked="' + on + '" data-school="' + esc(s.code) + '">' +
+            '<span class="switcher__dots">' +
+              '<span class="switcher__dot" style="background:' + pal.primary + '"></span>' +
+              '<span class="switcher__dot" style="background:' + pal.secondary + '"></span>' +
+            '</span>' +
+            '<span style="flex:1;min-width:0">' +
+              '<span class="switcher__name" style="display:block">' + esc(s.short) + '</span>' +
+              '<span class="switcher__code" style="display:block">' + esc(s.name) + '</span>' +
+            '</span>' +
+            (on ? icon('check', 'icon--sm') : '') +
+          '</button>';
+        }).join('');
+        if (labelId && $('#' + labelId)) $('#' + labelId).textContent = school().short;
+      },
+    };
+
+    btn.addEventListener('click', function (ev) {
+      ev.stopPropagation();
+      var open = root.classList.toggle('is-open');
+      btn.setAttribute('aria-expanded', String(open));
+      /* Only ever one open at a time, or picking a campus from the headline
+         leaves the nav copy hanging open behind it. */
+      if (open) SWITCHERS.forEach(function (o) { if (o !== api) o.close(); });
+    });
+
+    menu.addEventListener('click', function (ev) {
+      var item = ev.target.closest('[data-school]');
+      if (!item) return;
+      T.setSchool(item.getAttribute('data-school'));
+      SWITCHERS.forEach(function (o) { o.close(); });
+    });
+
+    SWITCHERS.push(api);
+    return api;
+  }
+
+  makeSwitcher('switcher', 'switcher-btn', 'switcher-menu', 'switcher-label');
+  makeSwitcher('hero-switcher', 'hero-switcher-btn', 'hero-switcher-menu', 'hero-switcher-label');
 
   function renderSwitcher() {
-    switcherMenu.innerHTML = D.SCHOOLS.map(function (s) {
-      var p = T.getSchoolPalette(s.code);
-      var on = s.code === T.school;
-      return '<button class="switcher__item press" role="menuitemradio" aria-checked="' + on + '" data-school="' + esc(s.code) + '">' +
-        '<span class="switcher__dots">' +
-          '<span class="switcher__dot" style="background:' + p.primary + '"></span>' +
-          '<span class="switcher__dot" style="background:' + p.secondary + '"></span>' +
-        '</span>' +
-        '<span style="flex:1;min-width:0">' +
-          '<span class="switcher__name" style="display:block">' + esc(s.short) + '</span>' +
-          '<span class="switcher__code" style="display:block">' + esc(s.name) + '</span>' +
-        '</span>' +
-        (on ? icon('check', 'icon--sm') : '') +
-      '</button>';
-    }).join('');
-    $('#switcher-label').textContent = school().short;
+    SWITCHERS.forEach(function (s) { s.render(); });
   }
-
-  function closeSwitcher() {
-    switcher.classList.remove('is-open');
-    switcherBtn.setAttribute('aria-expanded', 'false');
-  }
-
-  switcherBtn.addEventListener('click', function (ev) {
-    ev.stopPropagation();
-    var open = switcher.classList.toggle('is-open');
-    switcherBtn.setAttribute('aria-expanded', String(open));
-  });
-
-  switcherMenu.addEventListener('click', function (ev) {
-    var item = ev.target.closest('[data-school]');
-    if (!item) return;
-    T.setSchool(item.getAttribute('data-school'));
-    closeSwitcher();
-  });
 
   document.addEventListener('click', function (ev) {
-    if (!switcher.contains(ev.target)) closeSwitcher();
+    SWITCHERS.forEach(function (s) { if (!s.root.contains(ev.target)) s.close(); });
   });
 
   document.addEventListener('keydown', function (ev) {
     if (ev.key !== 'Escape') return;
-    if (switcher.classList.contains('is-open')) { closeSwitcher(); switcherBtn.focus(); return; }
+    var open = SWITCHERS.filter(function (s) { return s.isOpen(); })[0];
+    if (open) { open.close(); open.btn.focus(); return; }
     if (overlay.classList.contains('is-open')) closeDemo();
   });
 

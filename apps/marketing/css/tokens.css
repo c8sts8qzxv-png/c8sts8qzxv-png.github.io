@@ -49,13 +49,26 @@
   --fs-sm: 0.8125rem;  /* 13px — app's subtitle / meta */
   --fs-xs: 0.75rem;    /* 12px — app's uppercase section label */
 
-  --tracking-display: -0.03em;
-  --tracking-tight: -0.015em;
+  --tracking-display: -0.035em;
+  --tracking-tight: -0.02em;
+  --tracking-body: -0.011em;
   --tracking-label: 0.06em;   /* savedTitle letterSpacing 0.6 at 12px */
 
-  --font-sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  /* Display face. Archivo carries a width axis, and the headline sets it
+     expanded - that is the one type move on this page you will not find on
+     Uber, Bolt or Lyft, all three of which run a single-width grotesque.
+     Every fallback is a real font, so a failed webfont degrades rather than
+     collapsing to Times. */
+  --font-display: "Archivo", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-sans: "Inter", ui-sans-serif, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono",
+    Menlo, monospace;
+
+  /* Measured off bolt.eu and apple.com rather than guessed: Bolt runs its
+     72px display at -0.035em, Apple its 17px body at -0.022em. Tracking has
+     to tighten as size grows, which is why this is three tokens and not one. */
+  --wdth-display: 118;   /* Archivo width axis, 75..125 */
 
   /* -- motion --------------------------------------------------------
      Custom curves, not the CSS built-ins. The built-ins are too weak to read
