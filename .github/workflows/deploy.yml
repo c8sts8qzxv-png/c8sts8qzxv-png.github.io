@@ -1,0 +1,115 @@
+# One origin, three front ends.
+#
+#   /        apps/marketing   static, copied as-is
+#   /ride    apps/ride        vite build, VITE_BASE=/ride/
+#   /drive   apps/drive       vite build, VITE_BASE=/drive/
+#
+# This repo is named <user>.github.io on purpose: a GitHub Pages *user* site
+# serves from the domain root, which is the only Pages arrangement that gives
+# a bare /ride and /drive with no repo name in front of them. A project site
+# would put every path under /<repo>/.
+#
+# The three apps used to deploy from three repos to three separate origins.
+# Building them together is what makes them one site - and it also collapses
+# the API's CORS allow-list from three entries to one.
+
+name: Build and deploy the Traverse site
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: |
+            apps/ride/package-lock.json
+            apps/drive/package-lock.json
+
+      # ------------------------------------------------------------ / ------
+      # `apps/marketing/.` rather than `apps/marketing/*` so dotfiles come
+      # too - .nojekyll is one, and a CNAME will be another the day a domain
+      # is pointed here.
+      - name: Marketing site to /
+        run: |
+          mkdir -p dist
+          cp -R apps/marketing/. dist/
+          rm -f dist/README.md
+
+      # -------------------------------------------------------- /ride ------
+      - name: Rider app to /ride/
+        env:
+          # Every asset URL in the bundle gets this prefix. Without it the
+          # page loads and then 404s on its own JavaScript.
+          VITE_BASE: /ride/
+          # Repository variable, Settings -> Secrets and variables -> Actions
+          # -> Variables. Unset until the API is hosted; the app then says so
+          # on screen rather than failing silently.
+          VITE_API_BASE_URL: ${{ vars.API_BASE_URL }}
+        run: |
+          cd apps/ride
+          npm ci
+          npm run build
+          cd ../..
+          mkdir -p dist/ride
+          cp -R apps/ride/dist/. dist/ride/
+
+      # ------------------------------------------------------- /drive ------
+      - name: Driver app to /drive/
+        env:
+          VITE_BASE: /drive/
+          VITE_API_BASE_URL: ${{ vars.API_BASE_URL }}
+        run: |
+          cd apps/drive
+          npm ci
+          npm run build
+          cd ../..
+          mkdir -p dist/drive
+          cp -R apps/drive/dist/. dist/drive/
+
+      # --------------------------------------------------- deep links ------
+      # Pages has no rewrite rules, so a reload of /ride/wallet asks for a
+      # file that does not exist. It serves 404.html instead, and handing
+      # that file the app shell is what turns the 404 into the app.
+      #
+      # Both a per-app 404.html and a dispatching one at the root are written,
+      # because whether Pages honours a *nested* 404.html is not something to
+      # take on faith. If it does, the nested files answer and the root one
+      # never runs for app paths. If it does not, the root one catches them.
+      # Verified against the deployed site, not assumed - see README.
+      - name: SPA fallbacks
+        run: |
+          cp dist/ride/index.html  dist/ride/404.html
+          cp dist/drive/index.html dist/drive/404.html
+          cp apps/marketing/404.html dist/404.html
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

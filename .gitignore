@@ -1,0 +1,5 @@
+node_modules/
+# The assembled site. Built in CI from apps/*, and locally when verifying the
+# whole thing end to end - never committed.
+dist/
+.DS_Store

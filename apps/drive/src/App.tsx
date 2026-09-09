@@ -16,10 +16,13 @@ function Shell() {
   return (
     <div className="shell">
       <nav className="tabs" aria-label="Sections">
-        <div className="rail__brand">
+        {/* A plain anchor, not a react-router Link: the router's basename is
+            /ride/ (or /drive/), so <Link to="/"> would land back on this
+            app's own home tab rather than the site's front door. */}
+        <a className="rail__brand" href="/">
           <span className="brand__mark">T</span>
           <span className="brand__name">Traverse</span>
-        </div>
+        </a>
         {TABS.map(({ to, label, Icon }) => (
           <NavLink key={to} to={to} end={to === '/'} className="tab">
             <span className="tab__glyph"><Icon /></span>

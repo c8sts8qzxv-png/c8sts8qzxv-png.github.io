@@ -111,7 +111,11 @@
         <svg class="icon icon--sm" aria-hidden="true"><use href="#ic-moon" id="mode-icon"/></svg>
       </button>
 
-      <button class="btn btn--primary press" data-open-demo>Open the app</button>
+      <!-- The two doors. Relative hrefs, not "/ride", so the page still
+           works opened straight off disk as well as served from the site
+           root - the README leans on that. -->
+      <a class="btn btn--secondary press" href="drive/">Drive</a>
+      <a class="btn btn--primary press" href="ride/">Ride</a>
     </div>
   </div>
 </header>
@@ -135,11 +139,14 @@
           with the driver after the trip.
         </p>
         <div class="hero__actions reveal" style="--reveal-delay:180ms">
-          <button class="btn btn--primary press" data-open-demo>
-            Try the rider app
+          <a class="btn btn--primary press" href="ride/">
+            Ride with Traverse
             <svg class="icon icon--sm" aria-hidden="true"><use href="#ic-arrow-right"/></svg>
-          </button>
-          <a class="btn btn--secondary press" href="#features">What you can do</a>
+          </a>
+          <a class="btn btn--secondary press" href="drive/">
+            Drive with Traverse
+            <svg class="icon icon--sm" aria-hidden="true"><use href="#ic-arrow-right"/></svg>
+          </a>
         </div>
         <div class="hero__stats reveal" style="--reveal-delay:240ms">
           <div>

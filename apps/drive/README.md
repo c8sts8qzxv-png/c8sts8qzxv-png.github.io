@@ -47,10 +47,10 @@ CORS_ALLOWED_ORIGINS="http://127.0.0.1:8802" npm run start:dev
 
 ## Deploying
 
-Pushing to `main` builds and publishes to GitHub Pages. Set the API URL as a
-repository variable named `API_BASE_URL` under **Settings → Secrets and
-variables → Actions → Variables**.
+This app is no longer deployed on its own. It is built as part of the site in
+the repository root and served at `/drive`, with `VITE_BASE=/drive/` set by
+`.github/workflows/deploy.yml` there. See the root `README.md` — in particular
+the note on deep links, which is the part that breaks quietly if changed.
 
-It must be `https://` once deployed: a page served over HTTPS cannot call an
-HTTP API, and the browser blocks it as mixed content with nothing useful in
-the console.
+The API URL comes from the repository variable `API_BASE_URL`, set once for
+the whole site rather than once per app.

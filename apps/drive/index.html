@@ -12,6 +12,20 @@
       href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,400..800&family=Inter:wght@400..700&family=JetBrains+Mono:wght@400..600&display=swap"
       rel="stylesheet"
     />
+    <script>
+      // If GitHub Pages could not serve this deep link directly, the site 404
+      // page bounced it here with the real path in ?_p=. Put it back in the
+      // address bar now, before the router reads location for the first time.
+      //
+      // Only a same-origin absolute path is accepted: "//evil.example" is a
+      // protocol-relative URL, not a path, and would be an open redirect.
+      (function () {
+        var p = new URLSearchParams(location.search).get("_p");
+        if (p && p.charAt(0) === "/" && p.charAt(1) !== "/") {
+          history.replaceState(null, "", p);
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

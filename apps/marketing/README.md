@@ -121,19 +121,25 @@ python3 -m http.server 8777
 Then open `http://127.0.0.1:8777/`. Opening `index.html` from disk also works —
 there are no ES modules and nothing is fetched.
 
-## Deploying to GitHub Pages
+## Deploying
 
-```bash
-git init && git add -A && git commit -m "Traverse web demo"
-git branch -M main
-git remote add origin git@github.com:<you>/<repo>.git
-git push -u origin main
-```
+Built and published as part of the site in the repository root — this
+directory becomes `/`, with the rider app at `/ride` and the driver app at
+`/drive`. See the root `README.md`.
 
-Then in the repo: **Settings → Pages → Source: Deploy from a branch → `main` /
-`(root)`**. The site is at `https://<you>.github.io/<repo>/`.
+`.nojekyll` is committed so Pages serves the files as-is. `404.html` is the
+site's 404 page and also routes missed app deep links back to the right app;
+the root README explains why it has to do that.
 
-`.nojekyll` is committed so Pages serves the files as-is.
+## The two doors
+
+The nav and the hero both offer exactly two: **Ride** → `ride/` and
+**Drive** → `drive/`. Those hrefs are relative rather than `/ride`, so this
+page still works opened straight off disk, which the section above relies on.
+
+The walkthrough inside the phone frame is still a walkthrough — it is fixtures,
+and the section around it says so. It is no longer what the front door leads
+to.
 
 ## Layout
 
