@@ -1,0 +1,143 @@
+/* ==========================================================================
+   Shell — the responsive frame
+   --------------------------------------------------------------------------
+   The native app is one phone-width column and there is nothing wrong with
+   that on a phone. Reproducing it on a laptop is what made the web build
+   look wrong: a 1456px-wide login field is not a design, it is a stretched
+   phone. So the layout is authored three times over, not scaled.
+
+     <  760px   one column, actions pinned to the thumb, nav at the bottom
+     >= 760px   rail of labelled nav on the left, content beside it
+     >= 1080px  a third column for context that was a separate screen on the
+                phone - the fare breakdown, the driver, the seat count
+   ========================================================================== */
+
+.shell {
+  display: grid;
+  min-height: 100dvh;
+  grid-template-areas: 'main' 'tabs';
+  grid-template-rows: 1fr auto;
+}
+
+.shell__main {
+  grid-area: main;
+  overflow-y: auto;
+  padding: var(--sp-4) var(--sp-4) var(--sp-7);
+}
+
+.shell__inner {
+  width: 100%;
+  max-width: var(--col-max);
+  margin: 0 auto;
+  display: flex; flex-direction: column; gap: var(--sp-5);
+}
+
+/* Context column is a peer of the content on wide screens and simply absent
+   below that - its contents are rendered inline in the main column instead,
+   so nothing is hidden from a phone, only rearranged. */
+.shell__context { display: none; }
+
+/* ---- Bottom tabs (phone) --------------------------------------------- */
+.tabs {
+  grid-area: tabs;
+  display: flex;
+  background: var(--surface);
+  border-top: 1px solid var(--line);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.tab {
+  flex: 1;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 3px;
+  min-height: 56px; padding: var(--sp-2) 0;
+  background: none; border: none; cursor: pointer;
+  color: var(--text-faint);
+  font-family: var(--font-body); font-size: 0.6875rem; font-weight: 600;
+  /* Deliberately not animated. A tab is pressed dozens of times a session
+     and at that frequency any transition reads as the app lagging, not as
+     polish. Colour swaps instantly; the indicator is the only thing that
+     moves, and it moves because position carries meaning. */
+  transition: color var(--d-fast) ease;
+}
+.tab[aria-current='page'] { color: var(--accent); }
+.tab__glyph { font-size: 1.125rem; line-height: 1; }
+
+@media (min-width: 760px) {
+  .shell {
+    grid-template-areas: 'rail main';
+    grid-template-columns: 232px 1fr;
+    grid-template-rows: 1fr;
+  }
+  .shell__main { padding: var(--sp-6) var(--sp-6) var(--sp-8); }
+
+  .tabs {
+    grid-area: rail;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: var(--sp-1);
+    border-top: none;
+    border-right: 1px solid var(--line);
+    padding: var(--sp-5) var(--sp-3);
+    background: var(--sunken);
+  }
+  .tab {
+    flex: 0 0 auto;
+    flex-direction: row; justify-content: flex-start;
+    gap: var(--sp-3);
+    min-height: 44px; padding: 0 var(--sp-3);
+    border-radius: var(--r-md);
+    font-size: var(--t-body);
+    transition: color var(--d-fast) ease, background-color var(--d-fast) ease;
+  }
+  .tab[aria-current='page'] { background: var(--accent-dim); }
+  .tab__glyph { font-size: 1rem; }
+}
+
+@media (min-width: 1080px) {
+  .shell { grid-template-columns: 248px minmax(0, 1fr); }
+  .shell__main {
+    display: grid;
+    grid-template-columns: minmax(0, var(--col-max)) minmax(280px, 360px);
+    gap: var(--sp-6);
+    align-content: start;
+    justify-content: center;
+  }
+  .shell__inner { max-width: none; }
+  .shell__context {
+    display: flex; flex-direction: column; gap: var(--sp-4);
+    position: sticky; top: var(--sp-6);
+    align-self: start;
+  }
+  /* What the context column shows must not also appear inline, or the same
+     fare breakdown renders twice on a wide screen. */
+  .context-inline { display: none; }
+}
+
+/* ---- Brand mark in the rail ------------------------------------------ */
+.rail__brand {
+  display: none;
+  align-items: center; gap: var(--sp-3);
+  padding: 0 var(--sp-3) var(--sp-5);
+}
+@media (min-width: 760px) { .rail__brand { display: flex; } }
+
+.brand__mark {
+  width: 30px; height: 30px; border-radius: 9px;
+  background: var(--accent);
+  display: grid; place-items: center;
+  color: var(--accent-ink);
+  font-family: var(--font-display); font-weight: 800; font-size: 1rem;
+  flex: none;
+}
+.brand__name {
+  font-family: var(--font-display); font-weight: 700; font-size: 1.0625rem;
+  letter-spacing: -0.02em;
+}
+
+/* ---- Auth: no rail, centred ------------------------------------------ */
+.auth {
+  min-height: 100dvh;
+  display: grid; place-items: center;
+  padding: var(--sp-5);
+}
+.auth__card { width: 100%; max-width: 400px; }

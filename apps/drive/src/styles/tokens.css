@@ -1,0 +1,102 @@
+/* ==========================================================================
+   Traverse — design tokens
+   --------------------------------------------------------------------------
+   The identity is wayfinding, not ride-hailing. Campus stops are a small
+   fixed set with real names, so the app is closer to a transit line than to
+   a taxi dispatcher, and every token below is chosen to serve a route drawn
+   as a line with named nodes rather than a map with a pin.
+   ========================================================================== */
+
+:root {
+  /* ---- Ground -----------------------------------------------------------
+     Blue-black rather than neutral grey. Five campus brand hues have to sit
+     on this surface without fighting it, and a blue-leaning ground is the
+     one that keeps a yellow (UG-Legon) and an orange (Ashesi) both legible. */
+  --ground:      #0B0E13;
+  --surface:     #141821;
+  --raised:      #1C2129;
+  --sunken:      #080A0E;
+  --line:        #2B323D;
+  --line-strong: #454E5C;
+
+  --text:        #E9EDF3;
+  --text-muted:  #8D97A6;
+  --text-faint:  #5C6675;
+
+  /* Campus accent. Overwritten per school at runtime by applyCampus(); these
+     are the UG-Legon contrast-corrected values so a cold start is never
+     unstyled. */
+  --accent:      #A8BEF0;
+  --accent-ink:  #0B0E13;
+  --accent-dim:  #2A3550;
+
+  --positive:    #5FD3A0;
+  --warning:     #F0C36A;
+  --danger:      #F2857E;
+
+  /* ---- Type -------------------------------------------------------------
+     Archivo carries a signage lineage and ships a width axis, which is used
+     deliberately: condensed for the small uppercase labels that behave like
+     platform signs, expanded for the one big figure per screen. JetBrains
+     Mono is not decoration - seat ratios, stop codes, fares and ETA ranges
+     are tabular data and line up only if the figures are monospaced. */
+  --font-display: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+  --font-body:    'Inter', system-ui, -apple-system, sans-serif;
+  --font-data:    'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  --t-hero:   clamp(2.25rem, 6vw, 3.5rem);
+  --t-title:  clamp(1.5rem, 3.2vw, 2rem);
+  --t-head:   1.125rem;
+  --t-body:   0.9375rem;
+  --t-small:  0.8125rem;
+  --t-label:  0.6875rem;
+
+  /* ---- Space: 4px grid, matching the native app's spacing.ts ------------ */
+  --sp-1: 4px;  --sp-2: 8px;  --sp-3: 12px; --sp-4: 16px;
+  --sp-5: 24px; --sp-6: 32px; --sp-7: 48px; --sp-8: 64px;
+
+  --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --r-xl: 22px; --r-pill: 999px;
+
+  /* ---- Motion -----------------------------------------------------------
+     The built-in CSS easings are too weak to read as intentional. ease-in is
+     defined nowhere on purpose: it withholds movement at exactly the moment
+     the user is watching hardest, so it feels slower than the same duration
+     eased out. */
+  --ease-out:    cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+
+  --d-press:  160ms;
+  --d-fast:   180ms;
+  --d-normal: 240ms;
+  --d-sheet:  420ms;
+
+  --shell-max: 1180px;
+  --col-max:   560px;
+}
+
+/* Light mode. Only the tokens that change are redefined; anything defined
+   once above stays authoritative in both themes. */
+:root[data-theme='light'] {
+  --ground:      #F7F8FA;
+  --surface:     #FFFFFF;
+  --raised:      #FFFFFF;
+  --sunken:      #ECEFF3;
+  --line:        #DEE3EA;
+  --line-strong: #C3CBD6;
+  --text:        #0F1319;
+  --text-muted:  #5A6472;
+  --text-faint:  #8B95A3;
+  --accent:      #3B5BA9;
+  --accent-ink:  #FFFFFF;
+  --accent-dim:  #DCE4F7;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']):not([data-theme='light']) {
+    --ground: #F7F8FA; --surface: #FFFFFF; --raised: #FFFFFF; --sunken: #ECEFF3;
+    --line: #DEE3EA; --line-strong: #C3CBD6;
+    --text: #0F1319; --text-muted: #5A6472; --text-faint: #8B95A3;
+    --accent: #3B5BA9; --accent-ink: #FFFFFF; --accent-dim: #DCE4F7;
+  }
+}
