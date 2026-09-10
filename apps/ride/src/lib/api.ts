@@ -13,7 +13,13 @@
  *    is stricter about it (an https page cannot call an http API at all).
  */
 
-const RAW_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://127.0.0.1:3000';
+// `??` only falls back on null/undefined. A GitHub Actions expression for an
+// unset repository variable renders as the EMPTY STRING, which `??` passes
+// straight through - so the deployed bundle got API_BASE_URL = '' and every
+// request went same-origin, 404ing against the site itself rather than
+// failing as a missing backend. `||` is what makes an unset variable behave
+// the way the deploy workflow's comment claims it does.
+const RAW_BASE = (import.meta.env.VITE_API_BASE_URL || '').trim() || 'http://127.0.0.1:3000';
 export const API_BASE_URL = RAW_BASE.replace(/\/+$/, '');
 
 const ACCESS_KEY = 'traverse.rider.access';

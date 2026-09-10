@@ -60,8 +60,14 @@ jobs:
           # page loads and then 404s on its own JavaScript.
           VITE_BASE: /ride/
           # Repository variable, Settings -> Secrets and variables -> Actions
-          # -> Variables. Unset until the API is hosted; the app then says so
-          # on screen rather than failing silently.
+          # -> Variables. Unset until the API is hosted.
+          #
+          # Careful: an unset variable renders here as the EMPTY STRING, not
+          # as nothing. The apps used to read this with `??`, which only falls
+          # back on null/undefined, so the deployed bundle shipped an empty
+          # base URL and every API call went same-origin - 404ing against the
+          # site itself. Both api.ts files now use `||`. Do not "tidy" that
+          # back to `??`.
           VITE_API_BASE_URL: ${{ vars.API_BASE_URL }}
         run: |
           cd apps/ride
