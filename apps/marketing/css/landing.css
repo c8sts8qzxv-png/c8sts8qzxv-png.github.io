@@ -336,6 +336,13 @@
   box-shadow: none;
 }
 
+/* Bullets first appeared inside an ink section with the driver list. Their
+   tick is normally --accent-text, which is tuned for contrast against
+   --surface, not against --primary. In dark mode that pairs pale gold with a
+   light blue ground and the ticks all but vanish, so on ink they take the
+   section's own foreground instead. */
+.section--ink .bullet svg { color: color-mix(in srgb, var(--on-primary) 68%, transparent); }
+
 .section__head { max-width: 62ch; margin-bottom: clamp(1.5rem, 1rem + 2vw, 3rem); }
 .section__head .eyebrow { margin-bottom: var(--sp-sm); }
 .section__head h2 { margin-bottom: var(--sp-md); }
@@ -610,4 +617,189 @@ body.is-locked { overflow: hidden; }
 @media (max-width: 860px) {
   .demo-overlay { padding: 0; }
   .demo-overlay .device { max-height: 100dvh; height: 100dvh; }
+}
+
+/* ---------------------------------------------------------------------------
+   Off-campus pickups — the quiet disclosure
+
+   The brief for this block was "do not make it sooo visible to everybody,
+   just those looking", and that is a typographic instruction as much as a
+   layout one. So: no eyebrow, no h2, no card, no shadow. A hairline rule and
+   a line of muted 13px type, sitting in the gap between the FAQ and the
+   closing CTA where a footnote belongs. It reads as page furniture until you
+   are the person it is addressed to.
+
+   The section deliberately carries no top padding. It is a footnote to the
+   FAQ above it rather than a peer of it, and the full --section rhythm would
+   promote it to a peer.
+   -------------------------------------------------------------------------- */
+
+.offcampus { padding-top: 0; }
+
+.aside-note {
+  border-top: 1px solid var(--outline-variant);
+  padding-top: var(--sp-md);
+}
+
+.aside-note__summary {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  padding: var(--sp-sm) 0;
+  cursor: pointer;
+  color: var(--on-surface-variant);
+  font-size: var(--fs-sm);
+  letter-spacing: var(--tracking-body);
+
+  /* Both are needed: Safari draws its own marker from the shadow DOM, every
+     other engine draws it from list-style. */
+  list-style: none;
+}
+.aside-note__summary::-webkit-details-marker { display: none; }
+
+.aside-note__summary:hover { color: var(--on-surface); }
+
+.aside-note__label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  font-weight: 600;
+  color: var(--on-surface);
+}
+
+/* The count is the part that does the work: somebody who lives off campus is
+   scanning for exactly this number. It stays quiet but never disappears. */
+.aside-note__hint { color: var(--on-surface-variant); }
+
+.aside-note__caret {
+  margin-left: auto;
+  flex: none;
+  transition: transform var(--dur-pop) var(--ease-out);
+}
+.aside-note[open] .aside-note__caret { transform: rotate(180deg); }
+
+.aside-note__body { padding: var(--sp-md) 0 var(--sp-sm); }
+
+.aside-note__lede {
+  max-width: 60ch;
+  font-size: var(--fs-base);
+  color: var(--on-surface-variant);
+  margin-bottom: var(--sp-lg);
+}
+
+/* Columns rather than a grid: the list is alphabetical, and columns are the
+   only layout that keeps A-to-Z readable down a column instead of scattering
+   it across a row. `break-inside` stops a name splitting over a column edge. */
+.place-list {
+  list-style: none;
+  columns: 4;
+  column-gap: var(--sp-xl);
+  margin: 0 0 var(--sp-lg);
+  padding: 0;
+  font-size: var(--fs-sm);
+  color: var(--on-surface);
+}
+.place-list li {
+  break-inside: avoid;
+  padding: 5px 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--outline-variant) 45%, transparent);
+}
+
+.aside-note__contact {
+  font-size: var(--fs-base);
+  color: var(--on-surface-variant);
+}
+.aside-note__contact a {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent-on-surface);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent-on-surface) 40%, transparent);
+  padding-bottom: 1px;
+}
+.aside-note__contact a:hover { border-bottom-color: var(--accent-on-surface); }
+
+@media (max-width: 1040px) { .place-list { columns: 3; } }
+@media (max-width: 760px)  { .place-list { columns: 2; column-gap: var(--sp-lg); } }
+@media (max-width: 420px)  { .place-list { columns: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .aside-note__caret { transition: none; }
+}
+
+/* ---------------------------------------------------------------------------
+   Nav at phone widths
+
+   Pre-existing: below roughly 470px the nav overflowed the viewport and the
+   whole page scrolled sideways — measured at 90px over on a 375px screen and
+   52px over on a 414px one, against the committed build. .nav__links already
+   drops out at 900px, but what remains (wordmark, campus chip, mode toggle,
+   and BOTH doors) still does not fit, and .nav__right has no min-width so it
+   simply pushed past the edge.
+
+   Nothing is removed. The wordmark and the campus name are hidden visually
+   and kept in the accessibility tree, so a screen reader still announces the
+   brand and which campus is selected — the two pieces of information a
+   display:none would have silently thrown away. What is left is a brand mark,
+   a colour chip, and the two doors, which is the point of the nav anyway.
+
+   The campus name is not lost visually either: the hero repeats it one
+   screen-length below as a labelled control, which on a phone is the switcher
+   people actually reach for.
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 560px) {
+  .brand__word,
+  #switcher-label {
+    position: absolute; width: 1px; height: 1px;
+    padding: 0; margin: -1px; overflow: hidden;
+    clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+
+  /* The chip keeps its swatch and caret, so it still reads as a control
+     rather than a decoration, and the tap target stays a full 38px. */
+  .switcher__btn { padding: 0 10px; }
+
+  .nav__inner { gap: var(--sp-sm); }
+  .nav .btn { padding: 10px 14px; }
+  .nav__right { gap: 6px; }
+}
+
+/* ---------------------------------------------------------------------------
+   "Coming soon" — the campuses that are built but not yet open
+
+   Legon is the campus you can ride on. The other four are real fixtures with
+   real stops and real palettes, and switching to one is how a prospective
+   school sees its own colours on the product — so they stay switchable rather
+   than being deleted or greyed into unreadability. The badge is what stops
+   that preview reading as an available service.
+
+   Deliberately quiet: this sits next to a campus name, not on top of it. It
+   is a status, and a status that shouts competes with the name it modifies.
+   -------------------------------------------------------------------------- */
+
+.soon {
+  display: inline-block;
+  margin-left: var(--sp-sm);
+  padding: 2px 8px;
+  border-radius: var(--r-pill);
+  font-size: 0.6875rem;          /* 11px — below the app's smallest label, on purpose */
+  font-weight: 700;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  white-space: nowrap;
+  vertical-align: middle;
+
+  /* Mixed from the campus accent rather than a fixed grey, so the badge keeps
+     belonging to whichever school is painted right now. */
+  color: var(--on-surface-variant);
+  background: color-mix(in srgb, var(--on-surface) 8%, transparent);
+  border: 1px solid var(--outline-variant);
+}
+
+/* On the ink section the surface tokens are the wrong ground entirely. */
+.section--ink .soon {
+  color: color-mix(in srgb, var(--on-primary) 82%, transparent);
+  background: color-mix(in srgb, var(--on-primary) 12%, transparent);
+  border-color: color-mix(in srgb, var(--on-primary) 24%, transparent);
 }

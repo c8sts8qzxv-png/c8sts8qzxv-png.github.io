@@ -117,7 +117,10 @@
     },
   };
 
-  var DEFAULT_SCHOOL_CODE = 'UPSA';
+  // Legon is the campus that is actually open. The others are previews, so
+  // the default has to be the live one - a first-time visitor must not land
+  // on a school they cannot ride on yet.
+  var DEFAULT_SCHOOL_CODE = 'UG-LEGON';
 
   function getSchoolPalette(code) {
     return SCHOOL_PALETTES[code] || SCHOOL_PALETTES[DEFAULT_SCHOOL_CODE];
@@ -268,7 +271,10 @@
   /* ---- applying to the document ------------------------------------ */
 
   var STORAGE_MODE = 'traverse_demo_mode';
-  var STORAGE_SCHOOL = 'traverse_demo_school';
+  // Bumped when Legon became the live campus. Anyone who visited before
+  // then has 'UPSA' persisted, and reading the old key would pin them to a
+  // coming-soon school on a site that now says Legon is the one that works.
+  var STORAGE_SCHOOL = 'traverse_demo_school_v2';
 
   function safeGet(key) {
     try { return global.localStorage.getItem(key); } catch (e) { return null; }

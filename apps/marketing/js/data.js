@@ -56,6 +56,7 @@
       code: 'UPSA',
       name: 'University of Professional Studies, Accra',
       short: 'UPSA',
+      live: false,
       comfortEnabled: true,
       independentEnabled: true,
       nodes: [
@@ -73,6 +74,7 @@
       code: 'UG-LEGON',
       name: 'University of Ghana, Legon',
       short: 'Legon',
+      live: true,
       comfortEnabled: true,
       independentEnabled: true,
       nodes: [
@@ -90,6 +92,7 @@
       code: 'GIMPA',
       name: 'Ghana Institute of Management and Public Administration',
       short: 'GIMPA',
+      live: false,
       comfortEnabled: true,
       independentEnabled: false,
       nodes: [
@@ -104,6 +107,7 @@
       code: 'CENTRAL-UNI',
       name: 'Central University',
       short: 'Central',
+      live: false,
       comfortEnabled: false,
       independentEnabled: false,
       nodes: [
@@ -118,6 +122,7 @@
       code: 'ASHESI',
       name: 'Ashesi University',
       short: 'Ashesi',
+      live: false,
       comfortEnabled: true,
       independentEnabled: true,
       nodes: [
@@ -134,8 +139,22 @@
     s.nodes.forEach(function (n, i) { n.id = s.code + '-' + i; n.schoolCode = s.code; });
   });
 
+  function liveSchools() {
+    return SCHOOLS.filter(function (s) { return s.live; });
+  }
+
+  // Ordered for display: the campus you can actually ride on today first, the
+  // rest behind it. Both the switcher menu and the campus grid read this, so
+  // a school going live is a one-word change in the fixture above.
+  function schoolsForDisplay() {
+    return liveSchools().concat(SCHOOLS.filter(function (s) { return !s.live; }));
+  }
+
   function schoolByCode(code) {
-    return SCHOOLS.filter(function (s) { return s.code === code; })[0] || SCHOOLS[0];
+    // The fallback is the live campus, never SCHOOLS[0] - otherwise an
+    // unknown or stale code silently lands on a school that is not open yet.
+    return SCHOOLS.filter(function (s) { return s.code === code; })[0]
+      || liveSchools()[0] || SCHOOLS[0];
   }
 
   /* -- drivers -------------------------------------------------------- */
@@ -286,6 +305,8 @@
     TRIP_HISTORY: TRIP_HISTORY,
     WALLET_LEDGER: WALLET_LEDGER,
     schoolByCode: schoolByCode,
+    liveSchools: liveSchools,
+    schoolsForDisplay: schoolsForDisplay,
     tierPerSeatPesewas: tierPerSeatPesewas,
     discountPctForPartySize: discountPctForPartySize,
     applyGroupDiscount: applyGroupDiscount,

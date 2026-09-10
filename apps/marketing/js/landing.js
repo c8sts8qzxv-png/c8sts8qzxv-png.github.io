@@ -47,7 +47,7 @@
         btn.setAttribute('aria-expanded', 'false');
       },
       render: function () {
-        menu.innerHTML = D.SCHOOLS.map(function (s) {
+        menu.innerHTML = D.schoolsForDisplay().map(function (s) {
           var pal = T.getSchoolPalette(s.code);
           var on = s.code === T.school;
           /* is-on was styled in landing.css but never applied by the original
@@ -59,7 +59,8 @@
               '<span class="switcher__dot" style="background:' + pal.secondary + '"></span>' +
             '</span>' +
             '<span style="flex:1;min-width:0">' +
-              '<span class="switcher__name" style="display:block">' + esc(s.short) + '</span>' +
+              '<span class="switcher__name" style="display:block">' + esc(s.short) +
+                (s.live ? '' : '<span class="soon">Coming soon</span>') + '</span>' +
               '<span class="switcher__code" style="display:block">' + esc(s.name) + '</span>' +
             '</span>' +
             (on ? icon('check', 'icon--sm') : '') +
@@ -134,7 +135,10 @@
     { icon: 'person', gold: false, title: 'Book for someone else', body: 'A friend without the app, or a visitor. Book and pay for them; they get the driver details and a tracking link by text. No account needed.' },
     { icon: 'ticket', gold: false, title: 'Passes and bundles', body: 'A pass for a set number of days, or a bundle of a fixed number of rides. Either way it covers your own seat — and the app says so before you buy.' },
     { icon: 'pin', gold: false, title: 'Save the spots you use', body: 'Drop a pin where you actually stand, name it yourself, pick it again next time. Your history records the nearest stop and how far off it was.' },
-    { icon: 'cash', gold: true, title: 'Pay how you like', body: 'Top up over campus MoMo, or settle with the driver after. Low balance never blocks a booking — the fare comes out at drop-off.' },
+    { icon: 'cash', gold: true, title: 'Pay how you like', body: 'Settle with the driver after the ride, or from a wallet where your campus has a top-up rail running. A low balance never blocks a booking.' },
+    { icon: 'compass', gold: false, title: 'Watch it come in', body: 'Once a driver accepts you get the car, the plate and a number to call. The route draws as the stops you already know by name.' },
+    { icon: 'star', gold: true, title: 'Bring people in, earn on it', body: 'Every rider gets a code at sign-up. When someone joins on it you earn a share of the platform’s own cut — never of their fare — paid into your wallet automatically.' },
+    { icon: 'shield', gold: false, title: 'Get help fast', body: 'One button texts a trusted contact your ride details and where you are. The alert is recorded, not only sent, so there is something to look at afterwards.' },
   ];
 
   function renderFeatures() {
@@ -199,7 +203,7 @@
   }
 
   function renderCampuses() {
-    $('#campus-grid').innerHTML = D.SCHOOLS.map(function (s, i) {
+    $('#campus-grid').innerHTML = D.schoolsForDisplay().map(function (s, i) {
       var p = T.getSchoolPalette(s.code);
       var on = s.code === T.school;
       var tiers = ['Standard'];
@@ -212,9 +216,14 @@
           '<span style="width:34px;height:34px;border-radius:11px;background:' + p.primary + '"></span>' +
           '<span style="width:34px;height:34px;border-radius:11px;background:' + p.secondary + '"></span>' +
         '</div>' +
-        '<h3>' + esc(s.short) + (on ? ' ' + icon('check-circle', 'icon--sm') : '') + '</h3>' +
+        '<h3>' + esc(s.short) + (on ? ' ' + icon('check-circle', 'icon--sm') : '') +
+          (s.live ? '' : '<span class="soon">Coming soon</span>') + '</h3>' +
         '<p>' + esc(s.name) + '</p>' +
         '<p style="margin-top:var(--sp-sm)"><strong>' + s.nodes.length + ' stops</strong> · ' + esc(tiers.join(', ')) + '</p>' +
+        (s.live
+          ? ''
+          : '<p style="margin-top:var(--sp-sm);font-size:var(--fs-sm);color:var(--on-surface-variant)">' +
+              'Pick it to see the app in this school\u2019s colours. Riding opens once the campus does.</p>') +
       '</button>';
     }).join('');
   }
@@ -234,8 +243,14 @@
     var discount = D.formatPartyDiscountSummary();
     $('#widget-meta').textContent =
       'Your campus sets the fare' + (discount ? ' · ' + discount : '');
-    $('#stat-campuses').textContent = D.SCHOOLS.length;
-    $('#stat-stops').textContent = D.SCHOOLS.reduce(function (n, x) { return n + x.nodes.length; }, 0);
+    // Count the campuses that are actually open, not the ones this page can
+    // draw. Summing all five read as five live services when there is one.
+    var live = D.liveSchools();
+    $('#stat-campuses').textContent = live.length;
+    $('#stat-campuses-label').textContent = live.length === 1 ? 'campus open now' : 'campuses open now';
+    // Stops for the campus on screen - the total across five schools is not a
+    // number any single rider can use.
+    $('#stat-stops').textContent = s.nodes.length;
     $('#footer-note').textContent = 'Showing ' + s.short + ' · ' + T.mode;
   }
 
@@ -303,8 +318,14 @@
       'No — a pass covers your own seat. If you book for three, you pay for the other two. The app says this on the pass before you buy it, because the wrong moment to find out is at drop-off.'],
     ['What if I have no money in the wallet?',
       'Book anyway. “Pay later” settles with the driver directly, or you can top up before the ride ends. A low balance disables the wallet option, not the booking.'],
-    ['How does topping up work without a payment provider?',
-      'A phone on campus holds the mobile-money SIM and forwards the payment texts to the backend, which credits the wallet. That is the MoMo forwarder — it exists so a top-up does not have to route through a third party.'],
+    ['Do I need money in the app before I can ride?',
+      'No. Paying the driver after the trip works on every campus and always has. The wallet is the other option, and which top-up rail is switched on is a campus decision — the app offers wallet payment only where one is actually running.'],
+    ['Why is there no password?',
+      'Because a password on a phone that already receives a code is one more thing to forget and one more thing to leak. Signing in is a code to your email, then a code to your phone. Administrators still use passwords; riders and drivers do not.'],
+    ['Can a driver see who I am before the ride?',
+      'No. Rider and driver identities stay hidden from each other until a ride is confirmed. That is deliberate — it stops anyone reading a list, picking a person out of it, and going around the app to reach them.'],
+    ['What if the paperwork on a car has lapsed?',
+      'The app records every licence, insurance and roadworthiness date and flags the moment one lapses. It does not quietly drop that driver from dispatch. A driver who vanishes from the queue with nothing said to anybody is the worse failure, so a person who can see the flag makes the call.'],
     ['Why does my history say “≈80 m from Balme Library”?',
       'Because you booked from a map pin rather than a listed stop, and that is where you actually stood. A phone’s idea of its own position on a campus is routinely out by about that much, so the app records the nearest stop and the distance rather than pretending to be precise.'],
   ];
@@ -328,6 +349,27 @@
     var open = item.classList.toggle('is-open');
     q.setAttribute('aria-expanded', String(open));
   });
+
+  /* ======================================================================
+     Off-campus disclosure
+
+     Somebody arriving on #off-campus - from the footer link, or a link a
+     friend sent them - wants the list of places, not a collapsed summary
+     they have to spot and click a second time. Opening it on arrival is the
+     entire reason the section carries an id.
+
+     Progressive, not required: with scripting off the <details> still opens
+     on click, which is why it is a <details> and not the FAQ's button.
+     ====================================================================== */
+
+  function openOffCampusIfTargeted() {
+    if (window.location.hash !== '#off-campus') return;
+    var note = document.querySelector('#off-campus .aside-note');
+    if (note) note.open = true;
+  }
+
+  window.addEventListener('hashchange', openOffCampusIfTargeted);
+  openOffCampusIfTargeted();
 
   /* ======================================================================
      Demo overlay
@@ -430,8 +472,20 @@
      Boot
      ====================================================================== */
 
+  // The off-campus list is a real list of real places around ONE campus. On
+  // any other campus it would be a promise about somewhere else entirely, so
+  // it is hidden rather than translated. With scripting off nothing hides it,
+  // which is correct: the default campus is the one the list belongs to.
+  function renderOffCampus() {
+    var sec = $('#off-campus');
+    if (!sec) return;
+    var belongsTo = sec.getAttribute('data-campus');
+    sec.hidden = !!belongsTo && belongsTo !== T.school;
+  }
+
   function renderAll() {
     renderSwitcher();
+    renderOffCampus();
     renderModeToggle();
     renderHeroBits();
     renderTiers();

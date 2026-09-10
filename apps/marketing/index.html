@@ -91,7 +91,7 @@
   <div class="nav__inner">
     <a class="brand" href="#top">
       <span class="brand__mark"><svg class="icon icon--sm" aria-hidden="true"><use href="#ic-car"/></svg></span>
-      Traverse
+      <span class="brand__word">Traverse</span>
     </a>
 
     <nav class="nav__links" aria-label="Sections">
@@ -99,6 +99,7 @@
       <a class="nav__link" href="#features">What you can do</a>
       <a class="nav__link" href="#fares">Ride types</a>
       <a class="nav__link" href="#sharing">Sharing</a>
+      <a class="nav__link" href="#safety">Safety</a>
       <a class="nav__link" href="#drivers">Drivers</a>
       <a class="nav__link" href="#campuses">Campuses</a>
     </nav>
@@ -171,11 +172,11 @@
         </div>
         <div class="hero__stats reveal" style="--reveal-delay:240ms">
           <div>
-            <div class="hero__stat-value" id="stat-campuses">5</div>
-            <div class="hero__stat-label">campuses</div>
+            <div class="hero__stat-value" id="stat-campuses">1</div>
+            <div class="hero__stat-label" id="stat-campuses-label">campus open now</div>
           </div>
           <div>
-            <div class="hero__stat-value" id="stat-stops">31</div>
+            <div class="hero__stat-value" id="stat-stops">8</div>
             <div class="hero__stat-label">stops you already know</div>
           </div>
           <div>
@@ -325,7 +326,8 @@
         <div class="reveal">
           <h3 style="margin-bottom:var(--sp-md)">Paying for it</h3>
           <div class="bullets">
-            <div class="bullet"><svg class="icon icon--sm" aria-hidden="true"><use href="#ic-check"/></svg><span><strong>Wallet.</strong> Top up over MTN MoMo to the campus number. The forwarder credits it without a payment provider in between.</span></div>
+            <div class="bullet"><svg class="icon icon--sm" aria-hidden="true"><use href="#ic-check"/></svg><span><strong>Pay the driver.</strong> Cash or mobile money, settled after the trip. This works on every campus and needs nothing set up first.</span></div>
+            <div class="bullet"><svg class="icon icon--sm" aria-hidden="true"><use href="#ic-check"/></svg><span><strong>Or from the wallet.</strong> A prepaid balance in cedis, with every debit and credit on your own statement. Which top-up rail is open is a campus decision, and the app offers the wallet only where one is running.</span></div>
             <div class="bullet"><svg class="icon icon--sm" aria-hidden="true"><use href="#ic-check"/></svg><span><strong>Pay later.</strong> Low balance is not a blocker. Book anyway and settle with the driver, or top up before drop-off.</span></div>
             <div class="bullet"><svg class="icon icon--sm" aria-hidden="true"><use href="#ic-check"/></svg><span><strong>Nothing is charged up front.</strong> The wallet is debited when the driver accepts, not when you tap.</span></div>
             <div class="bullet"><svg class="icon icon--sm" aria-hidden="true"><use href="#ic-check"/></svg><span><strong>Passes and bundles.</strong> A pass covers <em>your own seat</em>. Book for friends and you pay their fares — said plainly, before the car, not at drop-off.</span></div>
@@ -368,6 +370,61 @@
   </section>
 
   <!-- ======================================================================
+       Trust and safety
+
+       Every claim in this section is enforced somewhere in the product, not
+       promised in a policy. Where the product deliberately does NOT enforce
+       something - lapsed paperwork is flagged for a person rather than
+       silently dropping a driver from dispatch - the FAQ says so plainly
+       rather than letting this section imply otherwise.
+       ================================================================== -->
+  <section class="section section--tint" id="safety">
+    <div class="wrap">
+      <div class="section__head reveal">
+        <p class="eyebrow">Trust and safety</p>
+        <h2>The parts you only notice when they fail.</h2>
+        <p class="lede">
+          A campus is small. Everyone finds out who was in whose car, which is
+          exactly why the rules below are enforced by the product rather than
+          left to good manners.
+        </p>
+      </div>
+      <div class="grid">
+        <article class="feature reveal">
+          <div class="feature__icon"><svg class="icon" aria-hidden="true"><use href="#ic-shield"/></svg></div>
+          <h3>Nobody can reach you around the app</h3>
+          <p>Rider and driver identities stay hidden from each other until a ride is confirmed. There is no browsable list of names and numbers to pick a person out of.</p>
+        </article>
+        <article class="feature reveal" style="--reveal-delay:50ms">
+          <div class="feature__icon feature__icon--gold"><svg class="icon" aria-hidden="true"><use href="#ic-phone"/></svg></div>
+          <h3>No password to lose</h3>
+          <p>Signing in is a code to your email, then a code to your phone. Nothing to forget, and nothing sitting in a breach somewhere waiting to be reused.</p>
+        </article>
+        <article class="feature reveal" style="--reveal-delay:100ms">
+          <div class="feature__icon"><svg class="icon" aria-hidden="true"><use href="#ic-check-circle"/></svg></div>
+          <h3>A person approves every driver</h3>
+          <p>Both required documents have to be on file and a named administrator has to approve them before a driver receives a single request. Not a form that auto-approves at midnight.</p>
+        </article>
+        <article class="feature reveal" style="--reveal-delay:150ms">
+          <div class="feature__icon"><svg class="icon" aria-hidden="true"><use href="#ic-message"/></svg></div>
+          <h3>An SOS that leaves a record</h3>
+          <p>The button texts your trusted contact the ride details and where you are. The alert is written down as well as sent, so there is something to review afterwards instead of a memory of a text.</p>
+        </article>
+        <article class="feature reveal" style="--reveal-delay:200ms">
+          <div class="feature__icon feature__icon--gold"><svg class="icon" aria-hidden="true"><use href="#ic-wallet"/></svg></div>
+          <h3>A statement nobody can rewrite</h3>
+          <p>Wallet entries can be added but never edited or deleted, and the database refuses it rather than trusting the code to behave. A refund can never exceed what was actually charged.</p>
+        </article>
+        <article class="feature reveal" style="--reveal-delay:250ms">
+          <div class="feature__icon"><svg class="icon" aria-hidden="true"><use href="#ic-account"/></svg></div>
+          <h3>Log out everywhere, and mean it</h3>
+          <p>Signing out blocks the session immediately instead of waiting for it to expire on its own. If a phone goes missing, one tap ends every session on it.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
        Drivers
        ================================================================== -->
   <section class="section section--ink" id="drivers">
@@ -386,6 +443,12 @@
           <div><div class="stat__value">Before accepting</div><div class="stat__label">you see route and fare</div></div>
           <div><div class="stat__value">At drop-off</div><div class="stat__label">fare is taken, not up front</div></div>
         </div>
+        <div class="bullets" style="margin-top:var(--sp-xl)">
+          <div class="bullet"><svg class="icon icon--sm" aria-hidden="true"><use href="#ic-check"/></svg><span><strong>Decline as often as you like.</strong> There is no acceptance rate, no score and no quiet penalty for saying no. The system has nowhere to record one.</span></div>
+          <div class="bullet"><svg class="icon icon--sm" aria-hidden="true"><use href="#ic-check"/></svg><span><strong>Breaks are part of the rules.</strong> After a stretch on duty your campus offers a break, and the length is its policy rather than your nerve.</span></div>
+          <div class="bullet"><svg class="icon icon--sm" aria-hidden="true"><use href="#ic-check"/></svg><span><strong>Flag-downs count too.</strong> Somebody waves you down at the gate, you start the trip in the app and it is a real trip, with a real record and a real fare.</span></div>
+          <div class="bullet"><svg class="icon icon--sm" aria-hidden="true"><use href="#ic-check"/></svg><span><strong>You know the cut before you drive.</strong> The campus rate is set in the open and can be adjusted for an individual driver. It is a number, not a moving target.</span></div>
+        </div>
       </div>
       <div class="reveal" style="--reveal-delay:80ms">
         <div class="grid" style="grid-template-columns:1fr">
@@ -395,6 +458,13 @@
             <div class="row"><span class="row__label" style="color:inherit;opacity:.72">Rider is</span><span class="row__value">3 min away</span></div>
             <div class="row"><span class="row__label" style="color:inherit;opacity:.72">Seats</span><span class="row__value">1 of 4</span></div>
             <div class="row row--total"><span class="row__label">You earn</span><span class="row__value" id="driver-earn">The fare, less the campus cut</span></div>
+          </div>
+          <div class="card" style="padding:var(--sp-lg)">
+            <h3 style="font-size:var(--fs-lg);margin-bottom:var(--sp-sm)">Your week, as the app has it</h3>
+            <div class="row"><span class="row__label" style="color:inherit;opacity:.72">Earnings</span><span class="row__value">By day and by week</span></div>
+            <div class="row"><span class="row__label" style="color:inherit;opacity:.72">Riders</span><span class="row__value">Picked up and dropped individually</span></div>
+            <div class="row"><span class="row__label" style="color:inherit;opacity:.72">On duty</span><span class="row__value">Whenever it suits you</span></div>
+            <div class="row row--total"><span class="row__label">Paid out</span><span class="row__value">Wallet, or cash confirmed in-app</span></div>
           </div>
         </div>
       </div>
@@ -410,14 +480,48 @@
         <p class="eyebrow">For campuses</p>
         <h2>The whole app wears your colours.</h2>
         <p class="lede">
+          <strong>Legon is open today.</strong> The rest are built and waiting on
+          their campus, and you can switch to any of them here to see the app in
+          that school&rsquo;s own colours.
+        </p>
+        <p class="lede">
           A school is not a config flag. Its palette drives every surface in both
           light and dark, its own stops are the only stops riders can pick, and
           its operator sets the base fare, the group discount, and which ride
-          types are offered at all. Switch campus in the header and watch this
-          page and the app change together.
+          types are offered at all.
         </p>
       </div>
       <div class="grid" id="campus-grid"></div>
+
+      <div class="split" style="margin-top:var(--sp-xxl)">
+        <div class="reveal">
+          <h3 style="margin-bottom:var(--sp-md)">What the operator actually holds</h3>
+          <div class="bullets">
+            <div class="bullet"><svg class="icon icon--sm" aria-hidden="true"><use href="#ic-check"/></svg><span><strong>The stop list is the boundary.</strong> Riders can only pick from stops you set, which is what keeps rides on campus rather than across the city. A bulk import reads the campus off OpenStreetMap and proposes what it finds; nothing becomes bookable until somebody accepts it.</span></div>
+            <div class="bullet"><svg class="icon icon--sm" aria-hidden="true"><use href="#ic-check"/></svg><span><strong>Price a pass and see the worst case.</strong> While you are still typing, the form works out what drivers are owed for every ride the pass covers and what it nets if somebody uses it to the limit. An unlimited pass is told plainly that it has no worst case.</span></div>
+            <div class="bullet"><svg class="icon icon--sm" aria-hidden="true"><use href="#ic-check"/></svg><span><strong>Three revenue numbers, never blended.</strong> Rides completed, cash actually collected, and credit given away in promotions are reported separately, because averaging them is how a campus talks itself into a discount it cannot afford.</span></div>
+            <div class="bullet"><svg class="icon icon--sm" aria-hidden="true"><use href="#ic-check"/></svg><span><strong>Disputes go in a queue, oldest first.</strong> A refund can never exceed what was charged. Where nothing was charged, goodwill is a free ride or credit instead of money that was never taken.</span></div>
+            <div class="bullet"><svg class="icon icon--sm" aria-hidden="true"><use href="#ic-check"/></svg><span><strong>Say when the campus is busy.</strong> During busy hours cars sell every seat; the rest of the time they sell only as many as they carry comfortably, so nobody is wedged into a middle seat on a quiet Tuesday.</span></div>
+            <div class="bullet"><svg class="icon icon--sm" aria-hidden="true"><use href="#ic-check"/></svg><span><strong>Your managers see your campus only.</strong> A school account is scoped to its own school, its own drivers and its own money. Every administrative action is written to an audit log.</span></div>
+          </div>
+        </div>
+        <div class="reveal" style="--reveal-delay:80ms">
+          <div class="card" style="padding:var(--sp-lg)">
+            <p class="eyebrow" style="margin-bottom:var(--sp-md)">What a campus sets</p>
+            <div class="row"><span class="row__label">Base fare</span><span class="row__value">Yours</span></div>
+            <div class="row"><span class="row__label">Platform cut</span><span class="row__value">Per campus, per driver</span></div>
+            <div class="row"><span class="row__label">Ride types offered</span><span class="row__value">On or off</span></div>
+            <div class="row"><span class="row__label">Group discount</span><span class="row__value">Only if you set one</span></div>
+            <div class="row"><span class="row__label">Stops</span><span class="row__value">Your list, nothing else</span></div>
+            <div class="row row--total"><span class="row__label">Map bill</span><span class="row__value">None</span></div>
+            <p style="font-size:var(--fs-sm);color:var(--on-surface-variant);margin-top:var(--sp-md)">
+              There is no Google Maps key anywhere in Traverse. Apple Maps on iPhone,
+              OpenStreetMap elsewhere. No metered map account to sign, and no per-view
+              cost that grows with the thing you were hoping would grow.
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -431,6 +535,84 @@
         <h2>The ones that actually get asked.</h2>
       </div>
       <div class="faq reveal" id="faq"></div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       Off-campus pickups
+
+       Deliberately quiet. This is a footnote, not a section: no eyebrow, no
+       heading, hairline rule, muted type. Somebody scanning the page scrolls
+       past it; somebody who lives off campus and is looking for their own
+       hostel finds it and opens it. That is the whole brief.
+
+       A native <details> rather than the FAQ's button+JS pattern, because
+       this is the one block on the page a person may genuinely need while
+       scripting is broken, and <details> brings its own keyboard and
+       screen-reader behaviour rather than borrowing ours.
+       ================================================================== -->
+  <section class="section offcampus" id="off-campus" data-campus="UG-LEGON">
+    <div class="wrap">
+      <details class="aside-note">
+        <summary class="aside-note__summary">
+          <span class="aside-note__label">
+            <svg class="icon icon--sm" aria-hidden="true"><use href="#ic-pin"/></svg>
+            Staying off campus?
+          </span>
+          <span class="aside-note__hint">37 places within 3&nbsp;km by road</span>
+          <svg class="icon icon--sm aside-note__caret" aria-hidden="true"><use href="#ic-chevron-down"/></svg>
+        </summary>
+        <div class="aside-note__body">
+          <p class="aside-note__lede">
+            Rides do not have to start or end at a campus stop. We already run to
+            the places below, all of them within 3&nbsp;km of Legon by road, and we
+            can arrange something nearer to you if yours is not on the list.
+          </p>
+          <ul class="place-list">
+          <li>Abrempong Hostel</li>
+          <li>Africana Guest House</li>
+          <li>Agape Villa</li>
+          <li>Agape Villa (2nd)</li>
+          <li>Agape Villa Hostel</li>
+          <li>Alto Tower</li>
+          <li>Amon Kotei (UPSA C)</li>
+          <li>Aqua Tower</li>
+          <li>Aseda Annex A</li>
+          <li>Aseda Annex B</li>
+          <li>Bethel Lodge</li>
+          <li>Bonsukoda</li>
+          <li>Castle Royale Homes</li>
+          <li>Catters Hostel</li>
+          <li>Cesia Lodge</li>
+          <li>Elite Porsh</li>
+          <li>Empress</li>
+          <li>Golden Crest Lodge</li>
+          <li>Grace Towers</li>
+          <li>Grant Court</li>
+          <li>Harold’s Lodge</li>
+          <li>High Bridge Lodge</li>
+          <li>Kitatsu Hostel</li>
+          <li>Lin-Mart Executive Hostel</li>
+          <li>Najinaram Crescent Lodge</li>
+          <li>Noah’s Ark Residence</li>
+          <li>Nurses Hostel Shiashie</li>
+          <li>Oasis Park Residences</li>
+          <li>Omotche Lodge</li>
+          <li>PEK Villa</li>
+          <li>Pomaa Lodge</li>
+          <li>Prestige Hostel</li>
+          <li>Selina Lodge</li>
+          <li>Sight and Sound Hostel</li>
+          <li>THE ASH Hostel</li>
+          <li>UPSA</li>
+          <li>Zenon Hostel</li>
+          </ul>
+          <p class="aside-note__contact">
+            Text <a href="sms:0500530354">0500&nbsp;530&nbsp;354</a> with where you are
+            and when you need it.
+          </p>
+        </div>
+      </details>
     </div>
   </section>
 
@@ -475,6 +657,7 @@
           <a href="#demo">Book a ride</a>
           <a href="#fares">Ride types and passes</a>
           <a href="#sharing">Sharing a ride</a>
+          <a href="#off-campus">Staying off campus</a>
         </div>
       </div>
       <div>
