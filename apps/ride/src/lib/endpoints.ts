@@ -6,7 +6,7 @@ export interface School {
 }
 export interface CampusNodeRef { id: string; name: string; latitude: number | null; longitude: number | null; }
 
-export type RideTier = 'standard' | 'comfort' | 'independent';
+export type RideTier = 'standard' | 'independent';
 
 export interface FareQuote {
   perSeatPesewas: number;
@@ -32,8 +32,21 @@ export const requestEmailCode = (email: string) =>
 export const confirmEmailCode = (email: string, code: string) =>
   apiRequest<{ loginToken: string }>('/auth/riders/login/confirm-email', { method: 'POST', body: { email, code }, auth: false });
 
-export const requestPhoneCode = (loginToken: string, phone: string) =>
-  apiRequest<{ ok: true }>('/auth/riders/login/request-phone', { method: 'POST', body: { loginToken, phone }, auth: false });
+/** Where a one-time code can be delivered. Asked every sign-in, never stored. */
+export type OtpChannel = 'whatsapp' | 'sms';
+
+/**
+ * Which channels this deployment can actually deliver on.
+ *
+ * Asked before offering the choice: on a deployment without WhatsApp
+ * configured, every pick would silently land as an SMS, and a choice that
+ * does nothing is worse than no choice at all.
+ */
+export const getOtpChannels = () =>
+  apiRequest<{ channels: OtpChannel[] }>('/auth/otp-channels', { auth: false });
+
+export const requestPhoneCode = (loginToken: string, phone: string, channel?: OtpChannel) =>
+  apiRequest<{ ok: true }>('/auth/riders/login/request-phone', { method: 'POST', body: { loginToken, phone, channel }, auth: false });
 
 export const confirmPhoneCode = (loginToken: string, phone: string, code: string) =>
   apiRequest<LoginResponse>('/auth/riders/login/confirm-phone', { method: 'POST', body: { loginToken, phone, code }, auth: false });

@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
-  confirmEmailCode, confirmPhoneCode, requestEmailCode, requestPhoneCode,
+  confirmEmailCode, confirmPhoneCode, getOtpChannels, requestEmailCode, requestPhoneCode,
 } from '../lib/endpoints';
+import type { OtpChannel } from '../lib/endpoints';
 import { ApiError } from '../lib/api';
 import { useSession } from '../lib/session';
 
@@ -23,10 +24,25 @@ export function Login() {
   const [loginToken, setLoginToken] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Which channels this deployment can deliver on. Null until asked; the
+  // choice is only offered when there is genuinely more than one.
+  const [channels, setChannels] = useState<OtpChannel[] | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    getOtpChannels()
+      .then((r) => { if (!cancelled) setChannels(r.channels); })
+      // A failure here must not block signing in: fall back to one button,
+      // which sends with no preference and lets the server decide.
+      .catch(() => { if (!cancelled) setChannels(['sms']); });
+    return () => { cancelled = true; };
+  }, []);
+
+  const canChooseChannel = step === 'phone' && (channels ?? []).includes('whatsapp');
 
   const copy = STEP_COPY[step];
 
-  async function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent, channel?: OtpChannel) {
     e.preventDefault();
     setBusy(true);
     setError(null);
@@ -38,7 +54,7 @@ export function Login() {
         const { loginToken: t } = await confirmEmailCode(email.trim(), code.trim());
         setLoginToken(t); setCode(''); setStep('phone');
       } else if (step === 'phone') {
-        await requestPhoneCode(loginToken, phone.trim());
+        await requestPhoneCode(loginToken, phone.trim(), channel);
         setCode(''); setStep('phoneCode');
       } else {
         signIn(await confirmPhoneCode(loginToken, phone.trim(), code.trim()));
@@ -99,9 +115,34 @@ export function Login() {
 
           {error && <p role="alert" style={{ color: 'var(--danger)', fontSize: 'var(--t-small)' }}>{error}</p>}
 
-          <button className="btn btn--primary btn--block" disabled={disabled}>
-            {busy ? 'Working…' : copy.cta}
-          </button>
+          {canChooseChannel ? (
+            /* Asked every time, and never remembered. A stored preference goes
+               stale in silence: someone who uninstalls WhatsApp would keep
+               being sent codes they cannot read, from the one screen that
+               gives them no way to say so. */
+            <div className="stack-2">
+              <button
+                type="button"
+                className="btn btn--primary btn--block"
+                disabled={disabled}
+                onClick={(e) => submit(e, 'whatsapp')}
+              >
+                {busy ? 'Working…' : 'Send code on WhatsApp'}
+              </button>
+              <button
+                type="button"
+                className="btn btn--ghost btn--block"
+                disabled={disabled}
+                onClick={(e) => submit(e, 'sms')}
+              >
+                Send code by SMS
+              </button>
+            </div>
+          ) : (
+            <button className="btn btn--primary btn--block" disabled={disabled}>
+              {busy ? 'Working…' : copy.cta}
+            </button>
+          )}
 
           {step !== 'email' && (
             <button

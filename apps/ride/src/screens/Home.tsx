@@ -12,7 +12,6 @@ import { formatGhs } from '../lib/format';
 
 const TIERS: { id: RideTier; name: string; blurb: string }[] = [
   { id: 'standard',    name: 'Standard',    blurb: 'Share the car. Cheapest seat.' },
-  { id: 'comfort',     name: 'Comfort',     blurb: 'Fewer seats sold, more room.' },
   { id: 'independent', name: 'Independent', blurb: 'The whole car to yourself.' },
 ];
 
