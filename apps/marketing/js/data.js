@@ -19,7 +19,10 @@
     baseFarePesewas: 500,          // @default(500)
     comfortSurchargePct: 50,       // @default(50)
     independentSurchargePct: 150,  // @default(150)
-    partyDiscountSchedule: { 3: 10 }, // @default("{\"3\":10}")
+    // Empty, matching the schema default. There is no built-in group discount
+    // any more - a campus gets one only when its operator sets it, so the demo
+    // must not show a saving the product does not ship with.
+    partyDiscountSchedule: {}, // @default("{}")
   };
 
   /* -- ride tiers (rider-app/src/rideTier.ts), copy verbatim ---------- */
@@ -183,7 +186,7 @@
     return Math.round(FARE.baseFarePesewas * (1 + pct / 100));
   }
 
-  /** "10% off for 3+ seats" (rider-app/src/fare.ts formatPartyDiscountSummary) */
+  /** e.g. "10% off for 3+ seats", or null when the campus set no discount. */
   function formatPartyDiscountSummary(schedule) {
     schedule = schedule || FARE.partyDiscountSchedule;
     var entries = Object.keys(schedule)
@@ -259,7 +262,7 @@
 
   var TRIP_HISTORY = [
     { from: 'Main Gate', to: 'Joshua Alabi Library', when: 'Today, 8:12 AM', farePesewas: 500, tier: 'standard', pooled: true, seats: 1 },
-    { from: 'Student Canteen', to: 'Junior Common Room (JCR)', when: 'Yesterday, 6:40 PM', farePesewas: 1350, tier: 'standard', pooled: false, seats: 3, note: 'Group of 3 — 10% off' },
+    { from: 'Student Canteen', to: 'Junior Common Room (JCR)', when: 'Yesterday, 6:40 PM', farePesewas: 1350, tier: 'standard', pooled: false, seats: 3, note: 'Group of 3' },
     { from: 'Joshua Alabi Library', to: 'Main Gate', when: 'Mon, 9:05 PM', farePesewas: 750, tier: 'comfort', pooled: true, seats: 1 },
     { from: 'Central Administration Building', to: 'Ewontoma Medical Centre', when: 'Sun, 11:20 AM', farePesewas: 1250, tier: 'independent', pooled: false, seats: 1 },
     { from: 'Main Gate', to: 'UPSA Business School Block', when: 'Fri, 7:55 AM', farePesewas: 500, tier: 'standard', pooled: true, seats: 1, note: 'Picked up at ≈80 m from Main Gate' },

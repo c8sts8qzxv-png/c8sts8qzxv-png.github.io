@@ -228,10 +228,12 @@
     var s = school();
     $('#widget-origin').textContent = s.nodes[0].name;
     $('#widget-destination').textContent = s.nodes[3].name;
-    // The discount summary stays because it is a rule ("10% off for 3+
-    // seats"), not an amount. The amount itself is the school's to publish.
+    // A discount clause only when the campus actually has one. There is no
+    // built-in group discount now, so the common case is no clause at all -
+    // and concatenating a null summary would print "· null" on every campus.
+    var discount = D.formatPartyDiscountSummary();
     $('#widget-meta').textContent =
-      'Your campus sets the fare · ' + D.formatPartyDiscountSummary();
+      'Your campus sets the fare' + (discount ? ' · ' + discount : '');
     $('#stat-campuses').textContent = D.SCHOOLS.length;
     $('#stat-stops').textContent = D.SCHOOLS.reduce(function (n, x) { return n + x.nodes.length; }, 0);
     $('#footer-note').textContent = 'Showing ' + s.short + ' · ' + T.mode;
