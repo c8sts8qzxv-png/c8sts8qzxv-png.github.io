@@ -58,3 +58,26 @@
 @media (prefers-reduced-motion: reduce) {
   .gate, .gate__panel { animation: none; }
 }
+
+/* --------------------------------------------------------------------------
+   Registration: the terms box
+   --------------------------------------------------------------------------
+   A real checkbox rather than a styled div, so it is reachable by keyboard and
+   announced as a checkbox. The label wraps the control, which makes the text
+   part of the hit area - on a phone, a 16px tickbox on its own is not one.
+   -------------------------------------------------------------------------- */
+.reg__terms {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  font-size: var(--t-small);
+  color: var(--text-muted);
+  line-height: 1.45;
+  cursor: pointer;
+}
+.reg__terms input {
+  flex: none;
+  width: 18px; height: 18px;
+  margin-top: 1px;
+  accent-color: var(--accent);
+}

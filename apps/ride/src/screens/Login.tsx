@@ -15,7 +15,7 @@ const STEP_COPY: Record<Step, { sign: string; title: string; hint: string; cta: 
   phoneCode: { sign: 'Step 2 of 2', title: 'Check messages', hint: 'Last step.',                                 cta: 'Sign in' },
 };
 
-export function Login() {
+export function Login({ onCreateAccount }: { onCreateAccount: () => void }) {
   const { signIn } = useSession();
   const [step, setStep] = useState<Step>('email');
   const [email, setEmail] = useState('');
@@ -150,6 +150,14 @@ export function Login() {
               onClick={() => { setError(null); setCode(''); setStep(step === 'emailCode' ? 'email' : step === 'phone' ? 'email' : 'phone'); }}
             >
               Back
+            </button>
+          )}
+
+          {/* Only on the first step. Offering it halfway through a sign-in
+              would throw away codes the person has already been sent. */}
+          {step === 'email' && (
+            <button type="button" className="btn btn--ghost btn--block" onClick={onCreateAccount}>
+              Create an account
             </button>
           )}
         </form>

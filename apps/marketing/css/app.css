@@ -372,6 +372,19 @@
   box-shadow: 0 8px 16px rgb(var(--shadow-hue) / 0.22);
 }
 
+/* The third level on the front door: below "create an account" and "I already
+   have one" sits "just show me around", which must read as the quiet option
+   rather than as a third thing of equal weight. No fill, no border. */
+.a-btn--ghost {
+  background: none;
+  color: var(--on-surface-variant);
+  border: none;
+  padding: 14px var(--sp-md);
+  font-size: 15px;
+  font-weight: 600;
+}
+.a-btn--ghost:hover { color: var(--on-surface); }
+
 .a-btn--secondary {
   background: var(--surface);
   color: var(--on-surface);

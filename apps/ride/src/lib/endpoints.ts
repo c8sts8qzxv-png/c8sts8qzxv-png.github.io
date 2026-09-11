@@ -53,6 +53,60 @@ export const confirmPhoneCode = (loginToken: string, phone: string, code: string
 
 /* ---- Campus ------------------------------------------------------------ */
 export const listSchools = () => apiRequest<School[]>('/schools', { auth: false });
+
+/* ---- Creating an account -------------------------------------------------
+   Registration is a different thing from signing in, and much heavier: it
+   takes a name, a campus, an email, a phone number, a date of birth that has
+   to clear a minimum age, an explicit acceptance of the terms, and a solved
+   proof-of-work. The OTP login flow below does NOT create anybody - it signs
+   in a rider who already exists. */
+
+export interface RegistrationChallenge { challenge: string; difficulty: number }
+
+export const getRegistrationChallenge = () =>
+  apiRequest<RegistrationChallenge>('/auth/riders/registration-challenge', { auth: false });
+
+export const registerRider = (input: {
+  schoolId: string;
+  fullName: string;
+  phone: string;
+  email: string;
+  dateOfBirth: string;
+  acceptedTerms: true;
+  challenge: string;
+  solution: string;
+}) => apiRequest<unknown>('/auth/riders/register', {
+  method: 'POST', auth: false, body: input,
+});
+
+/**
+ * Confirming the two codes that registration sends.
+ *
+ * Both endpoints run completeRegistrationIfReady, which hands back a full
+ * session the moment BOTH the email and the phone are verified, and a bare
+ * { ok: true } until then. Whichever one the rider finishes second is the one
+ * that signs them in - so the caller has to check for a token rather than
+ * assuming the phone step is the one that returns it.
+ *
+ * This is also why a brand-new rider cannot simply use the OTP login flow:
+ * requestPhoneLogin returns { ok: true } with NO session for anyone who is not
+ * already verified (auth.service.ts, completeRegistrationIfReady). Signing in
+ * would look like it worked and quietly hand back nothing.
+ */
+export type VerifyResult = LoginResponse | { ok: true };
+
+export const isSignedIn = (r: VerifyResult): r is LoginResponse =>
+  typeof (r as LoginResponse).accessToken === 'string';
+
+export const verifyEmail = (email: string, code: string) =>
+  apiRequest<VerifyResult>('/auth/riders/verify-email', {
+    method: 'POST', auth: false, body: { email, code },
+  });
+
+export const verifyPhone = (phone: string, code: string) =>
+  apiRequest<VerifyResult>('/auth/riders/verify-phone', {
+    method: 'POST', auth: false, body: { phone, code },
+  });
 export const listNodes = (schoolId: string) => apiRequest<CampusNodeRef[]>(`/schools/${schoolId}/nodes`);
 
 /* ---- Fare -------------------------------------------------------------- */

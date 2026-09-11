@@ -1,7 +1,9 @@
 import { BrowserRouter, NavLink, Navigate, Route, Routes } from 'react-router-dom';
 import { SessionProvider, useSession } from './lib/session';
 import { OfflineBanner } from './components/OfflineBanner';
+import { useState } from 'react';
 import { Login } from './screens/Login';
+import { Register } from './screens/Register';
 import { Home } from './screens/Home';
 import { History, Profile, Wallet } from './screens/Simple';
 import { IconClock, IconPerson, IconRoute, IconWallet } from './components/Icon';
@@ -46,7 +48,20 @@ function Shell() {
 
 function Gate() {
   const { rider } = useSession();
-  return rider ? <Shell /> : <Login />;
+  // Signing in and creating an account are genuinely different flows against
+  // different endpoints - a new rider cannot use the OTP login flow at all
+  // until both their email and phone are verified, because it returns no
+  // session for them. So this is two screens, not one with a toggle inside it.
+  // The marketing page's phone has two real doors on it, and "Create an
+  // account" has to land on the form rather than on a sign-in screen the
+  // person then has to find their way off. ?new=1 is how it says so.
+  const [creating, setCreating] = useState(
+    () => new URLSearchParams(window.location.search).get('new') === '1',
+  );
+  if (rider) return <Shell />;
+  return creating
+    ? <Register onBack={() => setCreating(false)} />
+    : <Login onCreateAccount={() => setCreating(true)} />;
 }
 
 export default function App() {

@@ -51,11 +51,6 @@
 
   var state = {
     signedIn: false,
-    // Sign-in is a code to the email, then a code to the phone - the same two
-    // steps the real app runs (rider-app/app/login.tsx, apps/ride Login.tsx).
-    // There is no password anywhere in Traverse, so the demo must not show a
-    // password field: the FAQ on this very page says there isn't one.
-    loginStep: 'email',
     schoolCode: T.school,
     origin: null,
     destination: null,
@@ -196,36 +191,32 @@
 
   /* -- login ---------------------------------------------------------- */
 
-  var LOGIN_STEPS = {
-    email:     { sign: 'Step 1 of 2', title: 'Sign in',       hint: 'Your campus email.',             cta: 'Send code', next: 'emailCode' },
-    emailCode: { sign: 'Step 1 of 2', title: 'Check email',   hint: 'Six digits, sent just now.',     cta: 'Continue',  next: 'phone'     },
-    phone:     { sign: 'Step 2 of 2', title: 'Your number',   hint: 'The number a driver will call.', cta: 'Send code', next: 'phoneCode' },
-    phoneCode: { sign: 'Step 2 of 2', title: 'Check messages', hint: 'Last step.',                    cta: 'Sign in',   next: null        },
-  };
+  /* -- the front door -------------------------------------------------
+     This screen used to simulate signing in - first with a password that does
+     not exist anywhere in Traverse, then with a mock of the real code flow.
+     Both were theatre: no account was created, nothing was signed into, and
+     the button went nowhere.
 
+     It is now the actual front door. Creating an account and signing in are
+     real, and they happen in the rider app at /ride, which has the API client,
+     the proof-of-work solver and the error handling. Duplicating an age gate
+     and a terms acceptance into this file would be a second implementation of
+     something legally load-bearing, kept in sync by hope.
+
+     The walkthrough stays, because someone who has not decided yet should be
+     able to look around without handing over a date of birth. */
   function screenLogin() {
-    var step = LOGIN_STEPS[state.loginStep] ? state.loginStep : 'email';
-    var copy = LOGIN_STEPS[step];
-    var isCode = step === 'emailCode' || step === 'phoneCode';
-    var label = step === 'email' ? 'Email' : step === 'phone' ? 'Phone' : 'Code';
-    var value = step === 'email' ? D.RIDER.email : step === 'phone' ? D.RIDER.phone : '••••••';
-
     return '<div class="screen" data-screen="login">' +
       '<div class="login">' +
         '<div class="login__mark">' + icon('car', 'icon--lg') + '</div>' +
-        '<span class="login__sign">' + esc(copy.sign) + '</span>' +
-        '<h1 class="login__title">' + esc(copy.title) + '</h1>' +
-        '<p class="login__sub">' + esc(copy.hint) + '</p>' +
-        '<div class="login__field">' +
-          '<label for="li-input">' + esc(label) + '</label>' +
-          '<input id="li-input" type="' + (isCode ? 'text' : step === 'phone' ? 'tel' : 'email') + '"' +
-            ' inputmode="' + (isCode ? 'numeric' : step === 'phone' ? 'tel' : 'email') + '"' +
-            ' value="' + esc(value) + '" readonly>' +
-        '</div>' +
-        '<button class="a-btn a-btn--primary press" data-act="login-next">' + esc(copy.cta) + '</button>' +
-        (step === 'email' ? '' :
-          '<button class="a-btn a-btn--secondary press" data-act="login-back">Back</button>') +
-        '<p class="disclaimer" style="margin-bottom:0">Demonstration build — the fields are pre-filled and no code is actually sent.</p>' +
+        '<h1 class="login__title">Campus rides,<br>without the wait.</h1>' +
+        '<p class="login__sub">Ride with drivers who already serve ' + esc(school().short) + '. ' +
+          'No password — a code to your email, then one to your phone.</p>' +
+        '<a class="a-btn a-btn--primary press" href="ride/?new=1">Create an account</a>' +
+        '<a class="a-btn a-btn--secondary press" href="ride/">I already have one</a>' +
+        '<button class="a-btn a-btn--ghost press" data-act="tour">Just show me around</button>' +
+        '<p class="disclaimer" style="margin-bottom:0">The walkthrough uses sample data. ' +
+          'Creating an account is real.</p>' +
       '</div>' +
     '</div>';
   }
@@ -840,30 +831,16 @@
   /* ---- actions ------------------------------------------------------ */
 
   var ACTIONS = {
-    'login-next': function () {
-      var next = LOGIN_STEPS[state.loginStep].next;
-      // render('none'), not 'push': the screen NAME does not change between
-      // login steps, and the push/pop transitions assume the outgoing and
-      // incoming screens are different. Passing 'push' here appended a second
-      // and third .screen[data-screen=login] while the original kept
-      // .is-active, so the step never appeared to advance.
-      if (next) { state.loginStep = next; render('none'); return; }
+    /* The walkthrough. Named 'tour' rather than 'sign-in' because nobody is
+       signed into anything - it opens the sample data. */
+    'tour': function () {
       state.signedIn = true;
-      state.loginStep = 'email';
       reset('home');
-      toast('Signed in as ' + D.RIDER.fullName.split(' ')[0]);
-    },
-
-    'login-back': function () {
-      var order = ['email', 'emailCode', 'phone', 'phoneCode'];
-      var i = order.indexOf(state.loginStep);
-      state.loginStep = order[Math.max(0, i - 1)];
-      render('none');
+      toast('Sample data — nothing here is a real ride');
     },
 
     'sign-out': function () {
       state.signedIn = false;
-      state.loginStep = 'email';
       state.driver = null;
       clearInterval(tripTimer);
       reset('login');

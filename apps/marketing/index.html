@@ -103,6 +103,7 @@
       <a class="nav__link" href="#safety">Safety</a>
       <a class="nav__link" href="#off-campus">Off campus</a>
       <a class="nav__link" href="#drivers">Drivers</a>
+      <a class="nav__link" href="#get-the-app">Get the app</a>
     </nav>
 
     <div class="nav__right">
@@ -478,6 +479,56 @@
   </section>
 
   <!-- ======================================================================
+       Get the app
+
+       The site had NO route to the apps at all - not a button, not a footer
+       link, nothing. A visitor who wanted Traverse on their phone had no way
+       to say so.
+
+       The store buttons are built and commented below, with the real URLs for
+       dev.traverse.rider and dev.traverse.driver. They are not live: enrolling
+       Apple and standing up Google's closed testing is Phase 5 of ACTION-LIST
+       and none of it is ticked, so both links 404 today. Shipping them would
+       teach a student that our links do not work.
+
+       So WhatsApp carries it for now - the same number the off-campus offer
+       uses, which costs a student nothing on campus wifi. On launch day the
+       commented block replaces the WhatsApp one, and the same swap happens in
+       apps/{ride,drive}/src/lib/appLinks.ts by flipping STORES_LIVE to true.
+       ================================================================== -->
+  <section class="section" id="get-the-app">
+    <div class="wrap">
+      <div class="section__head reveal">
+        <p class="eyebrow">Get the app</p>
+        <h2>Book on the web. Ride with the app.</h2>
+        <p class="lede">
+          You can find a car and book it right here in a browser. The ride
+          itself — following the car in, the SOS, calling your driver without
+          either of you handing over a number — needs the app, because a
+          browser tab that is not in front stops being allowed to do those
+          things.
+        </p>
+      </div>
+      <div class="reveal" style="display:flex;gap:var(--sp-md);flex-wrap:wrap;align-items:center">
+        <a class="btn btn--primary press" href="https://wa.me/233500530354?text=Hi%20Traverse%20%E2%80%94%20please%20send%20me%20the%20app." target="_blank" rel="noopener">
+          Ask us for the app
+        </a>
+        <a class="btn btn--secondary press" href="ride/">Book in the browser</a>
+      </div>
+      <p class="reveal" style="margin-top:var(--sp-md);font-size:var(--fs-sm);color:var(--on-surface-variant)">
+        Not in the App Store or on Google Play yet. Message us and we will send
+        it the day it lands.
+      </p>
+      <!-- Launch day: delete the two elements above and uncomment this.
+      <div class="reveal" style="display:flex;gap:var(--sp-md);flex-wrap:wrap">
+        <a class="btn btn--primary press" href="https://apps.apple.com/app/traverse/id000000000">Download on the App Store</a>
+        <a class="btn btn--secondary press" href="https://play.google.com/store/apps/details?id=dev.traverse.rider">Get it on Google Play</a>
+      </div>
+      -->
+    </div>
+  </section>
+
+  <!-- ======================================================================
        Off-campus pickups
 
        This used to be a deliberately quiet footnote - no eyebrow, no heading,
@@ -660,6 +711,13 @@
           <a href="#fares">Ride types and passes</a>
           <a href="#sharing">Sharing a ride</a>
           <a href="#off-campus">Staying off campus</a>
+        </div>
+      </div>
+      <div>
+        <p class="footer__title">Get the app</p>
+        <div class="footer__list">
+          <a href="#get-the-app">On your phone</a>
+          <a href="https://wa.me/233500530354?text=Hi%20Traverse%20%E2%80%94%20please%20send%20me%20the%20app." target="_blank" rel="noopener">Ask us on WhatsApp</a>
         </div>
       </div>
       <div>
