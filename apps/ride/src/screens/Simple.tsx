@@ -3,10 +3,14 @@ import { getBalance, listMyTrips } from '../lib/endpoints';
 import type { Trip } from '../lib/endpoints';
 import { formatGhs, initials } from '../lib/format';
 import { useSession } from '../lib/session';
+import { AppOnlyDialog, AppOnlyList, useAppOnly } from '../components/AppOnly';
+import { RIDER_APP_ONLY } from '../lib/appOnly';
 
 export function Wallet() {
   const [balance, setBalance] = useState<number | null>(null);
   const [error, setError] = useState(false);
+  const gate = useAppOnly();
+  const topUp = RIDER_APP_ONLY.find((r) => r.id === 'topup')!;
 
   useEffect(() => {
     getBalance().then((b) => setBalance(b.balancePesewas)).catch(() => setError(true));
@@ -24,10 +28,16 @@ export function Wallet() {
           {error ? '—' : balance === null ? '…' : formatGhs(balance)}
         </div>
         <p className="spine__meta">
-          Top up over MTN MoMo to your campus number. A low balance never blocks a
-          booking — you can settle with the driver instead.
+          Read-only here. The balance is the same one the app shows.
         </p>
+        {/* A real button rather than a disabled one: tapping it explains the
+            limit instead of leaving the person to guess it is broken. */}
+        <button className="btn btn--quiet btn--block" onClick={() => gate.open(topUp)}
+                style={{ marginTop: 'var(--sp-3)' }}>
+          Top up
+        </button>
       </section>
+      <AppOnlyDialog reason={gate.reason} onClose={gate.close} />
     </div>
   );
 }
@@ -71,6 +81,7 @@ export function History() {
 
 export function Profile() {
   const { rider, school, signOut } = useSession();
+  const gate = useAppOnly();
   return (
     <div className="shell__inner">
       <header className="stack-2 rise">
@@ -86,7 +97,10 @@ export function Profile() {
           <span className="spine__meta data">{rider?.phone}</span>
         </span>
       </section>
+      <AppOnlyList reasons={RIDER_APP_ONLY} onPick={gate.open} />
+
       <button className="btn btn--ghost btn--block rise" onClick={signOut}>Sign out</button>
+      <AppOnlyDialog reason={gate.reason} onClose={gate.close} />
     </div>
   );
 }

@@ -173,3 +173,13 @@ export function createRideOffer(input: {
 
 /** Polled after creating an offer — there is no push for this on the web. */
 export const getRideOffer = (id: string) => apiRequest<RideOffer>(`/ride-offers/${id}`);
+
+/**
+ * Give up a seat on a trip that has not started.
+ *
+ * DELETE /trips/:id/book, rider-only (TripsController.cancelParticipation).
+ * Takes the TRIP id, which is why this is only offered once an offer has been
+ * accepted - an idle offer has no trip behind it yet and `tripId` is null.
+ */
+export const cancelSeat = (tripId: string) =>
+  apiRequest<unknown>(`/trips/${tripId}/book`, { method: 'DELETE' });

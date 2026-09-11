@@ -1,0 +1,60 @@
+/* ==========================================================================
+   The app gate
+   --------------------------------------------------------------------------
+   Shown when the web deliberately stops short. Styled as a normal part of the
+   app rather than as an error: nothing has gone wrong, the person has simply
+   reached the edge of what a browser tab can honestly do.
+   ========================================================================== */
+.gate {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: var(--sp-4);
+  background: rgb(0 0 0 / 0.5);
+  animation: gate-fade var(--d-fast) var(--ease-out);
+}
+@media (min-width: 560px) { .gate { align-items: center; } }
+
+.gate__panel {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  padding: var(--sp-5);
+  border-radius: var(--r-xl);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: 0 24px 64px rgb(0 0 0 / 0.4);
+  animation: gate-rise var(--d-sheet) var(--ease-drawer);
+}
+
+.gate__note {
+  font-size: var(--t-small);
+  color: var(--text-muted);
+  padding: var(--sp-3);
+  border-radius: var(--r-md);
+  background: var(--sunken);
+}
+
+.gate__row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+.gate__chev { color: var(--text-faint); font-size: 1.25rem; line-height: 1; flex: none; }
+
+@keyframes gate-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes gate-rise { from { transform: translateY(12px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .gate, .gate__panel { animation: none; }
+}

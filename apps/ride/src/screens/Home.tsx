@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  createRideOffer, getRideOffer, listAvailableDrivers, listNodes, quoteFare, requestMatch,
+  cancelSeat, createRideOffer, getRideOffer, listAvailableDrivers, listNodes, quoteFare,
+  requestMatch,
 } from '../lib/endpoints';
 import type {
   CampusNodeRef, FareQuote, MatchCandidate, RideOffer, RideTier,
@@ -9,6 +10,8 @@ import { ApiError } from '../lib/api';
 import { useSession } from '../lib/session';
 import { Pips, Spine } from '../components/Spine';
 import { formatGhs } from '../lib/format';
+import { AppOnlyDialog, useAppOnly } from '../components/AppOnly';
+import { RIDER_APP_ONLY } from '../lib/appOnly';
 
 const TIERS: { id: RideTier; name: string; blurb: string }[] = [
   { id: 'standard',    name: 'Standard',    blurb: 'Share the car. Cheapest seat.' },
@@ -30,6 +33,10 @@ export function Home() {
   const [tier, setTier] = useState<RideTier>('standard');
   const [party, setParty] = useState(1);
   const [quote, setQuote] = useState<FareQuote | null>(null);
+
+  const gate = useAppOnly();
+  const tracking = RIDER_APP_ONLY.find((r) => r.id === 'tracking')!;
+  const [cancelling, setCancelling] = useState(false);
 
   const [stage, setStage] = useState<Stage>('plan');
   const [candidates, setCandidates] = useState<MatchCandidate[]>([]);
@@ -244,7 +251,41 @@ export function Home() {
               {offer.quotedEtaSeconds != null && <>Arriving in about {formatEta(offer.quotedEtaSeconds)}. </>}
               Charged at drop-off, not now.
             </p>
-            <button className="btn btn--ghost btn--block" onClick={reset} style={{ marginTop: 'var(--sp-3)' }}>
+
+            {/* Following the car is the app's job - the position streams, and a
+                tab you have switched away from stops receiving it. Offered as a
+                real control that explains itself rather than as an absence. */}
+            <button className="btn btn--quiet btn--block" onClick={() => gate.open(tracking)}
+                    style={{ marginTop: 'var(--sp-3)' }}>
+              Follow the car
+            </button>
+
+            {/* Cancelling, by contrast, is one request and belongs on the web.
+                Only once there is a trip to leave: an idle offer has no trip
+                behind it and tripId is null until the driver accepts. */}
+            {offer.tripId && (
+              <button
+                className="btn btn--ghost btn--block"
+                disabled={cancelling}
+                onClick={async () => {
+                  setCancelling(true);
+                  setError(null);
+                  try {
+                    await cancelSeat(offer.tripId!);
+                    reset();
+                  } catch (err) {
+                    setError(err instanceof ApiError ? err.message : 'Could not cancel the ride.');
+                  } finally {
+                    setCancelling(false);
+                  }
+                }}
+                style={{ marginTop: 'var(--sp-2)' }}
+              >
+                {cancelling ? 'Cancelling…' : 'Cancel this ride'}
+              </button>
+            )}
+
+            <button className="btn btn--ghost btn--block" onClick={reset} style={{ marginTop: 'var(--sp-2)' }}>
               Book another
             </button>
           </section>
@@ -264,6 +305,8 @@ export function Home() {
       <aside className="shell__context" aria-label="Fare">
         <FarePanel quote={quote} ready={ready} />
       </aside>
+
+      <AppOnlyDialog reason={gate.reason} onClose={gate.close} />
     </>
   );
 }

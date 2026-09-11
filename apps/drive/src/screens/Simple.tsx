@@ -3,6 +3,8 @@ import { getRevenue } from '../lib/endpoints';
 import type { RevenueSummary } from '../lib/endpoints';
 import { formatGhs, initials } from '../lib/format';
 import { useSession } from '../lib/session';
+import { AppOnlyDialog, AppOnlyList, useAppOnly } from '../components/AppOnly';
+import { DRIVER_APP_ONLY } from '../lib/appOnly';
 
 export function Revenue() {
   const [data, setData] = useState<RevenueSummary | null>(null);
@@ -59,6 +61,7 @@ export function Revenue() {
 
 export function Profile() {
   const { driver, school, signOut } = useSession();
+  const gate = useAppOnly();
   return (
     <div className="shell__inner">
       <header className="stack-2 rise">
@@ -74,7 +77,13 @@ export function Profile() {
           <span className="spine__meta data">{driver?.phone}</span>
         </span>
       </section>
+      {/* The web keeps five things. Everything else is here, said out loud,
+          because a driver who cannot find a feature assumes it does not exist
+          rather than assuming it is on the phone in their pocket. */}
+      <AppOnlyList reasons={DRIVER_APP_ONLY} onPick={gate.open} />
+
       <button className="btn btn--ghost btn--block rise" onClick={signOut}>Sign out</button>
+      <AppOnlyDialog reason={gate.reason} onClose={gate.close} />
     </div>
   );
 }
