@@ -76,7 +76,27 @@
 /* On a phone the frame is theatre — the demo simply is the page. */
 @media (max-width: 860px) {
   .device {
-    width: 100%;
+    /* NOT width:100%. The demo grid switches to `justify-items: center` at
+       this breakpoint, which makes every grid item shrink-to-fit instead of
+       stretch - so the frame's parent has no width of its own, `width: 100%`
+       resolves against nothing, and the device measured exactly **0px wide**
+       on a real phone. The height still came from the rule below, so the page
+       reserved a 633px-tall column of nothing and the whole demo was invisible
+       below "The rider app".
+       
+       It was invisible twice over: an element with zero area can never
+       intersect the viewport, so the IntersectionObserver behind `.reveal`
+       never fired either and the wrapper stayed at opacity 0. Fixing the
+       width fixes both.
+       
+       `auto` on a block fills its parent, so this is only correct once the
+       parent actually has a width - `justify-items: stretch` on the grid in
+       landing.css is the other half of the fix, and neither half works alone.
+       
+       Note the two breakpoints differ on purpose: the grid collapses to one
+       column at 1040px, the frame drops its chrome at 860px. Between them the
+       frame keeps its fixed 390px and is centred by margin. */
+    width: auto;
     /* A real height, not 100%: the inline frame's parent is auto-height, so a
        percentage collapses it to nothing. dvh (not vh) so the mobile browser's
        collapsing address bar does not crop the tab bar off the bottom. */

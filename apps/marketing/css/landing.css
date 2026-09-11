@@ -215,6 +215,25 @@
   /* At the narrowest sizes the menu would overflow the viewport from a left
      anchor near the right margin. Pin it to the hero's left gutter instead. */
   .campus-pick__menu { width: min(290px, calc(100vw - 2 * var(--sp-md))); }
+
+  /* The nav's campus menu had the same problem and worse. It is 290px wide and
+     anchored `right: 0` to a chip that, once its label is hidden at this
+     breakpoint, is about 70px wide and sits left of centre in the bar - so the
+     menu started at **x = -104** on a 375px screen and its first third was off
+     the edge, cropped and unreachable.
+     
+     Neither anchor fits 290px beside that chip in a 375px viewport, so at this
+     size the menu stops being anchored to the chip at all and is pinned to the
+     viewport under the nav. `--nav-h` is the token the nav's own height comes
+     from, so the two cannot drift apart. */
+  .switcher__menu {
+    position: fixed;
+    top: calc(var(--nav-h) + 8px);
+    left: var(--sp-md);
+    right: var(--sp-md);
+    width: auto;
+    transform-origin: top center;
+  }
 }
 
 /* The two doors ------------------------------------------------------------ */
@@ -381,8 +400,24 @@
 .demo__step-body { font-size: var(--fs-sm); color: var(--on-surface-variant); margin-top: 2px; }
 
 @media (max-width: 1040px) {
-  .demo { grid-template-columns: 1fr; justify-items: center; }
-  .demo__copy { max-width: 620px; }
+  /* `justify-items: center` was what collapsed the phone frame to zero width
+     on a real phone. A centred grid item is shrink-to-fit, and the frame sizes
+     itself from its parent, so below 860px - where the frame swaps its fixed
+     390px for a fluid width - the parent had no width to give and the device
+     measured exactly 0px across. The height still applied, so the page held
+     open a 633px column of nothing under "The rider app" and the whole demo
+     was invisible.
+     
+     It was invisible twice over: a zero-area element can never intersect the
+     viewport, so the IntersectionObserver behind `.reveal` never fired and the
+     wrapper stayed at opacity 0 as well. Stretching the items fixes both.
+     Centring now comes from margins, which centre without taking the column's
+     width away. */
+  .demo { grid-template-columns: 1fr; justify-items: stretch; }
+  .demo__copy { max-width: 620px; margin-inline: auto; }
+  /* Keeps the fixed-width frame centred between 860px and 1040px, where it is
+     still 390px wide inside a now-full-width column. */
+  .demo .device { margin-inline: auto; }
 }
 
 /* ---------------------------------------------------------------------------
@@ -671,12 +706,22 @@ body.is-locked { overflow: hidden; }
    clamp so the number stays the largest thing in the block without blowing
    past the card edge on a 320px phone. */
 .offcampus__number {
+  display: inline-block;
   font-size: clamp(1.75rem, 6vw, 2.5rem);
   font-weight: 800;
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
   color: var(--on-surface);
   margin-top: 2px;
+  /* It is an <a> now, so it has to stop looking like body copy that happens to
+     be blue. No underline at rest - at this size the number IS the affordance,
+     and the three buttons underneath say what tapping it does. */
+  text-decoration: none;
+}
+.offcampus__number:hover,
+.offcampus__number:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 0.14em;
 }
 
 .offcampus__actions {
@@ -853,4 +898,56 @@ body.is-locked { overflow: hidden; }
   color: color-mix(in srgb, var(--on-primary) 82%, transparent);
   background: color-mix(in srgb, var(--on-primary) 12%, transparent);
   border-color: color-mix(in srgb, var(--on-primary) 24%, transparent);
+}
+
+/* ---------------------------------------------------------------------------
+   Connection banner
+   ---------------------------------------------------------------------------
+   The web half of what both native apps already show
+   ({rider,driver}-app/src/components/OfflineBanner.tsx). Same two states, same
+   three-second timer on the recovery, same reasoning - see js/connection.js.
+
+   Fixed and translated rather than inserted into the flow, for the reason the
+   app's own comment records: a banner that mounts and unmounts reflows the
+   whole page underneath it, and losing signal mid-tap would move the button
+   out from under the thumb.
+   -------------------------------------------------------------------------- */
+.conn {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 200;                 /* over the sticky nav, under the demo overlay */
+  display: flex;
+  justify-content: center;
+  padding: calc(env(safe-area-inset-top, 0px) + var(--sp-sm)) var(--sp-md) 0;
+  /* Never intercepts a tap. It is an announcement, not a control, and it sits
+     over whatever the visitor was already reaching for. */
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-140%);
+  transition: opacity var(--dur-pop) var(--ease-out),
+              transform var(--dur-pop) var(--ease-out);
+}
+.conn.is-on { opacity: 1; transform: none; }
+
+.conn__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  padding: 10px var(--sp-md);
+  border-radius: var(--r-pill);
+  /* Slate, not red: no connection is a condition of the world, not an error
+     the visitor made or can act on. The app uses this exact value. */
+  background: #475569;
+  color: #fff;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  box-shadow: var(--shadow-4);
+  max-width: 100%;
+}
+.conn.is-restored .conn__pill { background: #2F7D5B; }
+
+@media (prefers-reduced-motion: reduce) {
+  /* Movement goes, the fade stays - the fade is what says the interface
+     responded, and it is not what causes motion sickness. */
+  .conn { transform: none; transition: opacity var(--dur-pop) var(--ease-out); }
 }

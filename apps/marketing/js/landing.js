@@ -520,6 +520,22 @@
   // simply goes full-bleed. The overlay is a temporary borrow, so booting into
   // it would leave the visible frame empty until something opened it.
   App.mountInto(inlineHost);
+
+  // ...and it is never left waiting on a scroll animation to become visible.
+  //
+  // This is the page's centrepiece and it has already been invisible once, for
+  // a reason nobody would guess from looking: the grid centred its column,
+  // which made the frame shrink-to-fit, which made it 0px wide - and a
+  // zero-area element can never intersect the viewport, so the reveal observer
+  // never fired either and the wrapper stayed at opacity 0 on top of that.
+  //
+  // The width bug is fixed in CSS. This is the belt to that braces: a 633px
+  // interactive demo has no business being hidden by default and depending on
+  // an observer to un-hide it, because every way that observer can fail -
+  // zero area, a background tab that never renders, an engine that reports no
+  // intersection - fails to a blank rectangle with nothing to explain it.
+  var deviceReveal = inlineHost.closest && inlineHost.closest('.reveal');
+  if (deviceReveal) deviceReveal.classList.add('is-in');
   T.apply();          // paints the palette and fires renderAll through onChange
   onScroll();
 })(window);
