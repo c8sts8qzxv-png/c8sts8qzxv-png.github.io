@@ -26,9 +26,11 @@ import { useSession } from '../lib/session';
  * because completeRegistrationIfReady only issues one once both are verified.
  * So both steps check for a token rather than assuming the last one carries it.
  *
- * And this is why registration cannot be faked with the OTP login flow: for a
- * rider who is not yet verified, requestPhoneLogin returns { ok: true } and no
- * session at all. It would look like it worked.
+ * An earlier version of this comment said registration could not be faked with
+ * the OTP login flow, because login supposedly refused an unverified account.
+ * That was wrong - confirmPhoneLogin stamps the two verified timestamps itself
+ * and hands back a session. This screen exists for the simpler reason: you
+ * cannot sign in as an account that has never been created.
  */
 
 type Step = 'form' | 'email' | 'phone';

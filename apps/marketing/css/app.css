@@ -53,26 +53,6 @@
   pointer-events: none;
 }
 
-.device__status {
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 26px 0;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--on-surface);
-  z-index: 55;
-  pointer-events: none;
-  /* The status bar sits over the map on some screens and over a plain
-     background on others; a mix-blend keeps it legible on both without
-     needing per-screen overrides. */
-  mix-blend-mode: normal;
-}
-.device__status-right { display: flex; align-items: center; gap: 5px; }
-
 /* On a phone the frame is theatre — the demo simply is the page. */
 @media (max-width: 860px) {
   .device {
@@ -109,12 +89,6 @@
   }
   .device__screen { border-radius: 0; }
   .device__island { display: none; }
-  /* The fake 9:41 / signal / battery row goes too. On a desktop it is part
-     of the phone illusion; on an actual phone the frame is gone and it
-     renders as a SECOND status bar directly under the real one, showing a
-     wrong time and a wrong battery. The island already leaves for exactly
-     this reason - the status bar was simply missed. */
-  .device__status { display: none; }
 }
 
 /* ---------------------------------------------------------------------------

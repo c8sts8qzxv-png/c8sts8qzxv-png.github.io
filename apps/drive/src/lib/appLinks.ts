@@ -1,23 +1,25 @@
 /**
- * Where "get the app" actually points.
+ * Where "get the app" points.
  *
- * The Play and App Store URLs below are the real ones for dev.traverse.driver - they are
- * the addresses the listings WILL have. They are not live yet: enrolling Apple
- * and setting up Google's closed testing is Phase 5 of ACTION-LIST and none of
- * it is ticked. So both links 404 today.
+ * Both buttons are live, by the owner's call: by the time a student touches
+ * this site the listings are expected to exist, so the app is offered as an
+ * app rather than as a WhatsApp errand.
  *
- * Hence STORES_LIVE. While it is false the gate offers WhatsApp instead, which
- * is the same number the site already uses for off-campus pickups and is a
- * thing a student in Ghana will actually open. The store buttons and their
- * whole layout are built and sitting behind the flag; launch day is one line.
+ * PLAY is correct by construction - a Play URL is just the package name, so it
+ * resolves the moment the listing is published and never needs editing.
  *
- * Do not "simplify" this by deleting the flag and shipping the links. Sending
- * somebody to a dead App Store page is worse than telling them the truth, and
- * it is the kind of thing nobody notices until a rider reports it.
+ * THE APPLE LINK DOES NOT WORK YET, and cannot be made to work from here.
+ * Apple assigns a numeric id at listing creation and there is no name-based
+ * App Store URL to use instead. APP_STORE_ID below is a placeholder; until it
+ * is replaced with the real one, the iOS button leads to an App Store error
+ * page. Replace it in this one place - nothing else references the id.
  */
-export const STORES_LIVE = false;
+export const STORES_LIVE = true;
 
-export const APP_STORE_URL = 'https://apps.apple.com/app/traverse-driver/id000000000';
+/** TODO: replace with the real App Store id once Apple assigns one. */
+const APP_STORE_ID = '000000000';
+
+export const APP_STORE_URL = `https://apps.apple.com/gh/app/id${APP_STORE_ID}`;
 export const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=dev.traverse.driver';
 
 /** International form, no +, no spaces, no leading 0 - wa.me resolves nothing else. */

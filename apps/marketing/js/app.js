@@ -179,17 +179,16 @@
 
   /* ============================ screens ============================== */
 
-  function statusBar() {
-    return '<div class="device__status">' +
-      '<span>9:41</span>' +
-      '<span class="device__status-right">' +
-        '<svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor" aria-hidden="true"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" y="0" width="3" height="11" rx="1"/></svg>' +
-        '<svg width="25" height="12" viewBox="0 0 25 12" fill="none" aria-hidden="true"><rect x="0.6" y="0.6" width="20" height="10.8" rx="3" stroke="currentColor" stroke-opacity=".45" stroke-width="1.2"/><rect x="2.2" y="2.2" width="15" height="7.6" rx="1.8" fill="currentColor"/><path d="M22.4 4.2v3.6a2 2 0 0 0 0-3.6z" fill="currentColor" fill-opacity=".45"/></svg>' +
-      '</span>' +
-    '</div>';
-  }
+  /* The device mock has NO status bar.
 
-  /* -- login ---------------------------------------------------------- */
+     It used to draw a fake 9:41 with a signal and battery glyph. Hiding it
+     below 860px fixed the phone case - where it rendered as a second status
+     bar under the real one - but left it on desktop, which is where the owner
+     then met it again. There was no good answer for why a marketing page
+     should display a wrong time and a wrong battery level at any width, so it
+     is gone at every width rather than hidden at one.
+
+     The Dynamic Island stays. It is a shape, not a claim about anything. */
 
   /* -- the front door -------------------------------------------------
      This screen used to simulate signing in - first with a password that does
@@ -775,7 +774,6 @@
 
     var showTabs = TABS.indexOf(name) !== -1;
     root.querySelector('[data-tabbar]').innerHTML = showTabs ? tabBar() : '';
-    root.querySelector('[data-status]').innerHTML = statusBar();
 
     if (!previous || direction === 'none' || prefersReducedMotion()) {
       if (previous) previous.remove();
@@ -990,7 +988,6 @@
   function build() {
     root = h(
       '<div style="display:flex;flex-direction:column;height:100%;position:relative">' +
-        '<div data-status></div>' +
         '<div class="screens" data-screens></div>' +
         '<div class="toast" role="status" aria-live="polite"></div>' +
         '<div data-tabbar></div>' +

@@ -88,10 +88,19 @@ export const registerRider = (input: {
  * that signs them in - so the caller has to check for a token rather than
  * assuming the phone step is the one that returns it.
  *
- * This is also why a brand-new rider cannot simply use the OTP login flow:
- * requestPhoneLogin returns { ok: true } with NO session for anyone who is not
- * already verified (auth.service.ts, completeRegistrationIfReady). Signing in
- * would look like it worked and quietly hand back nothing.
+ * A correction to an earlier version of this comment, kept because the wrong
+ * version is the more plausible-sounding one. It claimed a brand-new rider
+ * could not use the OTP login flow until verified. That is FALSE, and the code
+ * does the opposite: confirmPhoneLogin (auth.service.ts) explicitly stamps
+ * phoneVerifiedAt and emailVerifiedAt on an account missing them, then issues
+ * the session. Signing in is itself a way of getting verified.
+ *
+ * The gate-on-both-flags behaviour belongs to completeRegistrationIfReadyByEmail
+ * - the REGISTRATION path - which is what was misread.
+ *
+ * Registration is still required, for the plain reason that you cannot log in
+ * as somebody who does not exist yet. It is not required because login would
+ * refuse an unverified account.
  */
 export type VerifyResult = LoginResponse | { ok: true };
 

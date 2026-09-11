@@ -509,22 +509,29 @@
           things.
         </p>
       </div>
-      <div class="reveal" style="display:flex;gap:var(--sp-md);flex-wrap:wrap;align-items:center">
-        <a class="btn btn--primary press" href="https://wa.me/233500530354?text=Hi%20Traverse%20%E2%80%94%20please%20send%20me%20the%20app." target="_blank" rel="noopener">
-          Ask us for the app
+      <div class="reveal" style="display:flex;gap:var(--sp-md);flex-wrap:wrap">
+        <!-- Play is correct by construction - the URL is just the package
+             name, so it resolves the day the listing is published.
+
+             The App Store link DOES NOT WORK YET. Apple assigns a numeric id
+             when the listing is created and there is no name-based URL to use
+             instead, so the id below is a placeholder and the button leads to
+             an App Store error page until it is replaced. The same id lives in
+             apps/{ride,drive}/src/lib/appLinks.ts - three places to change,
+             all of them marked. -->
+        <a class="btn btn--primary press"
+           href="https://play.google.com/store/apps/details?id=dev.traverse.rider">
+          Get it on Google Play
+        </a>
+        <a class="btn btn--secondary press" href="https://apps.apple.com/gh/app/id000000000">
+          Download on the App Store
         </a>
         <a class="btn btn--secondary press" href="ride/">Book in the browser</a>
       </div>
       <p class="reveal" style="margin-top:var(--sp-md);font-size:var(--fs-sm);color:var(--on-surface-variant)">
-        Not in the App Store or on Google Play yet. Message us and we will send
-        it the day it lands.
+        Driving instead? The driver app is
+        <a href="https://play.google.com/store/apps/details?id=dev.traverse.driver">on Google Play</a>.
       </p>
-      <!-- Launch day: delete the two elements above and uncomment this.
-      <div class="reveal" style="display:flex;gap:var(--sp-md);flex-wrap:wrap">
-        <a class="btn btn--primary press" href="https://apps.apple.com/app/traverse/id000000000">Download on the App Store</a>
-        <a class="btn btn--secondary press" href="https://play.google.com/store/apps/details?id=dev.traverse.rider">Get it on Google Play</a>
-      </div>
-      -->
     </div>
   </section>
 
