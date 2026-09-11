@@ -199,38 +199,20 @@
     }).join('');
   }
 
-  function renderCampuses() {
-    $('#campus-grid').innerHTML = D.schoolsForDisplay().map(function (s, i) {
-      var p = T.getSchoolPalette(s.code);
-      var on = s.code === T.school;
-      // Labels, not keys: the enum value is still `independent`, the word a
-      // rider reads is "Solo". Pulled from RIDE_TIERS so the two cannot drift.
-      var soloLabel = (D.RIDE_TIERS.filter(function (t) { return t.tier === 'independent'; })[0] || {}).label || 'Solo';
-      var tiers = ['Standard'];
-      if (s.independentEnabled) tiers.push(soloLabel);
-      return '<button class="feature press reveal" data-school="' + esc(s.code) + '"' +
-        ' style="--reveal-delay:' + Math.min(i * 60, 300) + 'ms;text-align:left;width:100%' +
-        (on ? ';border-color:var(--primary);box-shadow:var(--shadow-3)' : '') + '">' +
-        '<div style="display:flex;gap:6px;margin-bottom:var(--sp-md)">' +
-          '<span style="width:34px;height:34px;border-radius:11px;background:' + p.primary + '"></span>' +
-          '<span style="width:34px;height:34px;border-radius:11px;background:' + p.secondary + '"></span>' +
-        '</div>' +
-        '<h3>' + esc(s.short) + (on ? ' ' + icon('check-circle', 'icon--sm') : '') +
-          (s.live ? '' : '<span class="soon">Coming soon</span>') + '</h3>' +
-        '<p>' + esc(s.name) + '</p>' +
-        '<p style="margin-top:var(--sp-sm)"><strong>' + s.nodes.length + ' stops</strong> · ' + esc(tiers.join(', ')) + '</p>' +
-        (s.live
-          ? ''
-          : '<p style="margin-top:var(--sp-sm);font-size:var(--fs-sm);color:var(--on-surface-variant)">' +
-              'Pick it to see the app in this school\u2019s colours. Riding opens once the campus does.</p>') +
-      '</button>';
-    }).join('');
-  }
+  /* The campuses section is gone from the page - it was a pitch to a school
+     administrator, and this site sells to students and drivers only. Its
+     render function and the click handler that switched campus from those
+     cards went with it.
 
-  $('#campus-grid').addEventListener('click', function (ev) {
-    var card = ev.target.closest('[data-school]');
-    if (card) T.setSchool(card.getAttribute('data-school'));
-  });
+     NOTE the handler ran at LOAD TIME against an element in that section, and
+     the selector helper returns null rather than throwing. Leaving it behind
+     would have thrown a TypeError on every page load and taken every later
+     line of this file's initialisation down with it - the tier cards, the
+     passes, the pool diagram and the reveal observer all run after it.
+
+     The campus SWITCHER in the nav and in the hero is a different control and
+     still works; it is the thing that repaints the page in a school's
+     colours. */
 
   function renderHeroBits() {
     var s = school();
@@ -504,7 +486,6 @@
     renderHeroBits();
     renderTiers();
     renderPasses();
-    renderCampuses();
     renderPoolDiagram();
     observeReveals();
   }
