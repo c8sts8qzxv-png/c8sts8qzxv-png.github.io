@@ -7,6 +7,10 @@
 
    Two states, and their asymmetry is the whole design:
 
+   The offline copy is two words. It used to read "No internet connection",
+   which wrapped the pill onto two lines on a phone; the pill is a state
+   indicator, not a sentence, and the shorter string is the whole message.
+
      offline   stays until the condition it reports actually changes. It has
                no dismiss and no timer, because the page behind it is quietly
                not loading and taking the explanation away would leave that
@@ -77,7 +81,7 @@
 
   function onOffline() {
     hasBeenOffline = true;
-    show('offline', 'No internet connection');
+    show('offline', 'No connection');
   }
 
   function onOnline() {
@@ -97,7 +101,7 @@
   //   TraverseConnection.preview('restored')
   global.TraverseConnection = {
     preview: function (kind) {
-      show(kind, kind === 'restored' ? 'Connection restored' : 'No internet connection');
+      show(kind, kind === 'restored' ? 'Connection restored' : 'No connection');
     },
   };
 })(window);

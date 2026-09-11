@@ -52,6 +52,21 @@
 }
 .offline[data-phase='restored'] .offline__pill { background: #2F7D5B; }
 
+/* A phone has far less width than the pill was written for, and the banner
+   sits across the top of the screen where it covers whatever is underneath.
+   So it shrinks rather than wraps: smaller type, tighter padding, and it
+   never takes more than the width its own text needs. */
+@media (max-width: 560px) {
+  .offline { padding-left: var(--sp-2); padding-right: var(--sp-2); }
+  .offline__pill {
+    padding: 6px var(--sp-3);
+    font-size: var(--t-label);
+    gap: 6px;
+    max-width: calc(100% - var(--sp-4));
+  }
+  .offline__dot { width: 6px; height: 6px; }
+}
+
 .offline__dot {
   width: 7px; height: 7px; border-radius: 50%;
   background: currentColor; flex: none;

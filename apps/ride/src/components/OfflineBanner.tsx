@@ -6,9 +6,10 @@ type Phase = 'hidden' | 'offline' | 'restored';
 /**
  * Says the connection is gone, and then says when it comes back.
  *
- * The copy is the native app's, unchanged, because it is already right: it
- * names the state and says what happens next, which is what stops someone
- * force-quitting an app that was about to recover on its own.
+ * The copy names the state and nothing else. It used to add "we'll refresh
+ * automatically when you're back", which is true but is not what the pill is
+ * for - and at phone widths that sentence wrapped the pill onto two lines
+ * across the top of the screen.
  *
  * What is new here is that it moves. The native banner is a bare
  * `if (online) return null`, so it pops into existence and vanishes - and an
@@ -58,9 +59,10 @@ export function OfflineBanner() {
       <div className="offline__pill">
         <span className="offline__dot" aria-hidden="true" />
         <span className="offline__text">
-          {offline
-            ? "No connection — we'll refresh automatically when you're back."
-            : 'Back online'}
+          {/* Just the state. The old copy also promised an automatic refresh,
+              which made the pill wide enough to wrap on a phone - and the
+              promise was the half nobody needed: it retries either way. */}
+          {offline ? 'No connection' : 'Back online'}
         </span>
       </div>
     </div>

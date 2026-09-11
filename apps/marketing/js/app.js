@@ -51,6 +51,11 @@
 
   var state = {
     signedIn: false,
+    // Sign-in is a code to the email, then a code to the phone - the same two
+    // steps the real app runs (rider-app/app/login.tsx, apps/ride Login.tsx).
+    // There is no password anywhere in Traverse, so the demo must not show a
+    // password field: the FAQ on this very page says there isn't one.
+    loginStep: 'email',
     schoolCode: T.school,
     origin: null,
     destination: null,
@@ -191,22 +196,36 @@
 
   /* -- login ---------------------------------------------------------- */
 
+  var LOGIN_STEPS = {
+    email:     { sign: 'Step 1 of 2', title: 'Sign in',       hint: 'Your campus email.',             cta: 'Send code', next: 'emailCode' },
+    emailCode: { sign: 'Step 1 of 2', title: 'Check email',   hint: 'Six digits, sent just now.',     cta: 'Continue',  next: 'phone'     },
+    phone:     { sign: 'Step 2 of 2', title: 'Your number',   hint: 'The number a driver will call.', cta: 'Send code', next: 'phoneCode' },
+    phoneCode: { sign: 'Step 2 of 2', title: 'Check messages', hint: 'Last step.',                    cta: 'Sign in',   next: null        },
+  };
+
   function screenLogin() {
+    var step = LOGIN_STEPS[state.loginStep] ? state.loginStep : 'email';
+    var copy = LOGIN_STEPS[step];
+    var isCode = step === 'emailCode' || step === 'phoneCode';
+    var label = step === 'email' ? 'Email' : step === 'phone' ? 'Phone' : 'Code';
+    var value = step === 'email' ? D.RIDER.email : step === 'phone' ? D.RIDER.phone : '••••••';
+
     return '<div class="screen" data-screen="login">' +
       '<div class="login">' +
         '<div class="login__mark">' + icon('car', 'icon--lg') + '</div>' +
-        '<h1 class="login__title">Campus rides,<br>without the wait.</h1>' +
-        '<p class="login__sub">Sign in with the phone number you registered on ' + esc(school().short) + '.</p>' +
+        '<span class="login__sign">' + esc(copy.sign) + '</span>' +
+        '<h1 class="login__title">' + esc(copy.title) + '</h1>' +
+        '<p class="login__sub">' + esc(copy.hint) + '</p>' +
         '<div class="login__field">' +
-          '<label for="li-phone">Phone number</label>' +
-          '<input id="li-phone" type="tel" inputmode="tel" value="' + esc(D.RIDER.phone) + '" autocomplete="tel">' +
+          '<label for="li-input">' + esc(label) + '</label>' +
+          '<input id="li-input" type="' + (isCode ? 'text' : step === 'phone' ? 'tel' : 'email') + '"' +
+            ' inputmode="' + (isCode ? 'numeric' : step === 'phone' ? 'tel' : 'email') + '"' +
+            ' value="' + esc(value) + '" readonly>' +
         '</div>' +
-        '<div class="login__field">' +
-          '<label for="li-pass">Password</label>' +
-          '<input id="li-pass" type="password" value="demo-password" autocomplete="current-password">' +
-        '</div>' +
-        '<button class="a-btn a-btn--primary press" data-act="sign-in">Sign in</button>' +
-        '<p class="disclaimer" style="margin-bottom:0">Demonstration build — the fields are pre-filled and no account is created.</p>' +
+        '<button class="a-btn a-btn--primary press" data-act="login-next">' + esc(copy.cta) + '</button>' +
+        (step === 'email' ? '' :
+          '<button class="a-btn a-btn--secondary press" data-act="login-back">Back</button>') +
+        '<p class="disclaimer" style="margin-bottom:0">Demonstration build — the fields are pre-filled and no code is actually sent.</p>' +
       '</div>' +
     '</div>';
   }
@@ -765,7 +784,7 @@
 
     var showTabs = TABS.indexOf(name) !== -1;
     root.querySelector('[data-tabbar]').innerHTML = showTabs ? tabBar() : '';
-    root.querySelector('[data-status]').innerHTML = name === 'login' ? statusBar() : statusBar();
+    root.querySelector('[data-status]').innerHTML = statusBar();
 
     if (!previous || direction === 'none' || prefersReducedMotion()) {
       if (previous) previous.remove();
@@ -821,14 +840,30 @@
   /* ---- actions ------------------------------------------------------ */
 
   var ACTIONS = {
-    'sign-in': function () {
+    'login-next': function () {
+      var next = LOGIN_STEPS[state.loginStep].next;
+      // render('none'), not 'push': the screen NAME does not change between
+      // login steps, and the push/pop transitions assume the outgoing and
+      // incoming screens are different. Passing 'push' here appended a second
+      // and third .screen[data-screen=login] while the original kept
+      // .is-active, so the step never appeared to advance.
+      if (next) { state.loginStep = next; render('none'); return; }
       state.signedIn = true;
+      state.loginStep = 'email';
       reset('home');
       toast('Signed in as ' + D.RIDER.fullName.split(' ')[0]);
     },
 
+    'login-back': function () {
+      var order = ['email', 'emailCode', 'phone', 'phoneCode'];
+      var i = order.indexOf(state.loginStep);
+      state.loginStep = order[Math.max(0, i - 1)];
+      render('none');
+    },
+
     'sign-out': function () {
       state.signedIn = false;
+      state.loginStep = 'email';
       state.driver = null;
       clearInterval(tripTimer);
       reset('login');

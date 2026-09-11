@@ -946,6 +946,18 @@ body.is-locked { overflow: hidden; }
 }
 .conn.is-restored .conn__pill { background: #2F7D5B; }
 
+/* On a phone the pill sits across the top of the screen over whatever the
+   visitor was reading, and there is far less width to spend. It shrinks
+   rather than wraps. */
+@media (max-width: 560px) {
+  .conn { padding-left: var(--sp-sm); padding-right: var(--sp-sm); }
+  .conn__pill {
+    padding: 6px var(--sp-md);
+    font-size: var(--fs-xs);
+    gap: var(--sp-xs);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   /* Movement goes, the fade stays - the fade is what says the interface
      responded, and it is not what causes motion sickness. */

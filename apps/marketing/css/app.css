@@ -109,6 +109,12 @@
   }
   .device__screen { border-radius: 0; }
   .device__island { display: none; }
+  /* The fake 9:41 / signal / battery row goes too. On a desktop it is part
+     of the phone illusion; on an actual phone the frame is gone and it
+     renders as a SECOND status bar directly under the real one, showing a
+     wrong time and a wrong battery. The island already leaves for exactly
+     this reason - the status bar was simply missed. */
+  .device__status { display: none; }
 }
 
 /* ---------------------------------------------------------------------------
@@ -942,6 +948,10 @@
   background: var(--primary); color: var(--on-primary);
   box-shadow: var(--shadow-3);
   margin-bottom: var(--sp-lg);
+}
+.login__sign {
+  display: block; font-size: 12px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--on-surface-variant); margin-bottom: var(--sp-sm);
 }
 .login__title { font-size: 30px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; }
 .login__sub { font-size: 15px; color: var(--on-surface-variant); margin-top: var(--sp-sm); margin-bottom: var(--sp-xl); }
