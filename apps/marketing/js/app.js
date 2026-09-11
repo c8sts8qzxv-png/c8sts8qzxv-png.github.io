@@ -80,7 +80,6 @@
   function availableTiers() {
     var s = school();
     var out = ['standard'];
-    if (s.comfortEnabled) out.push('comfort');
     if (s.independentEnabled) out.push('independent');
     return out;
   }
@@ -99,8 +98,9 @@
     return f;
   }
 
-  /* Independent is the whole car, so the seat cap is the car; the shared tiers
-     sell a seat fewer as you go up. Mirrors RIDE_TIERS.seatsSold. */
+  /* Solo (the `independent` tier) books the whole car, so the party cap is one
+     booking rather than the four seats standard sells. Mirrors
+     RIDE_TIERS.seatsSold. */
   function maxPartySize() {
     var t = D.RIDE_TIERS.filter(function (o) { return o.tier === state.tier; })[0];
     return t ? Math.max(1, t.seatsSold) : 4;
@@ -649,8 +649,7 @@
         '<div class="a-card" style="margin-top:var(--sp-md)">' +
           '<div class="label-cap" style="margin-top:0">Ride info</div>' +
           '<div class="row"><span class="row__label">Base fare</span><span class="row__value">' + D.formatGhs(D.FARE.baseFarePesewas) + ' per seat</span></div>' +
-          '<div class="row"><span class="row__label">Comfort</span><span class="row__value">' + (s.comfortEnabled ? D.formatGhs(D.tierPerSeatPesewas('comfort')) : 'Not offered here') + '</span></div>' +
-          '<div class="row"><span class="row__label">Independent</span><span class="row__value">' + (s.independentEnabled ? D.formatGhs(D.tierPerSeatPesewas('independent')) : 'Not offered here') + '</span></div>' +
+          '<div class="row"><span class="row__label">Solo</span><span class="row__value">' + (s.independentEnabled ? D.formatGhs(D.tierPerSeatPesewas('independent')) : 'Not offered here') + '</span></div>' +
           '<div class="row"><span class="row__label">Group discount</span><span class="row__value">' + esc(discount || 'None') + '</span></div>' +
           '<div class="row"><span class="row__label">Pay later</span><span class="row__value">Available when balance is low</span></div>' +
         '</div>' +

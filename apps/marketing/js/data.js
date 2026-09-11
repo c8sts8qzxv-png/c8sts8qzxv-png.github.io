@@ -17,7 +17,6 @@
   /* -- fare rules (prisma/schema.prisma School defaults) -------------- */
   var FARE = {
     baseFarePesewas: 500,          // @default(500)
-    comfortSurchargePct: 50,       // @default(50)
     independentSurchargePct: 150,  // @default(150)
     // Empty, matching the schema default. There is no built-in group discount
     // any more - a campus gets one only when its operator sets it, so the demo
@@ -25,25 +24,26 @@
     partyDiscountSchedule: {}, // @default("{}")
   };
 
-  /* -- ride tiers (rider-app/src/rideTier.ts), copy verbatim ---------- */
+  /* -- ride tiers (rider-app/src/rideTier.ts) -------------------------
+     Two tiers, matching prisma/schema.prisma's `enum RideTier { standard,
+     independent }` after migration 20260910120000_remove_comfort_tier. The
+     comfort tier is gone from the product, so it is gone from here.
+
+     The KEY stays `independent` because that is the enum value the backend
+     stores and the rider app switches on; only the LABEL a rider reads is
+     "Solo", which is what people actually call it. Renaming the key would
+     desync this fixture from every other copy of the tier list. */
   var RIDE_TIERS = [
     {
       tier: 'standard',
       label: 'Standard',
-      blurb: 'Share the ride. Best price.',
+      blurb: 'Share the ride. Someone else may be going your way.',
       icon: 'car',
       seatsSold: 4,
     },
     {
-      tier: 'comfort',
-      label: 'Comfort',
-      blurb: 'Still shared, but one seat fewer - no middle seat.',
-      icon: 'car-estate',
-      seatsSold: 3,
-    },
-    {
       tier: 'independent',
-      label: 'Independent',
+      label: 'Solo',
       blurb: 'The whole car to you. Nobody else joins.',
       icon: 'car-key',
       seatsSold: 1,
@@ -57,7 +57,6 @@
       name: 'University of Professional Studies, Accra',
       short: 'UPSA',
       live: false,
-      comfortEnabled: true,
       independentEnabled: true,
       nodes: [
         { name: 'Main Gate', type: 'gate', lat: 5.6614, lng: -0.16644 },
@@ -75,7 +74,6 @@
       name: 'University of Ghana, Legon',
       short: 'Legon',
       live: true,
-      comfortEnabled: true,
       independentEnabled: true,
       nodes: [
         { name: 'Main Gate', type: 'gate', lat: 5.6465, lng: -0.1919 },
@@ -93,7 +91,6 @@
       name: 'Ghana Institute of Management and Public Administration',
       short: 'GIMPA',
       live: false,
-      comfortEnabled: true,
       independentEnabled: false,
       nodes: [
         { name: 'Main Gate', type: 'gate', lat: 5.6598, lng: -0.1668 },
@@ -108,7 +105,6 @@
       name: 'Central University',
       short: 'Central',
       live: false,
-      comfortEnabled: false,
       independentEnabled: false,
       nodes: [
         { name: 'Main Gate', type: 'gate', lat: 5.7268, lng: 0.0338 },
@@ -123,7 +119,6 @@
       name: 'Ashesi University',
       short: 'Ashesi',
       live: false,
-      comfortEnabled: true,
       independentEnabled: true,
       nodes: [
         { name: 'Main Gate', type: 'gate', lat: 5.7601, lng: -0.2097 },
@@ -199,9 +194,7 @@
 
   /** Mirrors tierFarePerSeat on the server. */
   function tierPerSeatPesewas(tier) {
-    var pct = tier === 'comfort' ? FARE.comfortSurchargePct
-      : tier === 'independent' ? FARE.independentSurchargePct
-        : 0;
+    var pct = tier === 'independent' ? FARE.independentSurchargePct : 0;
     return Math.round(FARE.baseFarePesewas * (1 + pct / 100));
   }
 
@@ -241,9 +234,9 @@
 
   /* -- passes (mirrors campusPassCopy.ts shapes) ---------------------- */
   var PASS_PRODUCTS = [
-    { id: 'p-week', name: 'Week pass', pricePesewas: 2500, durationDays: 7, ridesIncluded: null, maxRidesPerDay: 4, coversComfort: false, coversIndependent: false },
-    { id: 'p-bundle20', name: '20-ride bundle', pricePesewas: 8000, durationDays: 60, ridesIncluded: 20, maxRidesPerDay: 0, coversComfort: true, coversIndependent: false },
-    { id: 'p-term', name: 'Semester pass', pricePesewas: 18000, durationDays: 120, ridesIncluded: null, maxRidesPerDay: 3, coversComfort: true, coversIndependent: false },
+    { id: 'p-week', name: 'Week pass', pricePesewas: 2500, durationDays: 7, ridesIncluded: null, maxRidesPerDay: 4, coversIndependent: false },
+    { id: 'p-bundle20', name: '20-ride bundle', pricePesewas: 8000, durationDays: 60, ridesIncluded: 20, maxRidesPerDay: 0, coversIndependent: false },
+    { id: 'p-term', name: 'Semester pass', pricePesewas: 18000, durationDays: 120, ridesIncluded: null, maxRidesPerDay: 3, coversIndependent: false },
   ];
 
   function describeProduct(p) {
@@ -282,7 +275,12 @@
   var TRIP_HISTORY = [
     { from: 'Main Gate', to: 'Joshua Alabi Library', when: 'Today, 8:12 AM', farePesewas: 500, tier: 'standard', pooled: true, seats: 1 },
     { from: 'Student Canteen', to: 'Junior Common Room (JCR)', when: 'Yesterday, 6:40 PM', farePesewas: 1350, tier: 'standard', pooled: false, seats: 3, note: 'Group of 3' },
-    { from: 'Joshua Alabi Library', to: 'Main Gate', when: 'Mon, 9:05 PM', farePesewas: 750, tier: 'comfort', pooled: true, seats: 1 },
+    // Was a comfort trip at the 50% surcharge (750). Comfort is withdrawn, and
+    // migration 20260910120000_remove_comfort_tier relabels such rows standard
+    // - but its own note warns that leaving the surcharged fare on a standard
+    // row makes the fare disagree with the tier. This is invented demo data,
+    // so the fare is restated at the standard 500 rather than left disagreeing.
+    { from: 'Joshua Alabi Library', to: 'Main Gate', when: 'Mon, 9:05 PM', farePesewas: 500, tier: 'standard', pooled: true, seats: 1 },
     { from: 'Central Administration Building', to: 'Ewontoma Medical Centre', when: 'Sun, 11:20 AM', farePesewas: 1250, tier: 'independent', pooled: false, seats: 1 },
     { from: 'Main Gate', to: 'UPSA Business School Block', when: 'Fri, 7:55 AM', farePesewas: 500, tier: 'standard', pooled: true, seats: 1, note: 'Picked up at ≈80 m from Main Gate' },
   ];

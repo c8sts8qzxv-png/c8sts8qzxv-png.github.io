@@ -100,6 +100,7 @@
       <a class="nav__link" href="#fares">Ride types</a>
       <a class="nav__link" href="#sharing">Sharing</a>
       <a class="nav__link" href="#safety">Safety</a>
+      <a class="nav__link" href="#off-campus">Off campus</a>
       <a class="nav__link" href="#drivers">Drivers</a>
       <a class="nav__link" href="#campuses">Campuses</a>
     </nav>
@@ -179,9 +180,14 @@
             <div class="hero__stat-value" id="stat-stops">8</div>
             <div class="hero__stat-label">stops you already know</div>
           </div>
+          <!-- Was a hardcoded 3, counting Standard + Comfort + Independent.
+               Comfort is withdrawn and it silently became a lie, which is
+               exactly what a hand-typed number next to two rendered ones does.
+               renderHeroBits() now counts the ride types the selected campus
+               actually offers. -->
           <div>
-            <div class="hero__stat-value">3</div>
-            <div class="hero__stat-label">ways to ride</div>
+            <div class="hero__stat-value" id="stat-tiers">2</div>
+            <div class="hero__stat-label" id="stat-tiers-label">ways to ride</div>
           </div>
         </div>
       </div>
@@ -307,17 +313,22 @@
   </section>
 
   <!-- ======================================================================
-       Fares / tiers
+       Ride types
+
+       The cards carry no prices. A ride type is a choice about who else is in
+       the car; the fare is a per-campus setting, and quoting one here made the
+       section read as a price list for a number this page cannot know. The
+       "Paying for it" block below is about payment METHOD, which is a
+       different question and stays.
        ================================================================== -->
   <section class="section section--tint" id="fares">
     <div class="wrap">
       <div class="section__head reveal">
         <p class="eyebrow">Ride types</p>
-        <h2>One question: how much of the car do you want?</h2>
+        <h2>Standard or Solo. That is the whole choice.</h2>
         <p class="lede">
-          Every tier is the same drivers and the same campus. What changes is how
-          many seats get sold. What each one costs is set by your campus, not by
-          Traverse — the surcharges below are the rule, not the amount.
+          Same drivers, same campus, same stops. The only question is whether
+          anyone else is in the car with you — share it, or take it on your own.
         </p>
       </div>
       <div class="tier-cards reveal" id="tier-cards"></div>
@@ -510,7 +521,7 @@
             <p class="eyebrow" style="margin-bottom:var(--sp-md)">What a campus sets</p>
             <div class="row"><span class="row__label">Base fare</span><span class="row__value">Yours</span></div>
             <div class="row"><span class="row__label">Platform cut</span><span class="row__value">Per campus, per driver</span></div>
-            <div class="row"><span class="row__label">Ride types offered</span><span class="row__value">On or off</span></div>
+            <div class="row"><span class="row__label">Solo rides</span><span class="row__value">On or off</span></div>
             <div class="row"><span class="row__label">Group discount</span><span class="row__value">Only if you set one</span></div>
             <div class="row"><span class="row__label">Stops</span><span class="row__value">Your list, nothing else</span></div>
             <div class="row row--total"><span class="row__label">Map bill</span><span class="row__value">None</span></div>
@@ -541,33 +552,65 @@
   <!-- ======================================================================
        Off-campus pickups
 
-       Deliberately quiet. This is a footnote, not a section: no eyebrow, no
-       heading, hairline rule, muted type. Somebody scanning the page scrolls
-       past it; somebody who lives off campus and is looking for their own
-       hostel finds it and opens it. That is the whole brief.
+       This used to be a deliberately quiet footnote - no eyebrow, no heading,
+       a collapsed <details> in muted 13px type, on the brief "do not make it
+       sooo visible to everybody, just those looking". That brief has been
+       overruled by the owner, who scrolled straight past it and reported the
+       list as missing. It is now a peer section with the other sections'
+       head pattern, and the offer - "not on campus?" plus the number - is
+       readable without opening or clicking anything.
 
-       A native <details> rather than the FAQ's button+JS pattern, because
-       this is the one block on the page a person may genuinely need while
-       scripting is broken, and <details> brings its own keyboard and
-       screen-reader behaviour rather than borrowing ours.
+       Two things hid it, not one. The <details> was the obvious one. The
+       other was `data-campus` on the SECTION: renderOffCampus() set
+       `section.hidden` on every campus but Legon, so switching campus made
+       the whole offer vanish. The scoping attribute now sits on the LIST,
+       which really is Legon-specific, and never on the offer, which is not.
+
+       The list keeps a native <details> (open by default) rather than the
+       FAQ's button+JS pattern: it is the one block a person may genuinely
+       need while scripting is broken, and <details> brings its own keyboard
+       and screen-reader behaviour rather than borrowing ours.
        ================================================================== -->
-  <section class="section offcampus" id="off-campus" data-campus="UG-LEGON">
+  <section class="section section--tint offcampus" id="off-campus">
     <div class="wrap">
-      <details class="aside-note">
-        <summary class="aside-note__summary">
-          <span class="aside-note__label">
+      <div class="section__head reveal">
+        <p class="eyebrow">Off-campus pickups</p>
+        <h2>Not on campus? We will still come and get you.</h2>
+        <p class="lede">
+          A ride does not have to start or end at a campus stop. If you stay off
+          campus, reach out and we will make arrangements for your pickup — tell
+          us where you are and when you need it.
+        </p>
+      </div>
+
+      <div class="offcampus__call reveal">
+        <div class="offcampus__call-copy">
+          <p class="offcampus__call-label">
             <svg class="icon icon--sm" aria-hidden="true"><use href="#ic-pin"/></svg>
-            Staying off campus?
-          </span>
-          <span class="aside-note__hint">37 places within 3&nbsp;km by road</span>
-          <svg class="icon icon--sm aside-note__caret" aria-hidden="true"><use href="#ic-chevron-down"/></svg>
-        </summary>
-        <div class="aside-note__body">
-          <p class="aside-note__lede">
-            Rides do not have to start or end at a campus stop. We already run to
-            the places below, all of them within 3&nbsp;km of Legon by road, and we
-            can arrange something nearer to you if yours is not on the list.
+            Call or text us on
           </p>
+          <p class="offcampus__number">0500&nbsp;530&nbsp;354</p>
+        </div>
+        <div class="offcampus__actions">
+          <a class="btn btn--primary press" href="tel:0500530354">
+            Call 0500&nbsp;530&nbsp;354
+          </a>
+          <a class="btn btn--secondary press" href="sms:0500530354">
+            Text us instead
+          </a>
+        </div>
+      </div>
+
+      <!-- Legon-specific, and scoped to Legon. On any other campus this list
+           would be a promise about somewhere else entirely - so the LIST is
+           swapped out per campus while the offer above it stays put. -->
+      <div class="offcampus__places reveal" id="off-campus-places" data-campus="UG-LEGON">
+        <details class="place-panel" open>
+          <summary class="place-panel__summary">
+            <span class="place-panel__title">Places we already run to</span>
+            <span class="place-panel__hint">37 within 3&nbsp;km of Legon by road</span>
+            <svg class="icon icon--sm place-panel__caret" aria-hidden="true"><use href="#ic-chevron-down"/></svg>
+          </summary>
           <ul class="place-list">
           <li>Abrempong Hostel</li>
           <li>Africana Guest House</li>
@@ -607,12 +650,19 @@
           <li>UPSA</li>
           <li>Zenon Hostel</li>
           </ul>
-          <p class="aside-note__contact">
-            Text <a href="sms:0500530354">0500&nbsp;530&nbsp;354</a> with where you are
-            and when you need it.
-          </p>
-        </div>
-      </details>
+        </details>
+        <p class="offcampus__footnote">
+          Not on the list? That is what the number is for — we can arrange
+          something nearer to you.
+        </p>
+      </div>
+
+      <!-- Shown instead of the list on campuses the list does not describe.
+           renderOffCampus() swaps the two; neither one hides the offer. -->
+      <p class="offcampus__elsewhere" id="off-campus-elsewhere" hidden>
+        The mapped list of off-campus pickups is Legon’s for now. Anywhere else,
+        call or text the number above and we will sort your pickup out.
+      </p>
     </div>
   </section>
 

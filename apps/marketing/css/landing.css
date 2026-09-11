@@ -440,9 +440,15 @@
   letter-spacing: 0.03em;
 }
 .tier-card__name { font-size: var(--fs-h3); font-weight: 800; letter-spacing: -0.02em; }
-.tier-card__price { font-size: 2.25rem; font-weight: 800; letter-spacing: -0.03em; margin: var(--sp-sm) 0 2px; }
-.tier-card__unit { font-size: var(--fs-sm); color: var(--on-surface-variant); }
-.tier-card__blurb { font-size: var(--fs-sm); color: var(--on-surface-variant); margin: var(--sp-md) 0; line-height: 1.6; }
+/* .tier-card__price / .tier-card__unit are gone with the prices they set. A
+   ride type is a choice, not a price list, so the blurb now carries the card
+   and steps up from --fs-sm to base to fill the space the number left. */
+.tier-card__blurb { font-size: var(--fs-base); color: var(--on-surface-variant); margin: var(--sp-md) 0; line-height: 1.6; }
+.tier-card__off {
+  font-size: var(--fs-sm);
+  color: var(--on-surface-variant);
+  margin: calc(var(--sp-md) * -1) 0 var(--sp-md);
+}
 .tier-card__seats { display: flex; gap: 5px; margin-top: auto; padding-top: var(--sp-md); }
 .tier-card__seat {
   width: 26px; height: 26px; border-radius: 8px;
@@ -620,71 +626,117 @@ body.is-locked { overflow: hidden; }
 }
 
 /* ---------------------------------------------------------------------------
-   Off-campus pickups — the quiet disclosure
+   Off-campus pickups — a real section
 
-   The brief for this block was "do not make it sooo visible to everybody,
-   just those looking", and that is a typographic instruction as much as a
-   layout one. So: no eyebrow, no h2, no card, no shadow. A hairline rule and
-   a line of muted 13px type, sitting in the gap between the FAQ and the
-   closing CTA where a footnote belongs. It reads as page furniture until you
-   are the person it is addressed to.
+   This was styled as a footnote: hairline rule, muted 13px type, no heading,
+   collapsed by default. The owner scrolled past it and reported the list as
+   missing, so the quiet treatment is gone. It now uses the same
+   .section__head rhythm as #fares, #sharing and #safety, and the offer — the
+   headline, the "not on campus" line and the number — is on screen with
+   nothing opened.
 
-   The section deliberately carries no top padding. It is a footnote to the
-   FAQ above it rather than a peer of it, and the full --section rhythm would
-   promote it to a peer.
+   .aside-note__* is deleted rather than left behind; nothing else on the page
+   used it (checked before removing). .place-list survives, because the list
+   itself did not need fixing, only its surroundings.
    -------------------------------------------------------------------------- */
 
-.offcampus { padding-top: 0; }
-
-.aside-note {
-  border-top: 1px solid var(--outline-variant);
-  padding-top: var(--sp-md);
+/* The number is the call to action, so it gets card weight rather than being
+   a line of body copy with a link in it. */
+.offcampus__call {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-lg);
+  margin-bottom: var(--sp-xl);
+  padding: var(--sp-lg);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--r-2xl);
+  background: var(--surface);
+  box-shadow: var(--shadow-1);
 }
 
-.aside-note__summary {
+.offcampus__call-copy { min-width: 0; }
+
+.offcampus__call-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  font-size: var(--fs-sm);
+  color: var(--on-surface-variant);
+  letter-spacing: var(--tracking-body);
+}
+
+/* tabular-nums so the grouped digits line up rather than jittering, and a
+   clamp so the number stays the largest thing in the block without blowing
+   past the card edge on a 320px phone. */
+.offcampus__number {
+  font-size: clamp(1.75rem, 6vw, 2.5rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--on-surface);
+  margin-top: 2px;
+}
+
+.offcampus__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-sm);
+}
+
+/* Full width once the row has wrapped: two half-width buttons stacked in a
+   narrow column read as broken rather than as a pair. */
+@media (max-width: 560px) {
+  .offcampus__actions { width: 100%; }
+  .offcampus__actions .btn { flex: 1 1 100%; justify-content: center; }
+}
+
+.place-panel {
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--r-2xl);
+  padding: var(--sp-md) var(--sp-lg);
+  background: var(--surface);
+}
+
+.place-panel__summary {
   display: flex;
   align-items: center;
   gap: var(--sp-sm);
-  padding: var(--sp-sm) 0;
+  padding: var(--sp-xs) 0;
   cursor: pointer;
-  color: var(--on-surface-variant);
-  font-size: var(--fs-sm);
-  letter-spacing: var(--tracking-body);
 
   /* Both are needed: Safari draws its own marker from the shadow DOM, every
      other engine draws it from list-style. */
   list-style: none;
 }
-.aside-note__summary::-webkit-details-marker { display: none; }
+.place-panel__summary::-webkit-details-marker { display: none; }
 
-.aside-note__summary:hover { color: var(--on-surface); }
+.place-panel__title { font-weight: 700; color: var(--on-surface); }
 
-.aside-note__label {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--sp-sm);
-  font-weight: 600;
-  color: var(--on-surface);
+.place-panel__hint {
+  font-size: var(--fs-sm);
+  color: var(--on-surface-variant);
 }
 
-/* The count is the part that does the work: somebody who lives off campus is
-   scanning for exactly this number. It stays quiet but never disappears. */
-.aside-note__hint { color: var(--on-surface-variant); }
-
-.aside-note__caret {
+.place-panel__caret {
   margin-left: auto;
   flex: none;
+  color: var(--on-surface-variant);
   transition: transform var(--dur-pop) var(--ease-out);
 }
-.aside-note[open] .aside-note__caret { transform: rotate(180deg); }
+.place-panel[open] .place-panel__caret { transform: rotate(180deg); }
 
-.aside-note__body { padding: var(--sp-md) 0 var(--sp-sm); }
-
-.aside-note__lede {
-  max-width: 60ch;
-  font-size: var(--fs-base);
-  color: var(--on-surface-variant);
-  margin-bottom: var(--sp-lg);
+/* On a phone the title and the count each wrap to two lines and interleave.
+   Stacking them fixes that, but only with `order` as well: in DOM order the
+   full-width hint sits between the title and the caret, which pushed the
+   caret onto a third line on its own. Ordering it before the hint keeps
+   row 1 = title + caret, row 2 = the count. */
+@media (max-width: 560px) {
+  .place-panel__summary { flex-wrap: wrap; }
+  .place-panel__title { order: 0; flex: 1 1 auto; min-width: 0; }
+  .place-panel__caret { order: 1; }
+  .place-panel__hint  { order: 2; flex: 1 0 100%; }
 }
 
 /* Columns rather than a grid: the list is alphabetical, and columns are the
@@ -694,7 +746,7 @@ body.is-locked { overflow: hidden; }
   list-style: none;
   columns: 4;
   column-gap: var(--sp-xl);
-  margin: 0 0 var(--sp-lg);
+  margin: var(--sp-md) 0 0;
   padding: 0;
   font-size: var(--fs-sm);
   color: var(--on-surface);
@@ -705,26 +757,25 @@ body.is-locked { overflow: hidden; }
   border-bottom: 1px solid color-mix(in srgb, var(--outline-variant) 45%, transparent);
 }
 
-.aside-note__contact {
-  font-size: var(--fs-base);
+.offcampus__footnote,
+.offcampus__elsewhere {
+  max-width: 60ch;
+  margin-top: var(--sp-md);
+  font-size: var(--fs-sm);
   color: var(--on-surface-variant);
 }
-.aside-note__contact a {
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  color: var(--accent-on-surface);
-  text-decoration: none;
-  border-bottom: 1px solid color-mix(in srgb, var(--accent-on-surface) 40%, transparent);
-  padding-bottom: 1px;
-}
-.aside-note__contact a:hover { border-bottom-color: var(--accent-on-surface); }
 
 @media (max-width: 1040px) { .place-list { columns: 3; } }
 @media (max-width: 760px)  { .place-list { columns: 2; column-gap: var(--sp-lg); } }
-@media (max-width: 420px)  { .place-list { columns: 1; } }
+/* Stays at two columns on a phone: one column turns 37 names into a screen
+   and a half of scrolling, which is exactly the "dominates the page" failure
+   the single column was meant to avoid. The names are short enough to fit. */
+@media (max-width: 420px)  {
+  .place-list { columns: 2; column-gap: var(--sp-md); font-size: var(--fs-xs); }
+}
 
 @media (prefers-reduced-motion: reduce) {
-  .aside-note__caret { transition: none; }
+  .place-panel__caret { transition: none; }
 }
 
 /* ---------------------------------------------------------------------------

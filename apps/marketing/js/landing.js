@@ -163,30 +163,27 @@
     return out.join('');
   }
 
+  /* No money on these cards, deliberately. A ride type is a choice about who
+     else is in the car, and the fare is a campus setting that differs by
+     school - putting a number here answered a question nobody was asking and
+     made the choice look like a price list. What a tier costs is still shown
+     where it belongs: in the rider app, on a real quote. */
   function renderTiers() {
     var s = school();
-    var offered = { standard: true, comfort: s.comfortEnabled, independent: s.independentEnabled };
+    var offered = { standard: true, independent: s.independentEnabled };
 
-    $('#tier-cards').innerHTML = D.RIDE_TIERS.map(function (t, i) {
+    $('#tier-cards').innerHTML = D.RIDE_TIERS.map(function (t) {
       var on = offered[t.tier];
       return '<article class="tier-card' + (t.tier === 'standard' ? ' is-featured' : '') + '"' +
         (on ? '' : ' style="opacity:.55"') + '>' +
         (t.tier === 'standard' ? '<span class="tier-card__flag">Most booked</span>' : '') +
         '<div style="display:flex;align-items:center;gap:10px">' + icon(t.icon, 'icon--lg') +
           '<span class="tier-card__name">' + esc(t.label) + '</span></div>' +
-        (on
-          ? '<div class="tier-card__price" style="font-size:1.5rem">' +
-              (t.tier === 'standard'
-                ? 'Base fare'
-                : '+' + (t.tier === 'comfort' ? D.FARE.comfortSurchargePct : D.FARE.independentSurchargePct) + '%') +
-            '</div>' +
-            '<div class="tier-card__unit">per seat' +
-              (t.tier === 'standard' ? ', as your campus sets it' : ' on your campus\u2019s base fare') +
-            '</div>'
-          : '<div class="tier-card__price" style="font-size:1.25rem">Not offered</div>' +
-            '<div class="tier-card__unit">' + esc(s.short) + ' has this tier switched off</div>') +
         '<p class="tier-card__blurb">' + esc(t.blurb) + '</p>' +
-        '<div class="tier-card__seats" aria-label="Seats sold on this tier">' + seatRow(t.tier) + '</div>' +
+        (on
+          ? ''
+          : '<p class="tier-card__off">' + esc(s.short) + ' has this ride type switched off</p>') +
+        '<div class="tier-card__seats" aria-label="Seats sold on this ride type">' + seatRow(t.tier) + '</div>' +
       '</article>';
     }).join('');
   }
@@ -206,9 +203,11 @@
     $('#campus-grid').innerHTML = D.schoolsForDisplay().map(function (s, i) {
       var p = T.getSchoolPalette(s.code);
       var on = s.code === T.school;
+      // Labels, not keys: the enum value is still `independent`, the word a
+      // rider reads is "Solo". Pulled from RIDE_TIERS so the two cannot drift.
+      var soloLabel = (D.RIDE_TIERS.filter(function (t) { return t.tier === 'independent'; })[0] || {}).label || 'Solo';
       var tiers = ['Standard'];
-      if (s.comfortEnabled) tiers.push('Comfort');
-      if (s.independentEnabled) tiers.push('Independent');
+      if (s.independentEnabled) tiers.push(soloLabel);
       return '<button class="feature press reveal" data-school="' + esc(s.code) + '"' +
         ' style="--reveal-delay:' + Math.min(i * 60, 300) + 'ms;text-align:left;width:100%' +
         (on ? ';border-color:var(--primary);box-shadow:var(--shadow-3)' : '') + '">' +
@@ -251,6 +250,12 @@
     // Stops for the campus on screen - the total across five schools is not a
     // number any single rider can use.
     $('#stat-stops').textContent = s.nodes.length;
+    // Ride types this campus actually offers. Standard is always on; Solo is
+    // an operator switch. Counted rather than typed, so withdrawing a tier
+    // cannot leave a stale number in the hero the way "3" did.
+    var ways = 1 + (s.independentEnabled ? 1 : 0);
+    $('#stat-tiers').textContent = ways;
+    $('#stat-tiers-label').textContent = ways === 1 ? 'way to ride' : 'ways to ride';
     $('#footer-note').textContent = 'Showing ' + s.short + ' · ' + T.mode;
   }
 
@@ -351,12 +356,11 @@
   });
 
   /* ======================================================================
-     Off-campus disclosure
+     Off-campus place list
 
-     Somebody arriving on #off-campus - from the footer link, or a link a
-     friend sent them - wants the list of places, not a collapsed summary
-     they have to spot and click a second time. Opening it on arrival is the
-     entire reason the section carries an id.
+     The list ships open, so arriving on #off-campus normally needs nothing.
+     This only re-opens it for somebody who collapsed it earlier and then
+     followed the footer or nav link back expecting to see it.
 
      Progressive, not required: with scripting off the <details> still opens
      on click, which is why it is a <details> and not the FAQ's button.
@@ -364,8 +368,8 @@
 
   function openOffCampusIfTargeted() {
     if (window.location.hash !== '#off-campus') return;
-    var note = document.querySelector('#off-campus .aside-note');
-    if (note) note.open = true;
+    var panel = document.querySelector('#off-campus .place-panel');
+    if (panel) panel.open = true;
   }
 
   window.addEventListener('hashchange', openOffCampusIfTargeted);
@@ -472,15 +476,25 @@
      Boot
      ====================================================================== */
 
-  // The off-campus list is a real list of real places around ONE campus. On
-  // any other campus it would be a promise about somewhere else entirely, so
-  // it is hidden rather than translated. With scripting off nothing hides it,
-  // which is correct: the default campus is the one the list belongs to.
+  // The off-campus place list is a real list of real places around ONE campus.
+  // On any other campus it would be a promise about somewhere else entirely,
+  // so it is swapped for a line pointing at the phone number.
+  //
+  // Only the LIST is campus-scoped. This used to hide the whole #off-campus
+  // section, which meant switching campus removed the offer and the number
+  // along with the list - that is how the owner came to report the list as
+  // missing from the page. The offer is true on every campus and never hides.
+  //
+  // With scripting off nothing is swapped, which is correct: the default
+  // campus is the one the list belongs to.
   function renderOffCampus() {
-    var sec = $('#off-campus');
-    if (!sec) return;
-    var belongsTo = sec.getAttribute('data-campus');
-    sec.hidden = !!belongsTo && belongsTo !== T.school;
+    var places = $('#off-campus-places');
+    var elsewhere = $('#off-campus-elsewhere');
+    if (!places) return;
+    var belongsTo = places.getAttribute('data-campus');
+    var mine = !belongsTo || belongsTo === T.school;
+    places.hidden = !mine;
+    if (elsewhere) elsewhere.hidden = mine;
   }
 
   function renderAll() {
