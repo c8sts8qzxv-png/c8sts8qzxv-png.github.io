@@ -58,3 +58,13 @@
 @media (prefers-reduced-motion: reduce) {
   .gate, .gate__panel { animation: none; }
 }
+
+/* Says what a typed phone number will actually be saved as, so the country
+   code appearing from nowhere is never a surprise. */
+.field__hint {
+  display: block;
+  margin-top: var(--sp-2);
+  font-size: var(--t-label);
+  color: var(--text-muted);
+  font-family: var(--font-data);
+}

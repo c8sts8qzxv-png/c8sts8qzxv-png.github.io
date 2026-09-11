@@ -4,6 +4,7 @@ import {
 } from '../lib/endpoints';
 import type { School } from '../lib/endpoints';
 import { solveRegistrationChallenge } from '../lib/registrationChallenge';
+import { describePhone, normalisePhone } from '../lib/phone';
 import { ApiError } from '../lib/api';
 import { useSession } from '../lib/session';
 
@@ -53,7 +54,8 @@ export function Register({ onBack }: { onBack: () => void }) {
   const [step, setStep] = useState<Step>('form');
   const [schools, setSchools] = useState<School[]>([]);
   const [schoolId, setSchoolId] = useState('');
-  const [fullName, setFullName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [dob, setDob] = useState('');
@@ -70,14 +72,28 @@ export function Register({ onBack }: { onBack: () => void }) {
       // Every school the API returns. There is no "live" flag on the School
       // type, and inventing a client-side filter for one would quietly hide
       // campuses the backend considers open.
-      .then((s) => { if (!cancelled) setSchools(s); })
+      .then((s) => {
+        if (cancelled) return;
+        setSchools(s);
+        // While Traverse runs on one campus there is nothing to choose, so the
+        // question is not asked - it is answered. The picker reappears on its
+        // own the moment a second campus is added, with both in it, because
+        // this is driven by what the API returns rather than by a flag
+        // somebody has to remember to flip.
+        if (s.length === 1) setSchoolId(s[0].id);
+      })
       .catch(() => { if (!cancelled) setError('Could not load the campus list.'); });
     return () => { cancelled = true; };
   }, []);
 
+  // Shown only when there is genuinely a choice to make.
+  const mustPickCampus = schools.length > 1;
+
+  const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
+
   const formReady =
-    schoolId && fullName.trim().length >= 2 && email.trim() && phone.trim().length >= 7
-    && dob && terms;
+    schoolId && firstName.trim() && lastName.trim() && email.trim()
+    && normalisePhone(phone).length >= 8 && dob && terms;
 
   async function submitForm(e: React.FormEvent) {
     e.preventDefault();
@@ -98,7 +114,11 @@ export function Register({ onBack }: { onBack: () => void }) {
       await registerRider({
         schoolId,
         fullName: fullName.trim(),
-        phone: phone.trim(),
+        // Normalised here, and by the same function the sign-in screen uses.
+        // The API stores the string it is given and compares it exactly on
+        // login, so the two screens agreeing is what keeps an account
+        // reachable - see lib/phone.ts.
+        phone: normalisePhone(phone),
         email: email.trim(),
         dateOfBirth: dob,
         acceptedTerms: true,
@@ -122,7 +142,7 @@ export function Register({ onBack }: { onBack: () => void }) {
     try {
       const result = step === 'email'
         ? await verifyEmail(email.trim(), code.trim())
-        : await verifyPhone(phone.trim(), code.trim());
+        : await verifyPhone(normalisePhone(phone), code.trim());
       // Either step can be the one that completes the pair.
       if (isSignedIn(result)) { signIn(result); return; }
       setCode('');
@@ -143,7 +163,7 @@ export function Register({ onBack }: { onBack: () => void }) {
             <span className="sign">{onEmail ? 'Step 2 of 3' : 'Step 3 of 3'}</span>
             <h1 style={{ fontSize: 'var(--t-title)' }}>{onEmail ? 'Check your email' : 'Check your messages'}</h1>
             <p style={{ color: 'var(--text-muted)' }}>
-              Six digits, sent to {onEmail ? email.trim() : phone.trim()}.
+              Six digits, sent to {onEmail ? email.trim() : normalisePhone(phone)}.
             </p>
           </div>
           <form className="stack rise" onSubmit={submitCode}>
@@ -183,37 +203,58 @@ export function Register({ onBack }: { onBack: () => void }) {
         <div className="stack-2 rise">
           <span className="sign">Step 1 of 3</span>
           <h1 style={{ fontSize: 'var(--t-title)' }}>Create your account</h1>
-          <p style={{ color: 'var(--text-muted)' }}>Your campus, and how a driver reaches you.</p>
+          <p style={{ color: 'var(--text-muted)' }}>Your name, and how a driver reaches you.</p>
         </div>
 
         <form className="stack rise" onSubmit={submitForm}>
-          <div className="field">
-            <label className="sign" htmlFor="reg-school">Campus</label>
-            <select id="reg-school" className="field__input" value={schoolId}
-                    onChange={(e) => setSchoolId(e.target.value)}>
-              <option value="">Select your campus</option>
-              {schools.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-            </select>
+          {/* Asked only when there is more than one campus to pick from. With
+              one, it is filled in silently; the picker returns by itself when
+              a second campus is added, carrying both. */}
+          {mustPickCampus && (
+            <div className="field">
+              <label className="sign" htmlFor="reg-school">Campus</label>
+              <select id="reg-school" className="field__input" value={schoolId}
+                      onChange={(e) => setSchoolId(e.target.value)}>
+                <option value="">Select your campus</option>
+                {schools.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+              </select>
+            </div>
+          )}
+
+          <div className="reg__row">
+            <div className="field">
+              <label className="sign" htmlFor="reg-first">First name</label>
+              <input id="reg-first" className="field__input" autoComplete="given-name"
+                     value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+            </div>
+            <div className="field">
+              <label className="sign" htmlFor="reg-last">Last name</label>
+              <input id="reg-last" className="field__input" autoComplete="family-name"
+                     value={lastName} onChange={(e) => setLastName(e.target.value)} />
+            </div>
           </div>
 
           <div className="field">
-            <label className="sign" htmlFor="reg-name">Full name</label>
-            <input id="reg-name" className="field__input" autoComplete="name"
-                   value={fullName} onChange={(e) => setFullName(e.target.value)} />
-          </div>
-
-          <div className="field">
-            <label className="sign" htmlFor="reg-email">Campus email</label>
+            {/* Any address. Nothing in the API requires a campus domain - that
+                was the site's own copy, not a rule - and insisting on one
+                would lock out every student whose school does not issue
+                addresses, which is most of them. */}
+            <label className="sign" htmlFor="reg-email">Email</label>
             <input id="reg-email" className="field__input" type="email" inputMode="email"
-                   autoComplete="email" placeholder="you@campus.edu.gh"
+                   autoComplete="email" placeholder="you@example.com"
                    value={email} onChange={(e) => setEmail(e.target.value)} />
           </div>
 
           <div className="field">
             <label className="sign" htmlFor="reg-phone">Phone</label>
+            {/* No country-code placeholder. People type 024 123 4567, and the
+                conversion happens here rather than being demanded of them. */}
             <input id="reg-phone" className="field__input" type="tel" inputMode="tel"
-                   autoComplete="tel" placeholder="+233…"
+                   autoComplete="tel" placeholder="024 123 4567"
                    value={phone} onChange={(e) => setPhone(e.target.value)} />
+            {describePhone(phone) && (
+              <span className="field__hint">{describePhone(phone)}</span>
+            )}
           </div>
 
           <div className="field">

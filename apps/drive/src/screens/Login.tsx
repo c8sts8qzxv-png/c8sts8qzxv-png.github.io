@@ -5,6 +5,7 @@ import {
 import type { OtpChannel } from '../lib/endpoints';
 import { ApiError } from '../lib/api';
 import { useSession } from '../lib/session';
+import { describePhone, normalisePhone } from '../lib/phone';
 
 type Step = 'email' | 'emailCode' | 'phone' | 'phoneCode';
 
@@ -54,10 +55,10 @@ export function Login() {
         const { loginToken: t } = await confirmEmailCode(email.trim(), code.trim());
         setLoginToken(t); setCode(''); setStep('phone');
       } else if (step === 'phone') {
-        await requestPhoneCode(loginToken, phone.trim(), channel);
+        await requestPhoneCode(loginToken, normalisePhone(phone), channel);
         setCode(''); setStep('phoneCode');
       } else {
-        signIn(await confirmPhoneCode(loginToken, phone.trim(), code.trim()));
+        signIn(await confirmPhoneCode(loginToken, normalisePhone(phone), code.trim()));
       }
     } catch (err) {
       // Errors name what to do next, and never blame the person typing.
@@ -101,7 +102,7 @@ export function Login() {
               inputMode={isCode ? 'numeric' : step === 'phone' ? 'tel' : 'email'}
               autoComplete={isCode ? 'one-time-code' : step === 'phone' ? 'tel' : 'email'}
               maxLength={isCode ? 6 : undefined}
-              placeholder={step === 'email' ? 'you@campus.edu.gh' : step === 'phone' ? '+233…' : '••••••'}
+              placeholder={step === 'email' ? 'you@example.com' : step === 'phone' ? '024 123 4567' : '••••••'}
               value={value}
               autoFocus
               onChange={(e) => {
@@ -112,6 +113,10 @@ export function Login() {
               }}
             />
           </div>
+
+          {step === 'phone' && describePhone(phone) && (
+            <span className="field__hint">{describePhone(phone)}</span>
+          )}
 
           {error && <p role="alert" style={{ color: 'var(--danger)', fontSize: 'var(--t-small)' }}>{error}</p>}
 

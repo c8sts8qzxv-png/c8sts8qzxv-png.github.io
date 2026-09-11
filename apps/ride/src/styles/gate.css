@@ -81,3 +81,19 @@
   margin-top: 1px;
   accent-color: var(--accent);
 }
+
+/* Two fields on one row where they are halves of one answer (first and last
+   name). Collapses to stacked on a narrow phone rather than squeezing two
+   unusable inputs side by side. */
+.reg__row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-3); }
+@media (max-width: 420px) { .reg__row { grid-template-columns: 1fr; } }
+
+/* Says what a typed phone number will actually be saved as, so the country
+   code appearing from nowhere is never a surprise. */
+.field__hint {
+  display: block;
+  margin-top: var(--sp-2);
+  font-size: var(--t-label);
+  color: var(--text-muted);
+  font-family: var(--font-data);
+}
