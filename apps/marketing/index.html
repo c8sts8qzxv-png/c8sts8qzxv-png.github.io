@@ -564,8 +564,10 @@
         <h2>Not on campus? We will still come and get you.</h2>
         <p class="lede">
           A ride does not have to start or end at a campus stop. If you stay off
-          campus, reach out and we will make arrangements for your pickup — tell
-          us where you are and when you need it.
+          campus, text us and we will set your pickups up — and once you are set
+          up, <strong>they run any day of the week</strong>. It is the arranging
+          that happens at weekends, so text us on a Saturday with where you are
+          and the days you need.
         </p>
       </div>
 
@@ -573,7 +575,7 @@
         <div class="offcampus__call-copy">
           <p class="offcampus__call-label">
             <svg class="icon icon--sm" aria-hidden="true"><use href="#ic-pin"/></svg>
-            Call or text us on
+            Text us on
           </p>
           <a class="offcampus__number" href="https://wa.me/233500530354?text=Hi%20Traverse%20%E2%80%94%20I%27m%20staying%20off%20campus.%20My%20place%20is%3A%20" target="_blank" rel="noopener">0500&nbsp;530&nbsp;354</a>
         </div>
@@ -599,16 +601,80 @@
             <svg class="icon icon--sm" aria-hidden="true"><use href="#ic-message"/></svg>
             Message us on WhatsApp
           </a>
-          <a class="btn btn--secondary press" href="tel:0500530354">
-            Call 0500&nbsp;530&nbsp;354
-          </a>
-          <!-- Kept as the third option rather than dropped. It is the only one
-               of the three that needs neither WhatsApp installed nor a
-               registered number on the other end. -->
+          <!-- SMS, kept alongside WhatsApp rather than dropped: it needs neither
+               WhatsApp installed nor data, and it is the channel every
+               confirmation goes out on, so a student without it cannot be told
+               their ride is on. The phone-call option was removed deliberately
+               - arrangements have to be in writing, so there is a record of
+               who asked for what, on which day, for how many seats. -->
           <a class="btn btn--ghost press" href="sms:0500530354">
-            Text us instead
+            Text us on SMS
           </a>
         </div>
+      </div>
+
+
+      <div class="offcampus__terms reveal">
+        <p class="offcampus__terms-head">How an off-campus pickup works</p>
+        <ul class="offcampus__terms-list">
+          <li>
+            <strong>The pickups themselves run any day.</strong>
+            Once you are set up, your ride can be whatever day you need it —
+            weekday mornings included.
+          </li>
+          <li>
+            <strong>The arranging happens at weekends, Saturday for preference.</strong>
+            That is when we plan the week&rsquo;s off-campus runs and work out
+            who can share a car. Text us then, not on the day you need the ride.
+          </li>
+          <li>
+            <strong>Text, do not call.</strong>
+            WhatsApp or SMS, either is fine — but it has to be in writing so
+            there is a record of who asked for what. You do need SMS working on
+            your phone, because that is where your confirmation comes.
+          </li>
+          <li>
+            <strong>GHS&nbsp;18 a seat, to anywhere on campus.</strong>
+            One price from your place to wherever you are actually going —
+            your hall, your department, the library. There is nothing to add on
+            when you get through the gate.
+          </li>
+          <li>
+            <strong>Three of you, minimum.</strong>
+            Not a discount rule — a car has three seats on an ordinary day, and
+            an off-campus run only works if it leaves full. On campus a driver
+            can set off with one person because others get on along the way;
+            out here nobody does.
+          </li>
+          <li>
+            <strong>Have the balance ready before the day.</strong>
+            Your in-app balance has to cover your own seat and every seat you
+            booked for someone else. Nothing is taken when you book — the fare
+            comes out when the driver picks you up.
+          </li>
+          <li>
+            <strong>You will hear from us twice, at most.</strong>
+            Once when your ride is confirmed — and again at least an hour
+            before your pickup time if it turns out we cannot make it. No news
+            after the confirmation means the car is coming.
+          </li>
+          <li>
+            <strong>A seat is not guaranteed.</strong>
+            Filling the car is our job, not yours. If we cannot find three
+            people going your way on the day you asked for, the run does not
+            happen — we will tell you in good time and offer you the next one.
+          </li>
+        </ul>
+
+        <p class="fare-headline">
+          <span class="fare-headline__num">GHS&nbsp;18</span>
+          <span class="fare-headline__unit">a seat &middot; anywhere on campus</span>
+        </p>
+        <p class="fare-note">
+          The same whether you are coming from Madina, Haatso or East Legon, and
+          the same wherever on campus you are going. Three seats minimum; a
+          fourth can come along on a busy day at the same price.
+        </p>
       </div>
 
       <!-- Legon-specific, and scoped to Legon. On any other campus this list
@@ -671,7 +737,8 @@
            renderOffCampus() swaps the two; neither one hides the offer. -->
       <p class="offcampus__elsewhere" id="off-campus-elsewhere" hidden>
         The mapped list of off-campus pickups is Legon’s for now. Anywhere else,
-        call or text the number above and we will sort your pickup out.
+        text the number above with your place and the days you need — the same
+        GHS&nbsp;18 a seat, the same weekend scheduling, the same three minimum.
       </p>
     </div>
   </section>

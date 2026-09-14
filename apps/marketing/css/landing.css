@@ -802,6 +802,65 @@ body.is-locked { overflow: hidden; }
   border-bottom: 1px solid color-mix(in srgb, var(--outline-variant) 45%, transparent);
 }
 
+/* The three conditions on an off-campus pickup. Deliberately styled as a quiet
+   panel rather than a warning: these are the terms of a real offer, not a
+   caveat bolted onto one, and a red box would read as "this probably will not
+   happen" next to a number we are asking people to text. */
+.offcampus__terms {
+  max-width: 68ch;
+  margin-top: var(--sp-lg);
+  padding: var(--sp-md) var(--sp-lg);
+  border-left: 3px solid var(--primary, currentColor);
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+  border-radius: 0 6px 6px 0;
+}
+.offcampus__terms-head {
+  margin: 0 0 var(--sp-sm);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--on-surface);
+}
+.offcampus__terms-list {
+  margin: 0;
+  padding-left: 1.1em;
+  display: grid;
+  gap: var(--sp-sm);
+  font-size: var(--fs-sm);
+  color: var(--on-surface-variant);
+}
+.offcampus__terms-list strong { color: var(--on-surface); font-weight: 600; }
+
+/* One price, set large. There is nothing to compare it against any more -
+   no party sizes, no discount tiers - so a table would be a table of one row.
+   The number is the message. */
+.fare-headline {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--sp-sm);
+  margin-top: var(--sp-md);
+  padding-top: var(--sp-md);
+  border-top: 1px solid color-mix(in srgb, var(--outline-variant) 45%, transparent);
+}
+.fare-headline__num {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -.02em;
+  color: var(--on-surface);
+  font-variant-numeric: tabular-nums;
+}
+.fare-headline__unit {
+  font-size: var(--fs-sm);
+  color: var(--on-surface-variant);
+}
+.fare-note {
+  margin-top: var(--sp-sm);
+  max-width: 58ch;
+  font-size: var(--fs-xs);
+  color: var(--on-surface-variant);
+}
+
 .offcampus__footnote,
 .offcampus__elsewhere {
   max-width: 60ch;
