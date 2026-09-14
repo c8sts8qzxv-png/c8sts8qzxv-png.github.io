@@ -1022,3 +1022,32 @@ body.is-locked { overflow: hidden; }
      responded, and it is not what causes motion sickness. */
   .conn { transform: none; transition: opacity var(--dur-pop) var(--ease-out); }
 }
+
+/* ---- Fares: the prices, stated outright -------------------------------
+   Three cards, not a table. A table invites a rider to audit it; three
+   prices invite them to recognise their own trip in one of them. No
+   distances anywhere - a rider knows whether theirs is a hop or a haul,
+   and the app quotes the exact fare before they book either way. */
+.price-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--sp-md);
+}
+.price-card { padding: var(--sp-lg); }
+.price-note { color: var(--on-surface-variant); margin: var(--sp-xs) 0 var(--sp-md); }
+.price {
+  font-size: clamp(2.4rem, 5vw, 3.2rem);
+  line-height: 1;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+.price__cur {
+  font-size: 0.42em;
+  font-weight: 500;
+  color: var(--on-surface-variant);
+  margin-right: 0.28em;
+  vertical-align: 0.5em;
+  letter-spacing: 0;
+}
+.price-sub { margin: var(--sp-sm) 0 0; color: var(--on-surface-variant); }
