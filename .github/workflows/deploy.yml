@@ -35,10 +35,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
+      # No Node step: nothing here is built any more. The marketing site is
+      # static, and the two apps are published from the traverse repo.
 
       # ------------------------------------------------------------ / ------
       # `apps/marketing/.` rather than `apps/marketing/*` so dotfiles come
