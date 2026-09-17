@@ -97,11 +97,27 @@
      Reading the table keeps the demo agreeing with the prices on the page. */
   function fromFarePesewas() { return D.tierPerSeatPesewas('standard', 'short'); }
 
-  function rawFare() { return D.fareWithoutGroupDiscount(perSeat(), state.partySize); }
+  /* Party prices are TOTALS from the table, never seats multiplied - see
+     D.partyTotalPesewas. "Raw" is what the same riders would pay booking one
+     seat each, so the group price has something to be compared against. An
+     independent car is one price, so it has no separate-seats comparison. */
+  function rawFare() {
+    return state.tier === 'independent' ? normalTotal() : perSeat() * state.partySize;
+  }
 
-  function discountPct() { return D.discountPctForPartySize(state.partySize); }
+  function normalTotal() { return D.partyTotalPesewas(state.tier, state.partySize, 'medium', false); }
 
-  function fareAfterGroup() { return D.fareWhenBookerPaysAll(perSeat(), state.partySize); }
+  function walletTotal() { return D.partyTotalPesewas(state.tier, state.partySize, 'medium', true); }
+
+  /* The column this booking pays: the promo column only when the wallet pays. */
+  function fareAfterGroup() { return state.payment === 'prepaid' ? walletTotal() : normalTotal(); }
+
+  /* A promo is a share of the fare it was applied to, so it follows the fare
+     when the party or the payment column changes rather than keeping the
+     amount it was first shown with. */
+  function repricePromo() {
+    if (state.promo) state.promo.discountPesewas = Math.round(fareAfterGroup() * 0.2);
+  }
 
   function fareFinal() {
     var f = fareAfterGroup();
@@ -235,7 +251,6 @@
 
   function screenHome() {
     var s = school();
-    var discount = D.formatPartyDiscountSummary();
     var saved = [
       s.nodes[0].name + ' → ' + s.nodes[3].name,
       s.nodes[5].name + ' → ' + s.nodes[1].name,
@@ -251,7 +266,7 @@
             '<div class="sheet__badge">' + icon('route') + '</div>' +
             '<div>' +
               '<div class="sheet__title">Where are you going?</div>' +
-              '<div class="sheet__sub">From ' + D.formatGhs(fromFarePesewas()) + ' per rider' + (discount ? ' · ' + esc(discount) : '') + '</div>' +
+              '<div class="sheet__sub">From ' + D.formatGhs(fromFarePesewas()) + ' · groups pay one price</div>' +
             '</div>' +
           '</div>' +
           '<button class="a-btn a-btn--primary press" data-act="plan" data-mode="now">' + icon('search') + 'Find a ride</button>' +
@@ -401,9 +416,9 @@
     if (!c) return '<div class="screen" data-screen="confirm"></div>';
 
     var tierLabel = (D.RIDE_TIERS.filter(function (o) { return o.tier === state.tier; })[0] || {}).label || 'Standard';
-    var canAfford = state.balancePesewas >= fareFinal();
-    var pct = discountPct();
-    var saving = rawFare() - fareAfterGroup();
+    var canAfford = state.balancePesewas >= walletTotal();
+    var groupSaving = rawFare() - normalTotal();
+    var walletSaving = state.payment === 'prepaid' ? normalTotal() - walletTotal() : 0;
 
     return '<div class="screen" data-screen="confirm">' +
       '<div class="appbar">' +
@@ -452,11 +467,15 @@
           (!canAfford ? '<p class="note note--muted">Balance is low — you can still book and pay cash or top up before the ride ends.</p>' : '') +
 
           '<div class="row" style="border-top:1px solid var(--outline-variant);margin-top:var(--sp-sm)">' +
-            '<span class="row__label">Fare' + (state.partySize > 1 ? ' (×' + state.partySize + ')' : '') + '</span>' +
+            '<span class="row__label">Fare' + (state.partySize > 1 && state.tier !== 'independent' ? ' (' + state.partySize + ' separate seats)' : '') + '</span>' +
             '<span class="row__value">' + D.formatGhs(rawFare()) + '</span></div>' +
-          (pct > 0
-            ? '<div class="row"><span class="row__label row__label--good">Group discount (' + pct + '% off)</span>' +
-              '<span class="row__value row__value--good">−' + D.formatGhs(saving) + '</span></div>'
+          (groupSaving > 0
+            ? '<div class="row"><span class="row__label row__label--good">Group price</span>' +
+              '<span class="row__value row__value--good">−' + D.formatGhs(groupSaving) + '</span></div>'
+            : '') +
+          (walletSaving > 0
+            ? '<div class="row"><span class="row__label row__label--good">Paying from wallet</span>' +
+              '<span class="row__value row__value--good">−' + D.formatGhs(walletSaving) + '</span></div>'
             : '') +
           (state.promo
             ? '<div class="row"><span class="row__label row__label--good">Promo ' + esc(state.promo.code) + '</span>' +
@@ -652,7 +671,6 @@
 
   function screenProfile() {
     var s = school();
-    var discount = D.formatPartyDiscountSummary();
     return '<div class="screen" data-screen="profile">' +
       '<div class="profile-hero">' +
         '<div class="profile-hero__avatar">' + esc(initials(D.RIDER.fullName)) + '</div>' +
@@ -668,9 +686,9 @@
 
         '<div class="a-card" style="margin-top:var(--sp-md)">' +
           '<div class="label-cap" style="margin-top:0">Ride info</div>' +
-          '<div class="row"><span class="row__label">Fares from</span><span class="row__value">' + D.formatGhs(fromFarePesewas()) + ' per seat</span></div>' +
+          '<div class="row"><span class="row__label">Fares from</span><span class="row__value">' + D.formatGhs(fromFarePesewas()) + '</span></div>' +
           '<div class="row"><span class="row__label">Solo</span><span class="row__value">' + (s.independentEnabled ? D.formatGhs(D.tierPerSeatPesewas('independent')) : 'Not offered here') + '</span></div>' +
-          '<div class="row"><span class="row__label">Group discount</span><span class="row__value">' + esc(discount || 'None') + '</span></div>' +
+          '<div class="row"><span class="row__label">Groups</span><span class="row__value">One price for the whole group</span></div>' +
           '<div class="row"><span class="row__label">Pay later</span><span class="row__value">Available when balance is low</span></div>' +
         '</div>' +
 
@@ -908,11 +926,13 @@
     seats: function (el) {
       var delta = Number(el.getAttribute('data-delta'));
       state.partySize = Math.max(1, Math.min(maxPartySize(), state.partySize + delta));
+      repricePromo();
       render('none');
     },
 
     pay: function (el) {
       state.payment = el.getAttribute('data-mode');
+      repricePromo();
       render('none');
     },
 

@@ -42,11 +42,8 @@
     $('#widget-origin').textContent = school.nodes[0].name;
     $('#widget-destination').textContent = school.nodes[3].name;
 
-    // A discount clause only when the campus actually has one. There is no
-    // built-in group discount now, so the common case is no clause at all -
-    // and concatenating a null summary would print "· null".
-    var discount = D.formatPartyDiscountSummary();
-    $('#widget-meta').textContent = 'Your campus sets the fare' + (discount ? ' · ' + discount : '');
+    // The table prices a party as one total, so that is the thing worth saying.
+    $('#widget-meta').textContent = 'Your campus sets the fare · groups pay one price';
 
     // Counted, never typed: a hand-typed "3" outlived the tier it counted.
     var live = D.liveSchools();
@@ -154,8 +151,8 @@
   var STEPS = [
     { target: 'home', title: 'Open the app', body: 'Campus map, and one question: where are you going?' },
     { target: 'plan', title: 'Pick your stops', body: 'Only the stops your campus actually has. Pickup and dropoff cannot be the same one.' },
-    { target: 'drivers', title: 'Choose a ride', body: 'Tiers priced off your campus’s base fare. Cards show seats taken, ETA, and whether it is a shared car.' },
-    { target: 'confirm', title: 'Confirm and pay', body: 'Add seats and watch the group discount appear. Wallet or pay later. Nothing is charged yet.' },
+    { target: 'drivers', title: 'Choose a ride', body: 'Prices from your campus’s fare table, by distance. Cards show seats taken, ETA, and whether it is a shared car.' },
+    { target: 'confirm', title: 'Confirm and pay', body: 'Add seats and watch the group price appear. Paying from the wallet costs less. Nothing is charged yet.' },
     { target: 'trip', title: 'Follow the trip', body: 'Driver, car, plate, and a route that moves. The fare comes out at drop-off.' },
     { target: 'wallet', title: 'Check the wallet', body: 'Where the money went, topped up from campus MoMo.' },
   ];

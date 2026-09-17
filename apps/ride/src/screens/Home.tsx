@@ -377,7 +377,7 @@ function FarePanel({ quote, ready }: { quote: FareQuote | null; ready: boolean }
       </div>
       {quote.discountPesewas > 0 && (
         <div className="row row--between spine__meta" style={{ color: 'var(--positive)' }}>
-          <span>Group discount{quote.discountPct ? ` (${quote.discountPct}%)` : ''}</span>
+          <span>Group price</span>
           <span className="data">−{formatGhs(quote.discountPesewas)}</span>
         </div>
       )}
