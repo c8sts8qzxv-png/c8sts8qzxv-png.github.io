@@ -4,12 +4,21 @@ One origin, three front ends, two subdomains.
 
 ```
 /                 marketing          apps/marketing    static, no build
-/ride             rider web app      apps/ride         vite + react
-/drive            driver web app     apps/drive        vite + react
+/ride  /drive     redirects          apps/marketing/{ride,drive}
 
+rider.<domain>    rider web app      ../traverse/rider-app   (Expo, exported for web)
+driver.<domain>   driver web app     ../traverse/driver-app  (Expo, exported for web)
 api.<domain>      the API            ../traverse                 (nest)
 admin.<domain>    admin dashboard    ../traverse/admin-dashboard (next)
 ```
+
+**The web apps are the phone apps.** They were cut-down React builds in
+`apps/ride` and `apps/drive` - no tracking, calls, SOS, reservations or group
+rides - which meant the website could not carry a launch on its own while the
+stores reviewed the apps. They are now the Expo apps exported for the browser,
+published by `deploy/web/publish.sh` in the traverse repo, and served from
+their own subdomains by nginx. `/ride` and `/drive` still work: they redirect,
+deep links included.
 
 The front door is two buttons — **Ride** and **Drive** — in the nav and again
 in the hero. Everything else on the marketing page is supporting material.
