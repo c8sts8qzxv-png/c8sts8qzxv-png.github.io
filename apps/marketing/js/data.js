@@ -146,12 +146,19 @@
     return Math.round(farePesewas * (1 - pct / 100));
   }
 
-  function fareWhenBookerPaysAll(perSeat, partySize, schedule) {
-    return applyGroupDiscount(perSeat * partySize, partySize, schedule);
-  }
-
-  function fareWithoutGroupDiscount(perSeat, partySize) {
-    return perSeat * partySize;
+  /**
+   * What a whole party pays, read from the table - never the solo price
+   * multiplied. Mirrors SchoolFareService.quoteParty: a standard party is its
+   * own column (two riders on a medium trip pay GHS 13, not 2 × GHS 10), an
+   * independent car is one price however many ride in it, and `promo` is the
+   * column earned by paying from the wallet or booking ahead.
+   */
+  function partyTotalPesewas(tier, partySize, band, promo) {
+    band = band || 'medium';
+    var col = promo ? 'promo' : 'normal';
+    if (tier === 'independent') return FARE.independent[band][col];
+    var row = FARE.standard[band][col];
+    return row[Math.max(1, Math.min(row.length, partySize)) - 1];
   }
 
   /**
@@ -278,10 +285,9 @@
     liveSchools: liveSchools,
     schoolsForDisplay: schoolsForDisplay,
     tierPerSeatPesewas: tierPerSeatPesewas,
+    partyTotalPesewas: partyTotalPesewas,
     discountPctForPartySize: discountPctForPartySize,
     applyGroupDiscount: applyGroupDiscount,
-    fareWhenBookerPaysAll: fareWhenBookerPaysAll,
-    fareWithoutGroupDiscount: fareWithoutGroupDiscount,
     formatPartyDiscountSummary: formatPartyDiscountSummary,
     formatGhs: formatGhs,
     formatSeatRatio: formatSeatRatio,
