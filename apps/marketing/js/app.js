@@ -86,6 +86,12 @@
 
   function perSeat() { return D.tierPerSeatPesewas(state.tier); }
 
+  /* The cheapest fare the campus table states: a short hop, shared, at the
+     normal column. Two screens used to read FARE.baseFarePesewas here, which
+     the distance-banded price table removed - so they printed "GHS NaN".
+     Reading the table keeps the demo agreeing with the prices on the page. */
+  function fromFarePesewas() { return D.tierPerSeatPesewas('standard', 'short'); }
+
   function rawFare() { return D.fareWithoutGroupDiscount(perSeat(), state.partySize); }
 
   function discountPct() { return D.discountPctForPartySize(state.partySize); }
@@ -240,7 +246,7 @@
             '<div class="sheet__badge">' + icon('route') + '</div>' +
             '<div>' +
               '<div class="sheet__title">Where are you going?</div>' +
-              '<div class="sheet__sub">From ' + D.formatGhs(D.FARE.baseFarePesewas) + ' per rider' + (discount ? ' · ' + esc(discount) : '') + '</div>' +
+              '<div class="sheet__sub">From ' + D.formatGhs(fromFarePesewas()) + ' per rider' + (discount ? ' · ' + esc(discount) : '') + '</div>' +
             '</div>' +
           '</div>' +
           '<button class="a-btn a-btn--primary press" data-act="plan" data-mode="now">' + icon('search') + 'Find a ride</button>' +
@@ -657,7 +663,7 @@
 
         '<div class="a-card" style="margin-top:var(--sp-md)">' +
           '<div class="label-cap" style="margin-top:0">Ride info</div>' +
-          '<div class="row"><span class="row__label">Base fare</span><span class="row__value">' + D.formatGhs(D.FARE.baseFarePesewas) + ' per seat</span></div>' +
+          '<div class="row"><span class="row__label">Fares from</span><span class="row__value">' + D.formatGhs(fromFarePesewas()) + ' per seat</span></div>' +
           '<div class="row"><span class="row__label">Solo</span><span class="row__value">' + (s.independentEnabled ? D.formatGhs(D.tierPerSeatPesewas('independent')) : 'Not offered here') + '</span></div>' +
           '<div class="row"><span class="row__label">Group discount</span><span class="row__value">' + esc(discount || 'None') + '</span></div>' +
           '<div class="row"><span class="row__label">Pay later</span><span class="row__value">Available when balance is low</span></div>' +
