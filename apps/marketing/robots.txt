@@ -1,0 +1,10 @@
+# Traverse
+#
+# The apps at rider. and driver. are behind a sign-in and have nothing to
+# crawl; they are excluded there, in their own robots.txt, not here.
+User-agent: *
+Allow: /
+Disallow: /ride/
+Disallow: /drive/
+
+Sitemap: https://traversegh.com/sitemap.xml
