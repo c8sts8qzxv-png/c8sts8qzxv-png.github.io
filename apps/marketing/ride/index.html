@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Traverse — Ride</title>
+<!-- The rider app moved to its own subdomain, where it is the same app the
+     phones run rather than a cut-down web version. This page only exists so
+     old links, printed posters and bookmarks still land somewhere useful. -->
+<link rel="canonical" href="https://rider.traversegh.com/">
+<meta name="robots" content="noindex,follow">
+<meta http-equiv="refresh" content="0; url=https://rider.traversegh.com/">
+<script>
+  // Keeps a deep link: /ride/wallet -> https://rider.traversegh.com/wallet.
+  var rest = location.pathname.replace(/^\/ride\/?/, '');
+  location.replace('https://rider.traversegh.com/' + rest + location.search + location.hash);
+</script>
+</head>
+<body style="font:16px/1.5 system-ui;padding:2rem">
+  <p><a href="https://rider.traversegh.com/">Continue to Traverse Ride</a></p>
+</body>
+</html>
