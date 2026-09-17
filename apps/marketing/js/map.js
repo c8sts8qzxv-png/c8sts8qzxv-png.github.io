@@ -4,10 +4,9 @@
    Drawn as SVG from the real CampusNode coordinates in prisma/seed.ts rather
    than pulled from a tile provider. Three reasons, in order of weight:
 
-     1. A tile provider's raster cannot be themed. The app repaints itself in
-        each campus's own colours; a grey OSM raster bolted into the middle of
-        that reads as a hole in the design, and in dark mode it reads as a
-        torch shone in your eye.
+     1. A tile provider's raster cannot be themed. The map is drawn in the
+        site's own monochrome ink (--map-* in css/tokens.css), so it matches
+        the page instead of reading as a hole in the design.
      2. Tiles are a network dependency, and this demo's whole job is to work on
         a phone on a campus connection when the real build will not install.
      3. Every stop drawn here is a stop the product actually has, at the
@@ -189,12 +188,12 @@
       var routeD = curvePath(origin, destination, rng(school.code + opts.originId + opts.destinationId));
       svg.appendChild(el('path', {
         d: routeD, fill: 'none',
-        stroke: 'var(--primary)', 'stroke-width': 13,
+        stroke: 'var(--map-ink)', 'stroke-width': 13,
         'stroke-linecap': 'round', opacity: '0.16',
       }));
       var line = el('path', {
         d: routeD, fill: 'none',
-        stroke: 'var(--primary)', 'stroke-width': 6,
+        stroke: 'var(--map-ink)', 'stroke-width': 6,
         'stroke-linecap': 'round', class: 'map-route',
       });
       svg.appendChild(line);
@@ -206,7 +205,7 @@
         var len = line.getTotalLength();
         line.style.strokeDasharray = len;
         line.style.strokeDashoffset = len;
-        line.style.transition = 'stroke-dashoffset 640ms var(--ease-out)';
+        line.style.transition = 'stroke-dashoffset 640ms var(--ease-link)';
         requestAnimationFrame(function () {
           requestAnimationFrame(function () { line.style.strokeDashoffset = '0'; });
         });
@@ -222,7 +221,7 @@
         defs.appendChild(el('path', { id: pathId, d: paths[(c * 2) % paths.length] }));
         svg.appendChild(defs);
 
-        var car = el('circle', { r: 5.5, fill: 'var(--accent-on-surface)', class: 'map-car' });
+        var car = el('circle', { r: 5.5, fill: 'var(--gray-500)', class: 'map-car' });
         var motion = el('animateMotion', {
           dur: (11 + c * 4) + 's',
           repeatCount: 'indefinite',
@@ -247,17 +246,17 @@
       var dot = el('g', { class: 'map-stop' + (active ? ' is-active' : '') });
       dot.appendChild(el('circle', {
         cx: p.x.toFixed(1), cy: p.y.toFixed(1), r: active ? 13 : 7,
-        fill: 'var(--surface)',
-        stroke: active ? 'var(--primary)' : 'var(--outline-variant)',
+        fill: 'var(--white)',
+        stroke: active ? 'var(--map-ink)' : 'var(--gray-300)',
         'stroke-width': active ? 5 : 3,
       }));
       if (isDest) {
         dot.appendChild(el('rect', {
           x: (p.x - 4).toFixed(1), y: (p.y - 4).toFixed(1),
-          width: 8, height: 8, rx: 1.5, fill: 'var(--primary)',
+          width: 8, height: 8, fill: 'var(--map-ink)',
         }));
       } else if (isOrigin) {
-        dot.appendChild(el('circle', { cx: p.x.toFixed(1), cy: p.y.toFixed(1), r: 4, fill: 'var(--primary)' }));
+        dot.appendChild(el('circle', { cx: p.x.toFixed(1), cy: p.y.toFixed(1), r: 4, fill: 'var(--map-ink)' }));
       }
       stops.appendChild(dot);
 

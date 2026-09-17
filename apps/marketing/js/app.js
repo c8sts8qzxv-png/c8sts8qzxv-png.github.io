@@ -13,8 +13,13 @@
   'use strict';
 
   var D = global.TraverseData;
-  var T = global.TraverseTheme;
   var M = global.TraverseMap;
+
+  /* The campus the demo runs on. There used to be a campus switcher that
+     repainted the page and re-pointed this app at another school; the Uber
+     skin has one palette and the product has one live campus, so the demo
+     simply runs on the live one. */
+  var SCHOOL_CODE = (D.liveSchools()[0] || D.SCHOOLS[0]).code;
 
   /* ---- helpers ----------------------------------------------------- */
 
@@ -51,7 +56,7 @@
 
   var state = {
     signedIn: false,
-    schoolCode: T.school,
+    schoolCode: SCHOOL_CODE,
     origin: null,
     destination: null,
     picking: 'origin',
@@ -214,7 +219,7 @@
     return '<div class="screen" data-screen="login">' +
       '<div class="login">' +
         '<div class="login__mark">' + icon('car', 'icon--lg') + '</div>' +
-        '<h1 class="login__title">Campus rides,<br>without the wait.</h1>' +
+        '<p class="login__title">Campus rides,<br>without the wait.</p>' +
         '<p class="login__sub">Ride with drivers who already serve ' + esc(school().short) + '. ' +
           'No password — a code to your email, then one to your phone.</p>' +
         '<a class="a-btn a-btn--primary press" href="ride/?new=1">Create an account</a>' +
@@ -312,7 +317,7 @@
       '<div class="appbar">' +
         '<button class="appbar__back press" data-act="back" aria-label="Go back">' + icon('arrow-left', 'icon--sm') + '</button>' +
         '<div style="flex:1">' +
-          '<div class="appbar__title" style="font-size:22px;font-weight:800">Find a ride</div>' +
+          '<div class="appbar__title">Find a ride</div>' +
           '<div class="appbar__sub">Search campus stops for pickup and dropoff</div>' +
         '</div>' +
         '<button class="appbar__back press" data-act="swap" aria-label="Swap pickup and dropoff">' + icon('swap', 'icon--sm') + '</button>' +
@@ -380,7 +385,7 @@
       '<div class="sheet" style="max-height:74%">' +
         '<div class="sheet__handle"></div>' +
         '<div style="padding-bottom:var(--sp-sm)">' +
-          '<div style="font-size:18px;font-weight:800;letter-spacing:-.015em">' + esc(routeName) + '</div>' +
+          '<div style="font-size:20px;line-height:28px;font-weight:700">' + esc(routeName) + '</div>' +
           '<div style="font-size:13px;color:var(--on-surface-variant);margin-top:var(--sp-xs)">' +
             'From ' + D.formatGhs(perSeat()) + ' per seat · ' + state.candidates.length + ' available</div>' +
         '</div>' +
@@ -410,7 +415,7 @@
         '<div class="a-card">' +
           '<div style="font-size:13px;color:var(--on-surface-variant)">' +
             esc(state.origin.name) + ' → ' + esc(state.destination.name) + '</div>' +
-          '<div style="font-size:24px;font-weight:800;letter-spacing:-.02em;margin-top:var(--sp-sm)">' + esc(c.label) + '</div>' +
+          '<div style="font-size:24px;line-height:32px;font-weight:700;margin-top:var(--sp-sm)">' + esc(c.label) + '</div>' +
           '<div style="font-size:13px;color:var(--on-surface-variant);margin-top:2px">' +
             D.formatMinutes(c.etaSeconds) + ' away · ' + D.formatSeatRatio(c.seatsAvailable, c.capacity) + '</div>' +
           (c.pooled ? '<div class="pool-badge" style="margin-top:var(--sp-sm)">' + icon('users', 'icon--sm') +
@@ -525,9 +530,9 @@
       '<div class="sheet" style="max-height:70%">' +
         '<div class="sheet__handle"></div>' +
         '<div class="sheet__scroll">' +
-          '<div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--on-surface-variant)">' +
+          '<div style="font-size:14px;line-height:20px;font-weight:500;color:var(--on-surface-variant)">' +
             (arrived ? 'Trip complete' : picked ? 'In the car' : 'Driver en route') + '</div>' +
-          '<div style="font-size:22px;font-weight:800;letter-spacing:-.02em;margin:2px 0 var(--sp-sm)">' + esc(phase) + '</div>' +
+          '<div style="font-size:24px;line-height:32px;font-weight:700;margin:2px 0 var(--sp-sm)">' + esc(phase) + '</div>' +
 
           '<div class="progress"><div class="progress__bar" data-progress style="width:' + state.tripProgress + '%"></div></div>' +
 
@@ -679,11 +684,6 @@
 
         '<div class="a-card">' +
           '<div class="label-cap" style="margin-top:0">Preferences</div>' +
-          '<button class="menu__item press" data-act="toggle-mode">' +
-            '<span class="ledger__icon">' + icon(T.mode === 'dark' ? 'sun' : 'moon', 'icon--sm') + '</span>' +
-            '<span class="menu__label">Appearance</span>' +
-            '<span class="menu__value">' + (T.mode === 'dark' ? 'Dark' : 'Light') + '</span>' +
-          '</button>' +
           '<button class="menu__item press" data-act="soon" data-label="Safety">' +
             '<span class="ledger__icon">' + icon('shield', 'icon--sm') + '</span>' +
             '<span class="menu__label">Safety</span>' + icon('chevron-right', 'icon--sm') +
@@ -982,8 +982,6 @@
 
     back: function () { back(); },
 
-    'toggle-mode': function () { T.toggleMode(); },
-
     soon: function (el) {
       toast(el.getAttribute('data-label') + ' — in the app, not in this demo');
     },
@@ -1073,32 +1071,6 @@
     }
     render('none');
   }
-
-  /* A campus switch has to reach into the app, not just the page: the stops
-     the rider can pick, the tiers on offer and the fares all belong to the
-     school. Anything already selected from the old campus is dropped rather
-     than carried over as a stop that no longer exists. */
-  T.onChange(function () {
-    if (!root) return;
-    if (state.schoolCode !== T.school) {
-      state.schoolCode = T.school;
-      state.origin = null;
-      state.destination = null;
-      state.driver = null;
-      state.candidates = [];
-      state.tier = 'standard';
-      state.partySize = 1;
-      state.promo = null;
-      state.promoError = null;
-      clearInterval(tripTimer);
-      clearTimeout(searchTimer);
-      state.tripProgress = 0;
-      if (['plan', 'drivers', 'confirm', 'waiting', 'trip'].indexOf(current()) !== -1) {
-        stack = [state.signedIn ? 'home' : 'login'];
-      }
-    }
-    render('none');
-  });
 
   global.TraverseApp = {
     mountInto: mountInto,

@@ -1,1053 +1,484 @@
 /* ============================================================================
-   landing.css — the public page around the demo
+   landing.css — the sections of the landing page
+   ----------------------------------------------------------------------------
+   Each block names the uber.com pattern it is built from. Values are tokens;
+   the few literal numbers are Uber's own measurements for that component
+   (a 56px field, a 128px card image area, an 84px app icon), noted in place.
    ========================================================================== */
 
-/* ---------------------------------------------------------------------------
-   Nav
-   -------------------------------------------------------------------------- */
-
-.nav {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  height: var(--nav-h);
-  display: flex;
-  align-items: center;
-  background: color-mix(in srgb, var(--background) 82%, transparent);
-  -webkit-backdrop-filter: saturate(180%) blur(14px);
-  backdrop-filter: saturate(180%) blur(14px);
-  border-bottom: 1px solid transparent;
-  transition: border-color var(--dur-pop) var(--ease-out),
-              background-color var(--dur-pop) var(--ease-out);
-}
-/* The border appears only once the page has actually scrolled — a permanent
-   rule under a nav that is flush with the hero is a line drawn for no reason. */
-.nav.is-stuck { border-bottom-color: var(--outline-variant); }
-
-.nav__inner {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-lg);
-  width: 100%;
-  max-width: var(--page-max);
-  margin-inline: auto;
-  padding-inline: var(--page-pad);
-}
-
-.brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: -0.02em; font-size: 1.0625rem; }
-.brand__mark {
-  width: 30px; height: 30px; border-radius: 9px;
-  display: grid; place-items: center;
-  background: var(--primary); color: var(--on-primary);
-  flex: none;
-}
-
-.nav__links { display: flex; gap: var(--sp-lg); margin-left: var(--sp-md); }
-.nav__link {
-  font-size: var(--fs-base);
-  font-weight: 600;
-  color: var(--on-surface-variant);
-  transition: color var(--dur-pop) var(--ease-out);
-}
-.nav__link:hover { color: var(--on-surface); }
-
-.nav__right { margin-left: auto; display: flex; align-items: center; gap: var(--sp-sm); }
-
-.nav__icon-btn {
-  width: 38px; height: 38px;
-  border-radius: var(--r-md);
-  display: grid; place-items: center;
-  color: var(--on-surface);
-  border: 1px solid var(--outline-variant);
-  background: var(--surface);
-}
-
-.nav .btn { padding: 10px 18px; font-size: var(--fs-base); border-radius: var(--r-md); }
-
-@media (max-width: 900px) {
-  .nav__links { display: none; }
-}
-
-/* Campus switcher ---------------------------------------------------------- */
-
-.switcher { position: relative; }
-
-.switcher__btn {
-  display: inline-flex; align-items: center; gap: var(--sp-sm);
-  height: 38px; padding: 0 12px;
-  border-radius: var(--r-md);
-  border: 1px solid var(--outline-variant);
-  background: var(--surface);
-  font-size: var(--fs-sm); font-weight: 700;
-}
-.switcher__swatch { width: 14px; height: 14px; border-radius: 4px; background: var(--primary); flex: none; }
-.switcher__caret { transition: transform var(--dur-pop) var(--ease-out); }
-.switcher.is-open .switcher__caret { transform: rotate(180deg); }
-
-.switcher__menu {
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
-  width: 290px;
-  padding: var(--sp-sm);
-  border-radius: var(--r-lg);
-  background: var(--surface);
-  border: 1px solid var(--outline-variant);
-  box-shadow: var(--shadow-4);
-  z-index: 120;
-
-  /* Origin-aware: it scales out of its trigger, which is the top-right corner,
-     not out of its own middle. And from 0.96 — nothing in the real world
-     appears from nothing, so scale(0) always reads as a glitch. */
-  transform-origin: top right;
-  opacity: 0;
-  transform: scale(0.96) translateY(-4px);
-  visibility: hidden;
-  transition: opacity var(--dur-pop) var(--ease-out),
-              transform var(--dur-pop) var(--ease-out),
-              visibility 0s linear var(--dur-pop);
-}
-.switcher.is-open .switcher__menu {
-  opacity: 1;
-  transform: none;
-  visibility: visible;
-  transition-delay: 0s;
-}
-
-.switcher__item {
-  display: flex; align-items: center; gap: var(--sp-md);
-  width: 100%; padding: 10px; border-radius: var(--r-md);
-  text-align: left; color: var(--on-surface);
-}
-.switcher__item:hover { background: var(--surface-variant); }
-.switcher__item.is-on { background: var(--primary-container); color: var(--on-primary-container); }
-.switcher__dots { display: flex; gap: 3px; flex: none; }
-.switcher__dot { width: 13px; height: 13px; border-radius: 4px; }
-.switcher__name { font-size: var(--fs-sm); font-weight: 700; }
-.switcher__code { font-size: var(--fs-xs); opacity: 0.72; margin-top: 1px; }
+/* Vertical rhythm between blocks inside one section. */
+.block { margin-top: 56px; }
+@media (min-width: 1136px) { .block { margin-top: 64px; } }
 
 /* ---------------------------------------------------------------------------
    Hero
    -------------------------------------------------------------------------- */
 
-.hero {
-  padding: clamp(2.5rem, 1rem + 6vw, 5.5rem) 0 clamp(3rem, 2rem + 4vw, 5rem);
-  position: relative;
-  overflow: hidden;
+.hero { padding-top: 40px; }
+@media (min-width: 600px) { .hero { padding-top: 56px; } }
+@media (min-width: 1136px) { .hero { padding-top: 64px; } }
+
+.hero .grid { align-items: start; }
+
+.hero__place {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px;
+  margin-bottom: 8px;
 }
-/* One large, very soft wash of the campus colour behind the hero. It is what
-   carries the rebrand at page level — switch campus and the whole top of the
-   page changes temperature, not just the buttons. */
-.hero::before {
-  content: "";
+.hero__place-name { font-weight: 500; }
+.hero__place-note { color: var(--gray-600); }
+
+.hero__title { margin-bottom: 16px; }
+.hero__lede { color: var(--gray-800); max-width: 560px; }
+
+/* The booking fields. uber.com: 56px tall, #F3F3F3, 8px radius, 16px apart,
+   a dot for pickup and a square for dropoff joined by a 1px rail. */
+.book__title {
+  margin-top: 32px;
+  margin-bottom: 8px;
+  font-family: var(--font-text);
+  font-size: var(--fs-h5);
+  line-height: var(--lh-h5);
+  font-weight: 500;
+}
+.book { position: relative; display: grid; gap: 16px; max-width: 400px; }
+.book__field {
+  display: flex; align-items: center; gap: 16px;
+  height: 56px;
+  padding: 0 16px;
+  border-radius: var(--r-8);
+  background: var(--gray-100);
+  color: var(--gray-700);
+  transition: background-color var(--dur-fast) linear;
+}
+.book__field:hover { background: var(--gray-200); }
+.book__dot, .book__square {
+  position: relative; z-index: 1;
+  width: 12px; height: 12px; flex: none;
+  background: var(--white);
+  box-shadow: inset 0 0 0 3.5px var(--black);
+}
+.book__dot { border-radius: 50%; }
+.book__rail {
   position: absolute;
-  inset: -20% -10% auto -10%;
-  height: 520px;
-  background:
-    radial-gradient(60% 100% at 22% 0%, color-mix(in srgb, var(--primary) 14%, transparent), transparent 72%),
-    radial-gradient(46% 90% at 88% 8%, color-mix(in srgb, var(--secondary) 16%, transparent), transparent 70%);
-  pointer-events: none;
-  z-index: -1;
+  left: 21.5px; top: 34px; bottom: 34px;
+  width: 1px;
+  background: var(--black);
 }
 
-.hero__grid {
+.hero__meta { margin-top: 16px; font-size: var(--fs-sm); line-height: var(--lh-sm); color: var(--gray-600); }
+
+.stats {
   display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
-  gap: clamp(2rem, 1rem + 4vw, 4.5rem);
-  align-items: center;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin: 40px 0 0;
+  padding-top: 24px;
+  border-top: 1px solid var(--gray-100);
+  max-width: 460px;
+}
+.stats > div { display: flex; flex-direction: column-reverse; justify-content: flex-end; }
+.stats__label { font-size: var(--fs-sm); line-height: var(--lh-sm); color: var(--gray-600); }
+.stats__value {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--fs-h3); line-height: var(--lh-h3); font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
-.hero__title {
-  font-size: var(--fs-display);
-  letter-spacing: var(--tracking-display);
-  line-height: 1.02;
-  margin-bottom: var(--sp-md);
-}
-/* The campus picker, living inside the headline ---------------------------- */
+.stats--dark { border-top-color: var(--border-on-dark); max-width: none; }
+.stats--dark .stats__label { color: var(--gray-400); }
+.stats--dark .stats__value { font-size: var(--fs-h5); line-height: var(--lh-h5); }
 
-.campus-pick {
-  /* .switcher already sets position:relative, which the menu anchors to. */
-  display: inline-block;
-}
-.campus-pick__btn {
-  /* Inherits the headline's size, weight, width axis and tracking, so it
-     reads as part of the sentence rather than as a widget dropped into it.
-     Only the colour and the underline say "you can change this". */
-  font: inherit;
-  letter-spacing: inherit;
-  font-stretch: inherit;
-  font-variation-settings: inherit;
-  /* The accent, contrast-corrected. Raw --secondary here is what once put a
-     1.08:1 lemon-yellow word on Legon. */
-  color: var(--accent-text);
-  display: inline-flex;
-  align-items: baseline;
-  gap: 0.12em;
-  cursor: pointer;
-  /* An underline drawn as a border would sit too far from the glyphs at this
-     size; a gradient keeps it optically attached and lets it thicken on
-     hover without shifting the baseline. */
-  background-image: linear-gradient(var(--accent-text), var(--accent-text));
-  background-repeat: no-repeat;
-  background-position: 0 100%;
-  background-size: 100% 0.055em;
-  padding-bottom: 0.04em;
-  transition: background-size var(--dur-pop) var(--ease-out),
-              opacity var(--dur-pop) var(--ease-out);
-}
-.campus-pick__btn:hover { background-size: 100% 0.09em; }
-.campus-pick__btn:active { opacity: 0.72; }
-
-.campus-pick__caret {
-  width: 0.42em; height: 0.42em;
-  align-self: center;
-  flex: none;
-}
-
-.campus-pick__menu {
-  /* .switcher__menu hangs off the right edge for the nav. In the headline it
-     has to hang off the left, and grow from that corner. */
-  right: auto; left: 0;
-  transform-origin: top left;
-}
-
-@media (max-width: 560px) {
-  /* At the narrowest sizes the menu would overflow the viewport from a left
-     anchor near the right margin. Pin it to the hero's left gutter instead. */
-  .campus-pick__menu { width: min(290px, calc(100vw - 2 * var(--sp-md))); }
-
-  /* The nav's campus menu had the same problem and worse. It is 290px wide and
-     anchored `right: 0` to a chip that, once its label is hidden at this
-     breakpoint, is about 70px wide and sits left of centre in the bar - so the
-     menu started at **x = -104** on a 375px screen and its first third was off
-     the edge, cropped and unreachable.
-     
-     Neither anchor fits 290px beside that chip in a 375px viewport, so at this
-     size the menu stops being anchored to the chip at all and is pinned to the
-     viewport under the nav. `--nav-h` is the token the nav's own height comes
-     from, so the two cannot drift apart. */
-  .switcher__menu {
-    position: fixed;
-    top: calc(var(--nav-h) + 8px);
-    left: var(--sp-md);
-    right: var(--sp-md);
-    width: auto;
-    transform-origin: top center;
+/* Uber shows the hero illustration only at the 12-column width. */
+.hero__art { display: none; }
+@media (min-width: 1136px) {
+  .hero__art { display: block; }
+  .hero__map {
+    aspect-ratio: 1 / 1;
+    border-radius: var(--r-8);
+    overflow: hidden;
+    background: var(--map-land);
   }
+  .hero__map svg { width: 100%; height: 100%; display: block; }
 }
 
-/* The two doors ------------------------------------------------------------ */
+/* ---------------------------------------------------------------------------
+   Two white bordered cards on grey — uber.com "It's easier in the apps"
+   ---------------------------------------------------------------------------
+   Card: white, 1px rgba(0,0,0,.12), square corners, 16px 48px 16px 16px
+   padding, an 84px image well, a 24/32 bold title, a 16px arrow. Stacked
+   until 1136px, then side by side.
+   -------------------------------------------------------------------------- */
 
-.doors__grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--sp-md);
-}
-@media (max-width: 760px) { .doors__grid { grid-template-columns: 1fr; } }
+.cards2 { display: grid; gap: 36px; }
+@media (min-width: 1136px) { .cards2 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.cards2--gap { margin-top: 36px; }
+
+#get-the-app .cards2 { gap: 16px; }
+@media (min-width: 1136px) { #get-the-app .cards2 { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 36px; } }
 
 .door {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--sp-sm);
-  padding: clamp(1.5rem, 1rem + 2vw, 2.5rem);
-  border-radius: var(--r-3xl);
-  background: var(--surface);
-  border: 1px solid var(--outline-variant);
-  color: var(--on-surface);
+  position: relative;
+  display: flex; align-items: center; gap: 16px;
+  padding: 16px 48px 16px 16px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  color: var(--black);
+  transition: box-shadow var(--dur-fast) linear;
 }
-.door:hover { border-color: var(--primary); }
+@media (hover: hover) { .door:hover { box-shadow: var(--hover-on-light); } }
 
-.door__label {
-  font-family: var(--font-mono);
-  font-size: var(--fs-xs);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-  color: var(--on-surface-variant);
-}
-.door__title {
-  font-family: var(--font-display);
-  font-stretch: calc(var(--wdth-display) * 1%);
-  font-variation-settings: "wdth" var(--wdth-display);
-  font-size: var(--fs-h2);
-  font-weight: 800;
-  letter-spacing: var(--tracking-display);
-  line-height: 1.05;
-}
-.door__body {
-  color: var(--on-surface-variant);
-  max-width: 34ch;
-  margin-bottom: var(--sp-sm);
-}
-.door__go {
-  display: inline-flex; align-items: center; gap: var(--sp-sm);
-  font-weight: 700;
-  color: var(--accent-text);
-  margin-top: auto;
-}
-.door__go .icon { transition: transform var(--dur-pop) var(--ease-out); }
-.door:hover .door__go .icon { transform: translateX(3px); }
-@media (prefers-reduced-motion: reduce) {
-  .door:hover .door__go .icon { transform: none; }
-  .campus-pick__btn { transition: none; }
-}
-
-.hero__lede { max-width: 46ch; margin-bottom: var(--sp-lg); }
-
-.hero__actions { display: flex; flex-wrap: wrap; gap: var(--sp-sm); margin-bottom: var(--sp-lg); }
-
-.hero__stats { display: flex; flex-wrap: wrap; gap: var(--sp-lg); }
-.hero__stat-value {
-  font-family: var(--font-display);
-  font-stretch: calc(var(--wdth-display) * 1%);
-  font-variation-settings: "wdth" var(--wdth-display);
-  font-size: 1.75rem; font-weight: 800; letter-spacing: var(--tracking-tight);
-  /* Lining, equal-width figures: 5 / 31 / 3 sit in a row, and proportional
-     digits make the three columns look accidentally misaligned. */
-  font-variant-numeric: tabular-nums lining-nums;
-}
-.hero__stat-label { font-size: var(--fs-sm); color: var(--on-surface-variant); }
-
-/* Booking widget — the hero's own miniature of the app's first screen. */
-.book-widget {
-  background: var(--surface);
-  border: 1px solid var(--outline-variant);
-  border-radius: var(--r-3xl);
-  box-shadow: var(--shadow-4);
-  padding: var(--sp-lg);
-}
-.book-widget__title { font-size: var(--fs-h3); font-weight: 800; letter-spacing: -0.015em; margin-bottom: var(--sp-md); }
-.book-widget__fields { display: flex; flex-direction: column; gap: var(--sp-sm); margin-bottom: var(--sp-md); }
-.book-widget__field {
-  display: flex; align-items: center; gap: var(--sp-md);
-  width: 100%; padding: 14px var(--sp-md);
-  border-radius: var(--r-md);
-  background: var(--surface-variant);
-  color: var(--on-surface);
-  text-align: left;
-  font-size: var(--fs-base); font-weight: 600;
-}
-.book-widget__field .picker__dot,
-.book-widget__field .picker__square { background: var(--on-surface); }
-.book-widget__meta { font-size: var(--fs-sm); color: var(--on-surface-variant); margin-top: var(--sp-md); text-align: center; }
-
-@media (max-width: 900px) {
-  .hero__grid { grid-template-columns: 1fr; }
-  .hero__title { max-width: 18ch; }
-}
-
-/* ---------------------------------------------------------------------------
-   Section shell
-   -------------------------------------------------------------------------- */
-
-.section { padding: clamp(3rem, 2rem + 4vw, 6rem) 0; }
-.section--tint { background: var(--surface); border-block: 1px solid var(--outline-variant); }
-
-.section--ink {
-  background: var(--primary);
-  color: var(--on-primary);
-}
-.section--ink .eyebrow,
-.section--ink .lede { color: color-mix(in srgb, var(--on-primary) 76%, transparent); }
-.section--ink .card {
-  background: color-mix(in srgb, var(--on-primary) 8%, transparent);
-  border-color: color-mix(in srgb, var(--on-primary) 16%, transparent);
-  box-shadow: none;
-}
-
-/* Bullets first appeared inside an ink section with the driver list. Their
-   tick is normally --accent-text, which is tuned for contrast against
-   --surface, not against --primary. In dark mode that pairs pale gold with a
-   light blue ground and the ticks all but vanish, so on ink they take the
-   section's own foreground instead. */
-.section--ink .bullet svg { color: color-mix(in srgb, var(--on-primary) 68%, transparent); }
-
-.section__head { max-width: 62ch; margin-bottom: clamp(1.5rem, 1rem + 2vw, 3rem); }
-.section__head .eyebrow { margin-bottom: var(--sp-sm); }
-.section__head h2 { margin-bottom: var(--sp-md); }
-
-/* ---------------------------------------------------------------------------
-   Demo section
-   -------------------------------------------------------------------------- */
-
-.demo { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: clamp(2rem, 1rem + 4vw, 4.5rem); align-items: center; }
-
-.demo__steps { display: flex; flex-direction: column; gap: var(--sp-md); margin-top: var(--sp-lg); }
-.demo__step {
-  display: flex; gap: var(--sp-md); align-items: flex-start;
-  padding: var(--sp-md);
-  border-radius: var(--r-lg);
-  border: 1px solid transparent;
-  text-align: left;
-  width: 100%;
-  color: inherit;
-}
-.demo__step:hover { background: color-mix(in srgb, var(--on-surface) 4%, transparent); }
-.demo__step.is-on {
-  background: var(--surface);
-  border-color: var(--outline-variant);
-  box-shadow: var(--shadow-1);
-}
-.demo__step-num {
-  width: 28px; height: 28px; border-radius: 50%;
-  display: grid; place-items: center; flex: none;
-  background: var(--surface-variant); color: var(--on-surface-variant);
-  font-size: var(--fs-xs); font-weight: 800;
-  transition: background-color var(--dur-pop) var(--ease-out), color var(--dur-pop) var(--ease-out);
-}
-.demo__step.is-on .demo__step-num { background: var(--primary); color: var(--on-primary); }
-.demo__step-title { font-weight: 700; font-size: var(--fs-base); }
-.demo__step-body { font-size: var(--fs-sm); color: var(--on-surface-variant); margin-top: 2px; }
-
-@media (max-width: 1040px) {
-  /* `justify-items: center` was what collapsed the phone frame to zero width
-     on a real phone. A centred grid item is shrink-to-fit, and the frame sizes
-     itself from its parent, so below 860px - where the frame swaps its fixed
-     390px for a fluid width - the parent had no width to give and the device
-     measured exactly 0px across. The height still applied, so the page held
-     open a 633px column of nothing under "The rider app" and the whole demo
-     was invisible.
-     
-     It was invisible twice over: a zero-area element can never intersect the
-     viewport, so the IntersectionObserver behind `.reveal` never fired and the
-     wrapper stayed at opacity 0 as well. Stretching the items fixes both.
-     Centring now comes from margins, which centre without taking the column's
-     width away. */
-  .demo { grid-template-columns: 1fr; justify-items: stretch; }
-  .demo__copy { max-width: 620px; margin-inline: auto; }
-  /* Keeps the fixed-width frame centred between 860px and 1040px, where it is
-     still 390px wide inside a now-full-width column. */
-  .demo .device { margin-inline: auto; }
-}
-
-/* ---------------------------------------------------------------------------
-   Feature grid
-   -------------------------------------------------------------------------- */
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
-  gap: var(--sp-md);
-}
-
-.feature {
-  padding: var(--sp-lg);
-  border-radius: var(--r-2xl);
-  background: var(--surface);
-  border: 1px solid var(--outline-variant);
-  box-shadow: var(--shadow-1);
-  transition: transform var(--dur-pop) var(--ease-out), box-shadow var(--dur-pop) var(--ease-out);
-}
-@media (hover: hover) and (pointer: fine) {
-  .feature:hover { transform: translateY(-3px); box-shadow: var(--shadow-3); }
-}
-.feature__icon {
-  width: 44px; height: 44px; border-radius: var(--r-lg);
+.door__icon {
+  width: 84px; height: 84px; flex: none;
   display: grid; place-items: center;
-  background: var(--primary-container); color: var(--on-primary-container);
-  margin-bottom: var(--sp-md);
+  background: var(--black); color: var(--white);
 }
-.feature__icon--gold { background: var(--secondary-container); color: var(--on-secondary-container); }
-.feature h3 { font-size: var(--fs-lg); margin-bottom: 6px; }
-.feature p { font-size: var(--fs-sm); color: var(--on-surface-variant); line-height: 1.6; }
+.door--app .door__icon { width: 64px; height: 64px; }
+
+.door__text { display: flex; flex-direction: column; min-width: 0; }
+.door__label { font-size: var(--fs-sm); line-height: var(--lh-sm); color: var(--gray-600); }
+.door__title { font-family: var(--font-display); font-size: var(--fs-h3); line-height: var(--lh-h3); font-weight: 700; }
+.door--app .door__title { font-size: var(--fs-h4); line-height: var(--lh-h4); }
+.door__body { margin-top: 4px; color: var(--gray-800); }
+.door__go { margin-top: 12px; font-weight: 500; }
+.door__arrow {
+  position: absolute; right: 16px; top: 50%;
+  transform: translateY(-50%);
+  transition: transform var(--dur-fast) var(--ease-link);
+}
+@media (hover: hover) { .door:hover .door__arrow { transform: translate(4px, -50%); } }
+
+/* On a phone the image well goes above the words, or the words get 150px. */
+@media (max-width: 599px) {
+  .door:not(.door--app) { flex-direction: column; align-items: flex-start; padding: 16px 48px 24px 16px; }
+  .door:not(.door--app) .door__icon { width: 64px; height: 64px; }
+  .door:not(.door--app) .door__arrow { top: 40px; }
+}
+
+.after-cards { margin-top: 36px; }
 
 /* ---------------------------------------------------------------------------
-   Tier comparison
+   Demo
    -------------------------------------------------------------------------- */
 
-.tier-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: var(--sp-md); }
+.demo { align-items: start; }
+
+/* Steps, set as uber.com/drive's value-prop list: 18/24 medium title, 16/24
+   body in #333, 12px between. Each one is a button that drives the phone. */
+.steps { display: grid; gap: 4px; margin-top: 8px; }
+.step {
+  display: flex; gap: 16px; align-items: flex-start;
+  width: 100%;
+  padding: 16px 12px;
+  border-radius: var(--r-8);
+  text-align: left;
+  transition: background-color var(--dur-fast) linear;
+}
+.step:hover { background: var(--gray-50); }
+.step.is-on { background: var(--gray-100); }
+.step__n {
+  width: 32px; height: 32px; flex: none;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--gray-100); color: var(--black);
+  font-size: var(--fs-sm); font-weight: 500;
+  transition: background-color var(--dur-fast) linear, color var(--dur-fast) linear;
+}
+.step.is-on .step__n { background: var(--black); color: var(--white); }
+.step__title { display: block; font-size: var(--fs-h5); line-height: var(--lh-h5); font-weight: 500; }
+.step__body { display: block; margin-top: 4px; color: var(--gray-800); }
+
+.demo__stage { display: flex; justify-content: center; }
+@media (min-width: 1136px) { .demo__stage { justify-content: flex-end; } }
+
+/* ---------------------------------------------------------------------------
+   Feature cards — uber.com "Explore what you can do"
+   ---------------------------------------------------------------------------
+   #F3F3F3, 8px radius, 16px padding. Title 16/20 medium, text 12/20 with 8px
+   above, the picture on the right. One column, two at 600, three at 1136,
+   36px / 18px apart.
+   -------------------------------------------------------------------------- */
+
+.explore { display: grid; gap: 18px 36px; }
+@media (min-width: 600px)  { .explore { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1136px) { .explore { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; } }
+
+.card {
+  display: flex; gap: 16px; align-items: flex-start;
+  padding: 16px;
+  border-radius: var(--r-8);
+  background: var(--gray-100);
+}
+.card__text { flex: 1; min-width: 0; }
+.card__title { font-size: var(--fs-body); line-height: 20px; font-weight: 500; }
+.card__body { margin-top: 8px; font-size: var(--fs-xs); line-height: var(--lh-xs); padding-right: 8px; }
+.card__art {
+  width: 64px; height: 64px; flex: none;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  background: var(--white);
+}
+.card__art .icon { width: 28px; height: 28px; }
+
+/* ---------------------------------------------------------------------------
+   Ride types
+   -------------------------------------------------------------------------- */
+
+.tiers-grid { display: grid; gap: 18px; }
+@media (min-width: 600px) { .tiers-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 36px; } }
 
 .tier-card {
-  position: relative;
-  padding: var(--sp-lg);
-  border-radius: var(--r-2xl);
-  background: var(--surface);
-  border: 1px solid var(--outline-variant);
-  box-shadow: var(--shadow-1);
   display: flex; flex-direction: column;
+  padding: 24px;
+  border-radius: var(--r-12);
+  background: var(--gray-100);
 }
-.tier-card.is-featured { border-color: var(--primary); box-shadow: var(--shadow-3); }
-.tier-card__flag {
-  position: absolute; top: -11px; left: var(--sp-lg);
-  padding: 3px 10px; border-radius: var(--r-pill);
-  background: var(--primary); color: var(--on-primary);
-  font-size: var(--fs-xs); font-weight: 800;
-  letter-spacing: 0.03em;
-}
-.tier-card__name { font-size: var(--fs-h3); font-weight: 800; letter-spacing: -0.02em; }
-/* .tier-card__price / .tier-card__unit are gone with the prices they set. A
-   ride type is a choice, not a price list, so the blurb now carries the card
-   and steps up from --fs-sm to base to fill the space the number left. */
-.tier-card__blurb { font-size: var(--fs-base); color: var(--on-surface-variant); margin: var(--sp-md) 0; line-height: 1.6; }
-.tier-card__off {
-  font-size: var(--fs-sm);
-  color: var(--on-surface-variant);
-  margin: calc(var(--sp-md) * -1) 0 var(--sp-md);
-}
-.tier-card__seats { display: flex; gap: 5px; margin-top: auto; padding-top: var(--sp-md); }
-.tier-card__seat {
-  width: 26px; height: 26px; border-radius: 8px;
+@media (min-width: 1136px) { .tier-card { padding: 36px; } }
+.tier-card.is-off { color: var(--gray-500); }
+.tier-card__top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.tier-card__name { display: flex; align-items: center; gap: 12px; }
+.tier-card__blurb { margin: 12px 0 0; color: var(--gray-800); }
+.tier-card__off { margin-top: 8px; font-size: var(--fs-sm); line-height: var(--lh-sm); }
+.tier-card__seats { display: flex; gap: 8px; margin-top: 24px; }
+.seat {
+  width: 32px; height: 32px;
+  border-radius: var(--r-8);
   display: grid; place-items: center;
-  background: var(--surface-variant); color: var(--on-surface-variant);
+  background: var(--gray-200); color: var(--gray-700);
 }
-.tier-card__seat.is-you { background: var(--primary); color: var(--on-primary); }
-.tier-card__seat.is-empty { background: transparent; border: 1px dashed var(--outline-variant); }
+.seat.is-you { background: var(--black); color: var(--white); }
+.seat.is-empty { background: transparent; box-shadow: inset 0 0 0 1px var(--gray-300); }
 
 /* ---------------------------------------------------------------------------
-   Pooling explainer
+   Prices
    -------------------------------------------------------------------------- */
 
-.pool-demo {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: clamp(1.5rem, 1rem + 3vw, 3.5rem);
-  align-items: center;
+.prices { display: grid; gap: 18px; }
+@media (min-width: 600px)  { .prices { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; } }
+@media (min-width: 1136px) { .prices { gap: 36px; } }
+
+.price-card { padding: 24px; border-radius: var(--r-12); background: var(--gray-100); }
+.price-card__name { font-weight: 500; line-height: 20px; }
+.price-card__note { margin-top: 4px; font-size: var(--fs-sm); line-height: var(--lh-sm); color: var(--gray-600); min-height: 40px; }
+.price {
+  margin-top: 16px;
+  font-family: var(--font-display);
+  font-size: var(--fs-h1); line-height: var(--lh-h1); font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
-.pool-demo__stage {
+.price__cur { font-size: var(--fs-h4); font-weight: 500; margin-right: 6px; }
+.price-card__sub { margin-top: 8px; font-size: var(--fs-sm); line-height: var(--lh-sm); color: var(--gray-700); }
+.price-card__sub strong { color: var(--black); font-weight: 600; }
+
+.panel { padding: 24px; border: 1px solid var(--border); border-radius: var(--r-12); }
+.panel__title { font-weight: 500; line-height: 20px; margin-bottom: 12px; }
+.panel strong { font-weight: 600; }
+.panel__aside { margin-top: 12px; color: var(--gray-600); }
+
+/* ---------------------------------------------------------------------------
+   Benefits panel — uber.com "Plan for later / Benefits"
+   ---------------------------------------------------------------------------
+   White, 1px rgba(0,0,0,.04) border, 12px radius, 12px padding (none at the
+   bottom). Title 20/28 bold. Rows: 20px icon, text 16/24, 1px rules.
+   -------------------------------------------------------------------------- */
+
+.benefits {
+  padding: 12px 12px 0;
+  border: 1px solid var(--border-faint);
+  border-radius: var(--r-12);
+}
+.benefits__title { font-size: var(--fs-h4); line-height: var(--lh-h4); padding: 12px 10px 8px; }
+.benefits li {
+  display: flex; align-items: flex-start; gap: 22px;
+  padding: 20px 10px;
+  border-bottom: 1px solid var(--border-faint);
+}
+.benefits li:last-child { border-bottom: 0; }
+.benefits li > .icon { margin-top: 2px; }
+.benefits li p { color: var(--black); }
+.benefits li strong { font-weight: 600; }
+
+/* Pass rows: name and cover on the left, who sets the price on the right. */
+.pass { justify-content: space-between; }
+.pass__name { display: block; font-weight: 500; }
+.pass__desc { display: block; font-size: var(--fs-sm); line-height: var(--lh-sm); color: var(--gray-600); }
+.pass__price { font-size: var(--fs-sm); line-height: var(--lh-sm); color: var(--gray-700); white-space: nowrap; }
+
+/* ---------------------------------------------------------------------------
+   Sharing
+   -------------------------------------------------------------------------- */
+
+#sharing .grid { align-items: center; }
+.pool-stage {
   aspect-ratio: 4 / 3;
-  border-radius: var(--r-2xl);
+  border-radius: var(--r-8);
   background: var(--map-land);
-  border: 1px solid var(--outline-variant);
   overflow: hidden;
-  position: relative;
 }
-.pool-demo__stage svg { width: 100%; height: 100%; }
+.pool-stage svg { width: 100%; height: 100%; display: block; }
 
-.pool-steps { display: flex; flex-direction: column; gap: var(--sp-md); counter-reset: pool; }
-.pool-step { display: flex; gap: var(--sp-md); align-items: flex-start; }
-.pool-step__dot {
-  width: 26px; height: 26px; border-radius: 50%; flex: none;
+.numbered { display: grid; gap: 24px; }
+.numbered li { display: flex; gap: 16px; align-items: flex-start; }
+.numbered__n {
+  width: 32px; height: 32px; flex: none;
+  border-radius: 50%;
   display: grid; place-items: center;
-  background: var(--secondary-container); color: var(--on-secondary-container);
-  font-size: var(--fs-xs); font-weight: 800;
+  background: var(--black); color: var(--white);
+  font-size: var(--fs-sm); font-weight: 500;
 }
-.pool-step__title { font-weight: 700; font-size: var(--fs-base); }
-.pool-step__body { font-size: var(--fs-sm); color: var(--on-surface-variant); margin-top: 2px; line-height: 1.6; }
-
-@media (max-width: 860px) { .pool-demo { grid-template-columns: 1fr; } }
+.numbered p + p { margin-top: 4px; color: var(--gray-800); }
+.numbered strong { font-weight: 600; }
 
 /* ---------------------------------------------------------------------------
-   Split / two-column blocks
+   Safety — uber.com/ride three-up: title 18/24 medium, 12px, text in #333
    -------------------------------------------------------------------------- */
 
-.split {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
-  gap: clamp(1.5rem, 1rem + 3vw, 4rem);
-  align-items: center;
-}
-
-.stat-row { display: flex; flex-wrap: wrap; gap: var(--sp-xl); margin-top: var(--sp-lg); }
-.stat__value { font-size: 2rem; font-weight: 800; letter-spacing: -0.03em; }
-.stat__label { font-size: var(--fs-sm); opacity: 0.78; }
-
-.bullets { display: flex; flex-direction: column; gap: 12px; margin-top: var(--sp-md); }
-.bullet { display: flex; gap: 12px; align-items: flex-start; font-size: var(--fs-base); }
-.bullet svg { flex: none; margin-top: 3px; color: var(--accent-text); }
+.threeup { display: grid; gap: 36px; }
+@media (min-width: 600px)  { .threeup { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1136px) { .threeup { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.threeup .icon { margin-bottom: 16px; }
+.threeup h3 { margin-bottom: 12px; }
+.threeup p { color: var(--gray-800); }
 
 /* ---------------------------------------------------------------------------
-   FAQ
+   Drivers — uber.com/drive black section
    -------------------------------------------------------------------------- */
 
-.faq { max-width: 780px; }
+.section--black .head p { color: var(--white); }
 
-.faq__item {
-  border-bottom: 1px solid var(--outline-variant);
+.dark-list { margin-top: 40px; border-top: 1px solid var(--border-on-dark); }
+.dark-list li { padding: 20px 0; border-bottom: 1px solid var(--border-on-dark); }
+.dark-list strong { font-weight: 600; }
+
+.driver-cards { display: grid; gap: 16px; align-content: start; }
+.sheet-card { padding: 24px; border-radius: var(--r-12); background: var(--white); color: var(--black); }
+.sheet-card h3 { margin-bottom: 8px; }
+.kv {
+  display: flex; justify-content: space-between; gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--gray-100);
+  font-size: var(--fs-sm); line-height: var(--lh-sm);
 }
+.kv > span:first-child { color: var(--gray-600); flex: none; }
+.kv > span:last-child { text-align: right; font-weight: 500; }
+.kv--total { border-bottom: 0; padding-bottom: 0; }
+.kv--total > span { color: var(--black) !important; font-size: var(--fs-body); line-height: var(--lh-body); font-weight: 600; }
+
+/* ---------------------------------------------------------------------------
+   FAQ — uber.com/ride
+   ---------------------------------------------------------------------------
+   <details>; summary 16/20 medium, 16px 20px padding, flex space-between, a
+   24px chevron turning over 0.2s; 1px #F3F3F3 rule; answer 16/24 in #333.
+   -------------------------------------------------------------------------- */
+
+.faq__item { border-bottom: 1px solid var(--gray-100); }
 .faq__q {
-  display: flex; align-items: center; gap: var(--sp-md);
-  width: 100%; padding: var(--sp-md) 0;
-  text-align: left;
-  font-size: var(--fs-lg); font-weight: 700; letter-spacing: -0.01em;
-  color: var(--on-surface);
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 16px 20px;
+  list-style: none;
+  cursor: pointer;
+  font-weight: 500;
+  line-height: 20px;
 }
-.faq__sign { margin-left: auto; flex: none; transition: transform var(--dur-pop) var(--ease-out); }
-.faq__item.is-open .faq__sign { transform: rotate(45deg); }
-
-/* Height animation via grid-template-rows 0fr -> 1fr. It is the one way to
-   animate to an unknown content height without measuring it in JS, and unlike
-   max-height it does not guess a ceiling that a long answer then overflows. */
-.faq__a {
-  display: grid;
-  grid-template-rows: 0fr;
-  transition: grid-template-rows var(--dur-pop) var(--ease-out),
-              opacity var(--dur-pop) var(--ease-out);
-  opacity: 0;
-}
-.faq__item.is-open .faq__a { grid-template-rows: 1fr; opacity: 1; }
-.faq__a > div { overflow: hidden; }
-.faq__a p { padding-bottom: var(--sp-md); font-size: var(--fs-base); color: var(--on-surface-variant); line-height: 1.65; max-width: 68ch; }
+.faq__q::-webkit-details-marker { display: none; }
+.faq__q:hover { background: var(--gray-50); }
+.faq__chev { flex: none; transition: transform var(--dur-fast) linear; }
+.faq__item[open] .faq__chev { transform: rotate(180deg); }
+.faq__a { padding: 0 20px 24px; color: var(--gray-800); }
 
 /* ---------------------------------------------------------------------------
-   CTA + footer
+   Off campus
    -------------------------------------------------------------------------- */
 
-.cta-band {
-  border-radius: var(--r-3xl);
-  padding: clamp(2rem, 1.5rem + 3vw, 3.5rem);
-  background: linear-gradient(140deg, var(--primary), var(--primary-container));
-  color: var(--on-primary);
-  box-shadow: var(--shadow-4);
-  position: relative;
-  overflow: hidden;
+.call {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: 24px;
+  padding: 24px;
+  border-radius: var(--r-12);
+  background: var(--gray-100);
 }
-.cta-band::after {
-  content: "";
-  position: absolute; top: -50%; right: -8%;
-  width: 420px; height: 420px; border-radius: 50%;
-  background: radial-gradient(circle, color-mix(in srgb, var(--secondary) 28%, transparent), transparent 66%);
-  pointer-events: none;
+@media (min-width: 1136px) { .call { padding: 36px; } }
+.call__copy { min-width: 0; }
+.call__label { font-size: var(--fs-sm); line-height: var(--lh-sm); color: var(--gray-600); }
+.call__number {
+  display: inline-block;
+  margin-top: 4px;
+  font-family: var(--font-display);
+  font-size: var(--fs-h1); line-height: var(--lh-h1); font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
-.cta-band__inner { position: relative; z-index: 1; max-width: 56ch; }
-.cta-band h2 { margin-bottom: var(--sp-md); }
-.cta-band .btn--secondary { background: var(--on-primary); color: var(--primary); border-color: transparent; }
+.call__number:hover { text-decoration: underline; text-underline-offset: 0.12em; text-decoration-thickness: 2px; }
+.call__actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.call .btn--grey { background: var(--white); }
+@media (hover: hover) { .call .btn--grey:hover { background: var(--gray-200); } }
+@media (max-width: 599px) {
+  .call__actions, .call__actions .btn { width: 100%; }
+}
 
-.footer { padding: var(--sp-xl) 0 var(--sp-lg); border-top: 1px solid var(--outline-variant); }
-.footer__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); gap: var(--sp-lg); margin-bottom: var(--sp-xl); }
-.footer__title { font-size: var(--fs-xs); font-weight: 700; text-transform: uppercase; letter-spacing: var(--tracking-label); color: var(--on-surface-variant); margin-bottom: var(--sp-sm); }
-.footer__list { display: flex; flex-direction: column; gap: 7px; }
-.footer__list a { font-size: var(--fs-sm); color: var(--on-surface-variant); }
-.footer__list a:hover { color: var(--on-surface); }
-.footer__bottom { display: flex; flex-wrap: wrap; gap: var(--sp-md); justify-content: space-between; align-items: center; font-size: var(--fs-sm); color: var(--on-surface-variant); }
+.benefits--text li { padding: 16px 10px; }
+
+.fare-card { padding: 24px; border-radius: var(--r-12); background: var(--black); color: var(--white); }
+@media (min-width: 1136px) { .fare-card { padding: 36px; } }
+.fare-card__num { font-family: var(--font-display); font-size: var(--fs-h1); line-height: var(--lh-h1); font-weight: 700; }
+.fare-card__unit { font-weight: 500; }
+.fare-card__note { margin-top: 16px; font-size: var(--fs-sm); line-height: var(--lh-sm); color: var(--gray-400); }
+
+.place-panel { border-top: 1px solid var(--gray-100); border-bottom: 1px solid var(--gray-100); }
+.place-panel__summary {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px;
+  padding: 16px 20px;
+  list-style: none;
+  cursor: pointer;
+}
+.place-panel__summary::-webkit-details-marker { display: none; }
+.place-panel__summary:hover { background: var(--gray-50); }
+.place-panel__title { font-weight: 500; line-height: 20px; }
+.place-panel__hint { font-size: var(--fs-sm); line-height: var(--lh-sm); color: var(--gray-600); }
+.place-panel__caret { margin-left: auto; transition: transform var(--dur-fast) linear; }
+.place-panel[open] .place-panel__caret { transform: rotate(180deg); }
+@media (max-width: 599px) {
+  .place-panel__title { flex: 1 1 auto; }
+  .place-panel__caret { order: 1; }
+  .place-panel__hint { order: 2; flex: 1 0 100%; }
+}
+
+/* Columns, not a grid: the list is alphabetical, and columns keep A-to-Z
+   readable down a column. */
+.place-list {
+  columns: 2;
+  column-gap: 16px;
+  padding: 4px 20px 24px;
+  font-size: var(--fs-sm); line-height: var(--lh-sm);
+}
+@media (min-width: 600px)  { .place-list { columns: 3; column-gap: 36px; } }
+@media (min-width: 1136px) { .place-list { columns: 4; } }
+.place-list li { break-inside: avoid; padding: 8px 0; border-bottom: 1px solid var(--gray-100); }
+
+.places__foot { margin-top: 16px; color: var(--gray-600); max-width: 640px; }
 
 /* ---------------------------------------------------------------------------
-   Full-screen demo (phone, and the desktop "expand" affordance)
+   Full-screen demo overlay (phones, and the CTA button everywhere)
    -------------------------------------------------------------------------- */
 
 .demo-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 200;
-  background: var(--background);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  opacity: 0;
-  visibility: hidden;
-  /* Modals keep transform-origin: center — they are not anchored to a trigger,
-     so scaling out of one would be a lie about where they came from. */
-  transform: scale(0.985);
-  transition: opacity 240ms var(--ease-out),
-              transform 240ms var(--ease-out),
-              visibility 0s linear 240ms;
+  position: fixed; inset: 0; z-index: 600;
+  background: var(--white);
+  display: flex; align-items: stretch; justify-content: center;
+  opacity: 0; visibility: hidden;
+  transition: opacity var(--dur-fast) linear, visibility 0s linear var(--dur-fast);
 }
-.demo-overlay.is-open {
-  opacity: 1;
-  visibility: visible;
-  transform: none;
-  transition-delay: 0s;
-}
+.demo-overlay.is-open { opacity: 1; visibility: visible; transition-delay: 0s; }
 
 .demo-overlay__close {
   position: absolute;
-  top: max(var(--sp-md), env(safe-area-inset-top, 0px));
-  right: var(--sp-md);
-  z-index: 210;
-  width: 40px; height: 40px;
+  top: max(12px, env(safe-area-inset-top, 0px));
+  right: 12px;
+  z-index: 10;
+  width: 36px; height: 36px;
   border-radius: 50%;
   display: grid; place-items: center;
-  background: var(--surface);
-  color: var(--on-surface);
-  box-shadow: var(--shadow-2);
-  border: 1px solid var(--outline-variant);
+  background: var(--black); color: var(--white);
 }
 
 body.is-locked { overflow: hidden; }
-
-@media (max-width: 860px) {
-  .demo-overlay { padding: 0; }
-  .demo-overlay .device { max-height: 100dvh; height: 100dvh; }
-}
-
-/* ---------------------------------------------------------------------------
-   Off-campus pickups — a real section
-
-   This was styled as a footnote: hairline rule, muted 13px type, no heading,
-   collapsed by default. The owner scrolled past it and reported the list as
-   missing, so the quiet treatment is gone. It now uses the same
-   .section__head rhythm as #fares, #sharing and #safety, and the offer — the
-   headline, the "not on campus" line and the number — is on screen with
-   nothing opened.
-
-   .aside-note__* is deleted rather than left behind; nothing else on the page
-   used it (checked before removing). .place-list survives, because the list
-   itself did not need fixing, only its surroundings.
-   -------------------------------------------------------------------------- */
-
-/* The number is the call to action, so it gets card weight rather than being
-   a line of body copy with a link in it. */
-.offcampus__call {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--sp-lg);
-  margin-bottom: var(--sp-xl);
-  padding: var(--sp-lg);
-  border: 1px solid var(--outline-variant);
-  border-radius: var(--r-2xl);
-  background: var(--surface);
-  box-shadow: var(--shadow-1);
-}
-
-.offcampus__call-copy { min-width: 0; }
-
-.offcampus__call-label {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--sp-sm);
-  font-size: var(--fs-sm);
-  color: var(--on-surface-variant);
-  letter-spacing: var(--tracking-body);
-}
-
-/* tabular-nums so the grouped digits line up rather than jittering, and a
-   clamp so the number stays the largest thing in the block without blowing
-   past the card edge on a 320px phone. */
-.offcampus__number {
-  display: inline-block;
-  font-size: clamp(1.75rem, 6vw, 2.5rem);
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  font-variant-numeric: tabular-nums;
-  color: var(--on-surface);
-  margin-top: 2px;
-  /* It is an <a> now, so it has to stop looking like body copy that happens to
-     be blue. No underline at rest - at this size the number IS the affordance,
-     and the three buttons underneath say what tapping it does. */
-  text-decoration: none;
-}
-.offcampus__number:hover,
-.offcampus__number:focus-visible {
-  text-decoration: underline;
-  text-underline-offset: 0.14em;
-}
-
-.offcampus__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--sp-sm);
-}
-
-/* Full width once the row has wrapped: two half-width buttons stacked in a
-   narrow column read as broken rather than as a pair. */
-@media (max-width: 560px) {
-  .offcampus__actions { width: 100%; }
-  .offcampus__actions .btn { flex: 1 1 100%; justify-content: center; }
-}
-
-.place-panel {
-  border: 1px solid var(--outline-variant);
-  border-radius: var(--r-2xl);
-  padding: var(--sp-md) var(--sp-lg);
-  background: var(--surface);
-}
-
-.place-panel__summary {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-sm);
-  padding: var(--sp-xs) 0;
-  cursor: pointer;
-
-  /* Both are needed: Safari draws its own marker from the shadow DOM, every
-     other engine draws it from list-style. */
-  list-style: none;
-}
-.place-panel__summary::-webkit-details-marker { display: none; }
-
-.place-panel__title { font-weight: 700; color: var(--on-surface); }
-
-.place-panel__hint {
-  font-size: var(--fs-sm);
-  color: var(--on-surface-variant);
-}
-
-.place-panel__caret {
-  margin-left: auto;
-  flex: none;
-  color: var(--on-surface-variant);
-  transition: transform var(--dur-pop) var(--ease-out);
-}
-.place-panel[open] .place-panel__caret { transform: rotate(180deg); }
-
-/* On a phone the title and the count each wrap to two lines and interleave.
-   Stacking them fixes that, but only with `order` as well: in DOM order the
-   full-width hint sits between the title and the caret, which pushed the
-   caret onto a third line on its own. Ordering it before the hint keeps
-   row 1 = title + caret, row 2 = the count. */
-@media (max-width: 560px) {
-  .place-panel__summary { flex-wrap: wrap; }
-  .place-panel__title { order: 0; flex: 1 1 auto; min-width: 0; }
-  .place-panel__caret { order: 1; }
-  .place-panel__hint  { order: 2; flex: 1 0 100%; }
-}
-
-/* Columns rather than a grid: the list is alphabetical, and columns are the
-   only layout that keeps A-to-Z readable down a column instead of scattering
-   it across a row. `break-inside` stops a name splitting over a column edge. */
-.place-list {
-  list-style: none;
-  columns: 4;
-  column-gap: var(--sp-xl);
-  margin: var(--sp-md) 0 0;
-  padding: 0;
-  font-size: var(--fs-sm);
-  color: var(--on-surface);
-}
-.place-list li {
-  break-inside: avoid;
-  padding: 5px 0;
-  border-bottom: 1px solid color-mix(in srgb, var(--outline-variant) 45%, transparent);
-}
-
-/* The three conditions on an off-campus pickup. Deliberately styled as a quiet
-   panel rather than a warning: these are the terms of a real offer, not a
-   caveat bolted onto one, and a red box would read as "this probably will not
-   happen" next to a number we are asking people to text. */
-.offcampus__terms {
-  max-width: 68ch;
-  margin-top: var(--sp-lg);
-  padding: var(--sp-md) var(--sp-lg);
-  border-left: 3px solid var(--primary, currentColor);
-  background: color-mix(in srgb, var(--surface) 70%, transparent);
-  border-radius: 0 6px 6px 0;
-}
-.offcampus__terms-head {
-  margin: 0 0 var(--sp-sm);
-  font-size: var(--fs-sm);
-  font-weight: 600;
-  color: var(--on-surface);
-}
-.offcampus__terms-list {
-  margin: 0;
-  padding-left: 1.1em;
-  display: grid;
-  gap: var(--sp-sm);
-  font-size: var(--fs-sm);
-  color: var(--on-surface-variant);
-}
-.offcampus__terms-list strong { color: var(--on-surface); font-weight: 600; }
-
-/* One price, set large. There is nothing to compare it against any more -
-   no party sizes, no discount tiers - so a table would be a table of one row.
-   The number is the message. */
-.fare-headline {
-  display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: var(--sp-sm);
-  margin-top: var(--sp-md);
-  padding-top: var(--sp-md);
-  border-top: 1px solid color-mix(in srgb, var(--outline-variant) 45%, transparent);
-}
-.fare-headline__num {
-  font-size: 2rem;
-  font-weight: 700;
-  line-height: 1;
-  letter-spacing: -.02em;
-  color: var(--on-surface);
-  font-variant-numeric: tabular-nums;
-}
-.fare-headline__unit {
-  font-size: var(--fs-sm);
-  color: var(--on-surface-variant);
-}
-.fare-note {
-  margin-top: var(--sp-sm);
-  max-width: 58ch;
-  font-size: var(--fs-xs);
-  color: var(--on-surface-variant);
-}
-
-.offcampus__footnote,
-.offcampus__elsewhere {
-  max-width: 60ch;
-  margin-top: var(--sp-md);
-  font-size: var(--fs-sm);
-  color: var(--on-surface-variant);
-}
-
-@media (max-width: 1040px) { .place-list { columns: 3; } }
-@media (max-width: 760px)  { .place-list { columns: 2; column-gap: var(--sp-lg); } }
-/* Stays at two columns on a phone: one column turns 37 names into a screen
-   and a half of scrolling, which is exactly the "dominates the page" failure
-   the single column was meant to avoid. The names are short enough to fit. */
-@media (max-width: 420px)  {
-  .place-list { columns: 2; column-gap: var(--sp-md); font-size: var(--fs-xs); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .place-panel__caret { transition: none; }
-}
-
-/* ---------------------------------------------------------------------------
-   Nav at phone widths
-
-   Pre-existing: below roughly 470px the nav overflowed the viewport and the
-   whole page scrolled sideways — measured at 90px over on a 375px screen and
-   52px over on a 414px one, against the committed build. .nav__links already
-   drops out at 900px, but what remains (wordmark, campus chip, mode toggle,
-   and BOTH doors) still does not fit, and .nav__right has no min-width so it
-   simply pushed past the edge.
-
-   Nothing is removed. The wordmark and the campus name are hidden visually
-   and kept in the accessibility tree, so a screen reader still announces the
-   brand and which campus is selected — the two pieces of information a
-   display:none would have silently thrown away. What is left is a brand mark,
-   a colour chip, and the two doors, which is the point of the nav anyway.
-
-   The campus name is not lost visually either: the hero repeats it one
-   screen-length below as a labelled control, which on a phone is the switcher
-   people actually reach for.
-   -------------------------------------------------------------------------- */
-
-@media (max-width: 560px) {
-  .brand__word,
-  #switcher-label {
-    position: absolute; width: 1px; height: 1px;
-    padding: 0; margin: -1px; overflow: hidden;
-    clip: rect(0 0 0 0); white-space: nowrap; border: 0;
-  }
-
-  /* The chip keeps its swatch and caret, so it still reads as a control
-     rather than a decoration, and the tap target stays a full 38px. */
-  .switcher__btn { padding: 0 10px; }
-
-  .nav__inner { gap: var(--sp-sm); }
-  .nav .btn { padding: 10px 14px; }
-  .nav__right { gap: 6px; }
-}
-
-/* ---------------------------------------------------------------------------
-   "Coming soon" — the campuses that are built but not yet open
-
-   Legon is the campus you can ride on. The other four are real fixtures with
-   real stops and real palettes, and switching to one is how a prospective
-   school sees its own colours on the product — so they stay switchable rather
-   than being deleted or greyed into unreadability. The badge is what stops
-   that preview reading as an available service.
-
-   Deliberately quiet: this sits next to a campus name, not on top of it. It
-   is a status, and a status that shouts competes with the name it modifies.
-   -------------------------------------------------------------------------- */
-
-.soon {
-  display: inline-block;
-  margin-left: var(--sp-sm);
-  padding: 2px 8px;
-  border-radius: var(--r-pill);
-  font-size: 0.6875rem;          /* 11px — below the app's smallest label, on purpose */
-  font-weight: 700;
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-  white-space: nowrap;
-  vertical-align: middle;
-
-  /* Mixed from the campus accent rather than a fixed grey, so the badge keeps
-     belonging to whichever school is painted right now. */
-  color: var(--on-surface-variant);
-  background: color-mix(in srgb, var(--on-surface) 8%, transparent);
-  border: 1px solid var(--outline-variant);
-}
-
-/* On the ink section the surface tokens are the wrong ground entirely. */
-.section--ink .soon {
-  color: color-mix(in srgb, var(--on-primary) 82%, transparent);
-  background: color-mix(in srgb, var(--on-primary) 12%, transparent);
-  border-color: color-mix(in srgb, var(--on-primary) 24%, transparent);
-}
-
-/* ---------------------------------------------------------------------------
-   Connection banner
-   ---------------------------------------------------------------------------
-   The web half of what both native apps already show
-   ({rider,driver}-app/src/components/OfflineBanner.tsx). Same two states, same
-   three-second timer on the recovery, same reasoning - see js/connection.js.
-
-   Fixed and translated rather than inserted into the flow, for the reason the
-   app's own comment records: a banner that mounts and unmounts reflows the
-   whole page underneath it, and losing signal mid-tap would move the button
-   out from under the thumb.
-   -------------------------------------------------------------------------- */
-.conn {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 200;                 /* over the sticky nav, under the demo overlay */
-  display: flex;
-  justify-content: center;
-  padding: calc(env(safe-area-inset-top, 0px) + var(--sp-sm)) var(--sp-md) 0;
-  /* Never intercepts a tap. It is an announcement, not a control, and it sits
-     over whatever the visitor was already reaching for. */
-  pointer-events: none;
-  opacity: 0;
-  transform: translateY(-140%);
-  transition: opacity var(--dur-pop) var(--ease-out),
-              transform var(--dur-pop) var(--ease-out);
-}
-.conn.is-on { opacity: 1; transform: none; }
-
-.conn__pill {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--sp-sm);
-  padding: 10px var(--sp-md);
-  border-radius: var(--r-pill);
-  /* Slate, not red: no connection is a condition of the world, not an error
-     the visitor made or can act on. The app uses this exact value. */
-  background: #475569;
-  color: #fff;
-  font-size: var(--fs-sm);
-  font-weight: 600;
-  box-shadow: var(--shadow-4);
-  max-width: 100%;
-}
-.conn.is-restored .conn__pill { background: #2F7D5B; }
-
-/* On a phone the pill sits across the top of the screen over whatever the
-   visitor was reading, and there is far less width to spend. It shrinks
-   rather than wraps. */
-@media (max-width: 560px) {
-  .conn { padding-left: var(--sp-sm); padding-right: var(--sp-sm); }
-  .conn__pill {
-    padding: 6px var(--sp-md);
-    font-size: var(--fs-xs);
-    gap: var(--sp-xs);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  /* Movement goes, the fade stays - the fade is what says the interface
-     responded, and it is not what causes motion sickness. */
-  .conn { transform: none; transition: opacity var(--dur-pop) var(--ease-out); }
-}
-
-/* ---- Fares: the prices, stated outright -------------------------------
-   Three cards, not a table. A table invites a rider to audit it; three
-   prices invite them to recognise their own trip in one of them. No
-   distances anywhere - a rider knows whether theirs is a hop or a haul,
-   and the app quotes the exact fare before they book either way. */
-.price-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: var(--sp-md);
-}
-.price-card { padding: var(--sp-lg); }
-.price-note { color: var(--on-surface-variant); margin: var(--sp-xs) 0 var(--sp-md); }
-.price {
-  font-size: clamp(2.4rem, 5vw, 3.2rem);
-  line-height: 1;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  margin: 0;
-}
-.price__cur {
-  font-size: 0.42em;
-  font-weight: 500;
-  color: var(--on-surface-variant);
-  margin-right: 0.28em;
-  vertical-align: 0.5em;
-  letter-spacing: 0;
-}
-.price-sub { margin: var(--sp-sm) 0 0; color: var(--on-surface-variant); }

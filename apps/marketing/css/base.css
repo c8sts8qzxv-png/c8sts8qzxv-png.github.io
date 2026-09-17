@@ -1,5 +1,9 @@
 /* ============================================================================
-   base.css — reset, primitives, motion
+   base.css — reset, type, layout grid and the shared controls
+   ----------------------------------------------------------------------------
+   Every value is a token from tokens.css, and every token is a measured
+   uber.com value. Loaded by every page on the site: the landing page, the
+   legal documents and the 404.
    ========================================================================== */
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -7,249 +11,224 @@
 html {
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
-  /* Anchored sections must not land under the fixed nav. */
-  scroll-padding-top: calc(var(--nav-h) + var(--sp-lg));
+  /* Anchored sections must not land under the sticky nav. */
+  scroll-padding-top: calc(var(--nav-h) + 16px);
 }
 
 body {
   margin: 0;
-  font-family: var(--font-sans);
-  font-size: var(--fs-md);
-  line-height: 1.55;
-  letter-spacing: var(--tracking-body);
-  color: var(--on-surface);
-  background: var(--background);
+  font-family: var(--font-text);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  font-weight: 400;
+  color: var(--black);
+  background: var(--white);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* The colour tokens are swapped in one go by theme.js. Without a transition
-     the whole page hard-cuts between palettes, which on a campus switch looks
-     like a page reload rather than a rebrand. 260ms, and colour only —
-     never `all`. */
-  transition: background-color var(--dur-screen) var(--ease-out),
-              color var(--dur-screen) var(--ease-out);
+  /* Belt to the layout's braces: nothing on this site may scroll sideways on
+     a phone. `clip` rather than `hidden` so position:sticky still works. */
+  overflow-x: clip;
 }
 
 img, svg { max-width: 100%; }
 img { height: auto; display: block; }
 
-h1, h2, h3, h4 {
-  margin: 0; line-height: 1.12; font-weight: 800;
-  font-family: var(--font-display);
-  /* The width axis. Archivo ships 75..125 and almost nobody moves it; set
-     slightly expanded, the headline reads as signage rather than as body copy
-     scaled up. font-stretch is the standards-track way in; the low-level
-     variation setting is the fallback for engines that ignore it. */
-  font-stretch: calc(var(--wdth-display) * 1%);
-  font-variation-settings: "wdth" var(--wdth-display);
-}
-h1 { font-size: var(--fs-h1); letter-spacing: var(--tracking-display); }
-h2 { font-size: var(--fs-h2); letter-spacing: var(--tracking-display); }
-h3 { font-size: var(--fs-h3); letter-spacing: var(--tracking-tight); }
-p { margin: 0; }
+h1, h2, h3, h4, h5, p { margin: 0; }
+h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 700; }
+
+h1, .t-h1 { font-size: var(--fs-h1); line-height: var(--lh-h1); font-weight: 700; }
+h2, .t-h2 { font-size: var(--fs-h2); line-height: var(--lh-h2); font-weight: 700; }
+h3, .t-h3 { font-size: var(--fs-h3); line-height: var(--lh-h3); font-weight: 700; }
+.t-h4 { font-size: var(--fs-h4); line-height: var(--lh-h4); font-weight: 700; }
+.t-h5 { font-family: var(--font-text); font-size: var(--fs-h5); line-height: var(--lh-h5); font-weight: 500; }
+.t-sm { font-size: var(--fs-sm); line-height: var(--lh-sm); }
+.t-xs { font-size: var(--fs-xs); line-height: var(--lh-xs); }
+.t-muted { color: var(--gray-600); }
 
 a { color: inherit; text-decoration: none; }
 
-button, input, select, textarea {
-  font: inherit;
-  color: inherit;
-}
-
+button, input, select, textarea { font: inherit; color: inherit; }
 button { background: none; border: 0; padding: 0; cursor: pointer; }
 
 ul, ol { margin: 0; padding: 0; list-style: none; }
 
-/* Visible only to screen readers, and to keyboard users when focused. */
 .sr-only {
   position: absolute; width: 1px; height: 1px;
   padding: 0; margin: -1px; overflow: hidden;
   clip: rect(0 0 0 0); white-space: nowrap; border: 0;
 }
 
-:focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 2px;
-  border-radius: 4px;
-}
+/* Uber's focus ring: 3px blue, offset 2px. Mouse clicks do not draw it. */
+:focus { outline: none; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 
-::selection { background: var(--primary); color: var(--on-primary); }
+::selection { background: var(--black); color: var(--white); }
+
+.skip-link {
+  position: absolute; left: 8px; top: -100px; z-index: 400;
+  padding: 10px 12px; border-radius: var(--r-8);
+  background: var(--white); color: var(--black);
+  font-size: var(--fs-sm); font-weight: 500;
+}
+.skip-link:focus-visible { top: 8px; }
 
 /* ---------------------------------------------------------------------------
-   Press feedback
-   ---------------------------------------------------------------------------
-   The single most load-bearing detail in the whole demo, and a direct port of
-   PressableScale.tsx: 0.97 over 160ms. The app's own comment explains why it
-   exists — ~95 bare Pressables meant most taps produced nothing until the
-   network came back, so riders tapped twice, and that is how a double booking
-   starts. A web demo shown on a phone has exactly the same problem.
-
-   Applied via a class rather than a bare `button` selector so that a control
-   which should not move (a map pan handle, a scrubber) can simply not opt in.
-   -------------------------------------------------------------------------- */
-.press {
-  transition: transform var(--dur-press) var(--ease-out),
-              background-color var(--dur-pop) var(--ease-out),
-              border-color var(--dur-pop) var(--ease-out),
-              color var(--dur-pop) var(--ease-out),
-              box-shadow var(--dur-pop) var(--ease-out);
-  touch-action: manipulation;
-  /* Kills the 300ms grey flash Android/iOS paint over taps, which arrives
-     after the scale has already fired and reads as a second, laggy response. */
-  -webkit-tap-highlight-color: transparent;
-}
-.press:active { transform: scale(var(--press-scale)); }
-
-/* Hover states are gated: a touch device fires :hover on tap, so an ungated
-   hover animation plays at the same moment as the press and the two fight. */
-@media (hover: hover) and (pointer: fine) {
-  .press:hover { filter: brightness(1.04); }
-  .press.press--lift:hover { transform: translateY(-2px); }
-  .press.press--lift:active { transform: scale(var(--press-scale)); }
-}
-
-/* ---------------------------------------------------------------------------
-   Entrance
-   ---------------------------------------------------------------------------
-   Sections rise 12px and fade as they enter the viewport, staggered 60ms apart
-   inside a group. Stagger is decorative, so it never gates interaction — the
-   element is clickable from the first frame, it is only its opacity that is
-   still catching up.
-   -------------------------------------------------------------------------- */
-.js .reveal {
-  opacity: 0;
-  transform: translateY(12px);
-  /* 420ms, not 520: this is decoration on content the visitor is trying to
-     read, and every extra 100ms is 100ms of it being unreadable. */
-  transition: opacity 420ms var(--ease-out), transform 420ms var(--ease-out);
-  transition-delay: var(--reveal-delay, 0ms);
-}
-.js .reveal.is-in { opacity: 1; transform: none; }
-
-/* ---------------------------------------------------------------------------
-   Reduced motion
-   ---------------------------------------------------------------------------
-   Gentler, not none. Movement is the part that causes motion sickness, so
-   movement is the part that goes; opacity and colour transitions stay, because
-   they are what tells you the interface responded.
-   -------------------------------------------------------------------------- */
-@media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-
-  .press:active,
-  .press.press--lift:hover { transform: none; }
-
-  .reveal { transform: none; }
-
-  /* Anything purely decorative and looping stops outright. */
-  .map-car, .pulse, .shimmer { animation: none !important; }
-
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 120ms !important;
-    scroll-behavior: auto !important;
-  }
-}
-
-/* ---------------------------------------------------------------------------
-   Shared primitives
+   Page container and the 4 / 8 / 12 column grid
    -------------------------------------------------------------------------- */
 
 .wrap {
   width: 100%;
   max-width: var(--page-max);
   margin-inline: auto;
-  padding-inline: var(--page-pad);
+  padding-inline: var(--gutter);
 }
 
-.eyebrow {
-  font-size: var(--fs-xs);
-  font-weight: 700;
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-  color: var(--on-surface-variant);
+.section { padding-block: var(--section-y); }
+.section--grey { background: var(--gray-50); }
+.section--black { background: var(--black); color: var(--white); }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(var(--grid-cols), minmax(0, 1fr));
+  column-gap: var(--grid-gap-x);
+  row-gap: var(--grid-gap-y);
+}
+.grid > * { grid-column: 1 / -1; min-width: 0; }
+
+@media (min-width: 1136px) {
+  .col-l5 { grid-column: 1 / span 5; }
+  .col-l6 { grid-column: 1 / span 6; }
+  .col-l7 { grid-column: 1 / span 7; }
+  .col-l8 { grid-column: 1 / span 8; }
+  .col-r5 { grid-column: 8 / span 5; }
+  .col-r6 { grid-column: 7 / span 6; }
+  .col-7s5 { grid-column: 7 / span 5; }  /* uber.com hero image: x=738, 459 wide at 1440 */
 }
 
-.lede {
-  font-size: clamp(1rem, 0.95rem + 0.35vw, 1.1875rem);
-  line-height: 1.6;
-  color: var(--on-surface-variant);
-}
+/* Section heading block: H2, then body copy 16px below it at the base step,
+   20px at 600, 24px at 1136 — Uber's heading wrapper margins. */
+.head { max-width: 760px; margin-bottom: 16px; }
+.head > h2 + p, .head > h3 + p { margin-top: 16px; }
+.head p { color: var(--gray-800); }
+@media (min-width: 600px)  { .head { margin-bottom: 20px; } }
+@media (min-width: 1136px) { .head { margin-bottom: 24px; } }
+
+/* ---------------------------------------------------------------------------
+   Buttons
+   ---------------------------------------------------------------------------
+   Primary: black, 8px radius, 14px/25px padding, 16/20 medium — 48px tall.
+   Hover and press are Uber's inset overlays, not a colour swap.
+   -------------------------------------------------------------------------- */
 
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--sp-sm);
-  /* A pill, because Uber (999px), Bolt (40px) and Apple (980px) have all
-     independently landed there for the same control. Measured, not copied
-     from a screenshot. */
-  border-radius: var(--r-pill);
-  padding: 14px var(--sp-lg);
-  font-size: var(--fs-lg);
-  font-weight: 700;
-  letter-spacing: var(--tracking-body);
+  gap: 8px;
+  min-height: 48px;
+  padding: 14px 25px;
+  border-radius: var(--r-8);
+  font-family: var(--font-text);
+  font-size: var(--fs-body);
+  line-height: 20px;
+  font-weight: 500;
+  text-align: center;
   white-space: nowrap;
+  background: var(--black);
+  color: var(--white);
+  transition: box-shadow var(--dur-fast) linear, background-color var(--dur-fast) linear;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.btn:active { box-shadow: var(--press-on-dark); }
+@media (hover: hover) { .btn:hover { box-shadow: var(--hover-on-dark); } .btn:active { box-shadow: var(--press-on-dark); } }
+
+/* On a black section the primary inverts: white, black text (uber.com/drive). */
+.btn--white { background: var(--white); color: var(--black); }
+.btn--white:active { box-shadow: var(--press-on-light); }
+@media (hover: hover) { .btn--white:hover { box-shadow: var(--hover-on-light); } .btn--white:active { box-shadow: var(--press-on-light); } }
+
+/* Secondary: the grey control, #F3F3F3 -> #E2E2E2 on hover. */
+.btn--grey { background: var(--gray-100); color: var(--black); }
+.btn--grey:active { background: var(--gray-200); box-shadow: none; }
+@media (hover: hover) { .btn--grey:hover { background: var(--gray-200); box-shadow: none; } }
+
+.btn--block { width: 100%; }
+.btn .icon { width: 16px; height: 16px; }
+
+.btn[disabled], .btn[aria-disabled="true"] {
+  background: var(--gray-100); color: var(--gray-500);
+  box-shadow: none; cursor: not-allowed; pointer-events: none;
 }
 
-.btn--primary {
-  background: var(--primary);
-  color: var(--on-primary);
-  box-shadow: var(--shadow-cta);
+/* Pill: nav links, chips, the "Details" control. 14/16 medium, 10/12 pad. */
+.pill {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 36px;
+  padding: 10px 12px;
+  border-radius: var(--r-full);
+  font-size: var(--fs-sm); line-height: 16px; font-weight: 500;
+  white-space: nowrap;
+  transition: background-color var(--dur-fast) linear, color var(--dur-fast) linear, box-shadow var(--dur-fast) linear;
+  -webkit-tap-highlight-color: transparent;
+}
+.pill--white { background: var(--white); color: var(--black); }
+.pill--black { background: var(--black); color: var(--white); }
+.pill--grey  { background: var(--gray-100); color: var(--black); }
+
+/* ---------------------------------------------------------------------------
+   Text link
+   ---------------------------------------------------------------------------
+   Uber's secondary link: a 1px #CBCBCB rule under the text, and a black rule
+   that grows across it on hover over 0.5s. Two background gradients, so the
+   rule sits 6px under the baseline without moving the text.
+   -------------------------------------------------------------------------- */
+
+.tlink {
+  display: inline;
+  padding-bottom: 6px;
+  color: var(--black);
+  background-image:
+    linear-gradient(transparent calc(100% - 1px), var(--black) 1px),
+    linear-gradient(transparent calc(100% - 1px), var(--gray-300) 1px);
+  background-repeat: no-repeat;
+  background-size: 0% 6px, 100% 6px;
+  background-position: 0 100%;
+  transition: background-size var(--dur-link) var(--ease-link);
+}
+.tlink:hover, .tlink:focus-visible { background-size: 100% 6px, 100% 6px; }
+
+.section--black .tlink {
+  color: var(--white);
+  background-image:
+    linear-gradient(transparent calc(100% - 1px), var(--white) 1px),
+    linear-gradient(transparent calc(100% - 1px), rgba(255, 255, 255, 0.4) 1px);
 }
 
-.btn--secondary {
-  /* Bolt's secondary is a translucent wash of the ink colour rather than a
-     grey: rgba(1,34,18,.067) on their green-cast black. Doing the same with
-     the campus ink means the secondary button re-tints itself on every campus
-     and in dark mode, with no second token to keep in sync. */
-  background: color-mix(in srgb, var(--on-surface) 7%, transparent);
-  color: var(--on-surface);
-  border: 1px solid transparent;
-}
-@supports not (background: color-mix(in srgb, red 7%, transparent)) {
-  .btn--secondary { background: var(--surface); border-color: var(--outline-variant); }
+/* Inline link inside running text: plain underline, as Uber's legal pages. */
+.ulink { text-decoration: underline; text-underline-offset: 2px; }
+.ulink:hover { text-decoration-thickness: 2px; }
+
+/* A primary button and the link beside it, 24px apart, wrapping on a phone. */
+.actions {
+  display: flex; flex-wrap: wrap; align-items: center;
+  gap: 12px 24px;
+  margin-top: 24px;
 }
 
-.btn--ghost { color: var(--on-surface); }
-
-.btn--gold {
-  background: var(--secondary);
-  color: var(--on-secondary);
-}
-
-.btn[disabled],
-.btn[aria-disabled="true"] {
-  background: var(--surface-variant);
-  color: var(--on-surface-variant);
-  box-shadow: none;
-  cursor: not-allowed;
-  pointer-events: none;
-}
-
-.card {
-  background: var(--surface);
-  border: 1px solid var(--outline-variant);
-  border-radius: var(--r-2xl);
-  box-shadow: var(--shadow-1);
-}
-
-.chip {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--sp-xs);
-  padding: 6px 12px;
-  border-radius: var(--r-pill);
-  font-size: var(--fs-sm);
-  font-weight: 600;
-  background: var(--surface-variant);
-  color: var(--on-surface);
-}
-
-.chip--gold {
-  background: var(--secondary-container);
-  color: var(--on-secondary-container);
-}
+/* ---------------------------------------------------------------------------
+   Icons (inline sprite)
+   -------------------------------------------------------------------------- */
 
 .icon { width: 20px; height: 20px; flex: none; }
 .icon--sm { width: 16px; height: 16px; }
 .icon--lg { width: 24px; height: 24px; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
