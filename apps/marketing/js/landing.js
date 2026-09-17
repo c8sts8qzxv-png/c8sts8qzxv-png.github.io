@@ -1,11 +1,17 @@
 /* ============================================================================
    landing.js — the page around the app
+   ----------------------------------------------------------------------------
+   Renders the parts of the page that come from the fixtures in js/data.js,
+   drives the demo phone, and sizes it.
+
+   Gone with the Uber skin: the campus switcher (nav and headline), the dark
+   mode toggle, and the scroll-reveal fade. uber.com has none of the three,
+   and only one campus is open, so the page renders the live campus.
    ========================================================================== */
 (function (global) {
   'use strict';
 
   var D = global.TraverseData;
-  var T = global.TraverseTheme;
   var App = global.TraverseApp;
   var M = global.TraverseMap;
 
@@ -22,167 +28,110 @@
     return '<svg class="icon ' + (cls || '') + '" aria-hidden="true"><use href="#ic-' + name + '"/></svg>';
   }
 
-  function school() { return D.schoolByCode(T.school); }
+  // The campus you can actually ride on. schoolByCode falls back to the live
+  // campus rather than SCHOOLS[0], so this can never land on a closed school.
+  var school = D.liveSchools()[0] || D.SCHOOLS[0];
 
   /* ======================================================================
-     Campus switcher
-
-     Two of these now: the one in the nav, and the campus name inside the
-     headline. One factory builds both - a hand-wired second copy is exactly
-     how the two would drift apart.
+     Hero
      ====================================================================== */
 
-  var SWITCHERS = [];
+  function renderHero() {
+    $('#hero-campus').textContent = school.short;
+    $('#hero-campus-title').textContent = school.short;
+    $('#widget-origin').textContent = school.nodes[0].name;
+    $('#widget-destination').textContent = school.nodes[3].name;
 
-  function makeSwitcher(rootId, btnId, menuId, labelId) {
-    var root = $('#' + rootId), btn = $('#' + btnId), menu = $('#' + menuId);
-    if (!root || !btn || !menu) return null;
+    // A discount clause only when the campus actually has one. There is no
+    // built-in group discount now, so the common case is no clause at all -
+    // and concatenating a null summary would print "· null".
+    var discount = D.formatPartyDiscountSummary();
+    $('#widget-meta').textContent = 'Your campus sets the fare' + (discount ? ' · ' + discount : '');
 
-    var api = {
-      root: root,
-      btn: btn,
-      isOpen: function () { return root.classList.contains('is-open'); },
-      close: function () {
-        root.classList.remove('is-open');
-        btn.setAttribute('aria-expanded', 'false');
-      },
-      render: function () {
-        menu.innerHTML = D.schoolsForDisplay().map(function (s) {
-          var pal = T.getSchoolPalette(s.code);
-          var on = s.code === T.school;
-          /* is-on was styled in landing.css but never applied by the original
-             render, so the selected row had no highlight. */
-          return '<button class="switcher__item press' + (on ? ' is-on' : '') + '"' +
-            ' role="menuitemradio" aria-checked="' + on + '" data-school="' + esc(s.code) + '">' +
-            '<span class="switcher__dots">' +
-              '<span class="switcher__dot" style="background:' + pal.primary + '"></span>' +
-              '<span class="switcher__dot" style="background:' + pal.secondary + '"></span>' +
-            '</span>' +
-            '<span style="flex:1;min-width:0">' +
-              '<span class="switcher__name" style="display:block">' + esc(s.short) +
-                (s.live ? '' : '<span class="soon">Coming soon</span>') + '</span>' +
-              '<span class="switcher__code" style="display:block">' + esc(s.name) + '</span>' +
-            '</span>' +
-            (on ? icon('check', 'icon--sm') : '') +
-          '</button>';
-        }).join('');
-        if (labelId && $('#' + labelId)) $('#' + labelId).textContent = school().short;
-      },
-    };
+    // Counted, never typed: a hand-typed "3" outlived the tier it counted.
+    var live = D.liveSchools();
+    $('#stat-campuses').textContent = live.length;
+    $('#stat-campuses-label').textContent = live.length === 1 ? 'campus open now' : 'campuses open now';
+    $('#stat-stops').textContent = school.nodes.length;
+    var ways = 1 + (school.independentEnabled ? 1 : 0);
+    $('#stat-tiers').textContent = ways;
+    $('#stat-tiers-label').textContent = ways === 1 ? 'way to ride' : 'ways to ride';
 
-    btn.addEventListener('click', function (ev) {
-      ev.stopPropagation();
-      var open = root.classList.toggle('is-open');
-      btn.setAttribute('aria-expanded', String(open));
-      /* Only ever one open at a time, or picking a campus from the headline
-         leaves the nav copy hanging open behind it. */
-      if (open) SWITCHERS.forEach(function (o) { if (o !== api) o.close(); });
-    });
-
-    menu.addEventListener('click', function (ev) {
-      var item = ev.target.closest('[data-school]');
-      if (!item) return;
-      T.setSchool(item.getAttribute('data-school'));
-      SWITCHERS.forEach(function (o) { o.close(); });
-    });
-
-    SWITCHERS.push(api);
-    return api;
+    drawMap($('#hero-map'), { cars: true, labels: true });
   }
 
-  makeSwitcher('switcher', 'switcher-btn', 'switcher-menu', 'switcher-label');
-  makeSwitcher('hero-switcher', 'hero-switcher-btn', 'hero-switcher-menu', 'hero-switcher-label');
-
-  function renderSwitcher() {
-    SWITCHERS.forEach(function (s) { s.render(); });
+  function drawMap(host, opts) {
+    if (!host) return;
+    var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    host.innerHTML = '';
+    host.appendChild(svg);
+    M.render(svg, school, {
+      originId: school.nodes[0].id,
+      destinationId: school.nodes[3].id,
+      cars: opts.cars,
+      labels: opts.labels,
+    });
   }
-
-  document.addEventListener('click', function (ev) {
-    SWITCHERS.forEach(function (s) { if (!s.root.contains(ev.target)) s.close(); });
-  });
-
-  document.addEventListener('keydown', function (ev) {
-    if (ev.key !== 'Escape') return;
-    var open = SWITCHERS.filter(function (s) { return s.isOpen(); })[0];
-    if (open) { open.close(); open.btn.focus(); return; }
-    if (overlay.classList.contains('is-open')) closeDemo();
-  });
 
   /* ======================================================================
-     Mode toggle
-     ====================================================================== */
-
-  var modeToggle = $('#mode-toggle');
-
-  function renderModeToggle() {
-    var dark = T.mode === 'dark';
-    $('#mode-icon').setAttribute('href', dark ? '#ic-sun' : '#ic-moon');
-    modeToggle.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
-  }
-
-  modeToggle.addEventListener('click', function () { T.toggleMode(); });
-
-  /* ======================================================================
-     Content that depends on the selected campus
+     Features — uber.com "Explore" cards
      ====================================================================== */
 
   var FEATURES = [
-    { icon: 'car', gold: false, title: 'Book a ride right now', body: 'Pick where you are going, see who is actually nearby, and book. The list shows real seat counts, not a spinner and a promise.' },
-    { icon: 'users', gold: true, title: 'Share it and pay less', body: 'If someone is already heading your way, the app pools you into their car instead of sending a second one. Same driver, a route that already made sense.' },
-    { icon: 'calendar-clock', gold: false, title: 'Book ahead', body: 'Need a ride in three hours, or tomorrow at 6am? Reserve it. A driver is matched close to the time you asked for.' },
-    { icon: 'calendar-sync', gold: false, title: 'Set a routine ride', body: 'Every weekday at 5:05am, set once. Pause it when you are away, cancel it when the semester ends. It keeps booking itself.' },
-    { icon: 'gift', gold: true, title: 'Split with friends', body: 'Organise a ride together and everyone pays their own share, instead of one person covering the car and chasing the rest.' },
-    { icon: 'person', gold: false, title: 'Book for someone else', body: 'A friend without the app, or a visitor. Book and pay for them; they get the driver details and a tracking link by text. No account needed.' },
-    { icon: 'ticket', gold: false, title: 'Passes and bundles', body: 'A pass for a set number of days, or a bundle of a fixed number of rides. Either way it covers your own seat — and the app says so before you buy.' },
-    { icon: 'pin', gold: false, title: 'Save the spots you use', body: 'Drop a pin where you actually stand, name it yourself, pick it again next time. Your history records the nearest stop and how far off it was.' },
-    { icon: 'cash', gold: true, title: 'Pay how you like', body: 'Settle with the driver after the ride, or from a wallet where your campus has a top-up rail running. A low balance never blocks a booking.' },
-    { icon: 'compass', gold: false, title: 'Watch it come in', body: 'Once a driver accepts you get the car, the plate and a number to call. The route draws as the stops you already know by name.' },
-    { icon: 'star', gold: true, title: 'Bring people in, earn on it', body: 'Every rider gets a code at sign-up. When someone joins on it you earn a share of the platform’s own cut — never of their fare — paid into your wallet automatically.' },
-    { icon: 'shield', gold: false, title: 'Get help fast', body: 'One button texts a trusted contact your ride details and where you are. The alert is recorded, not only sent, so there is something to look at afterwards.' },
+    { icon: 'car', title: 'Book a ride right now', body: 'Pick where you are going, see who is actually nearby, and book. The list shows real seat counts, not a spinner and a promise.' },
+    { icon: 'users', title: 'Share it and pay less', body: 'If someone is already heading your way, the app pools you into their car instead of sending a second one. Same driver, a route that already made sense.' },
+    { icon: 'calendar-clock', title: 'Book ahead', body: 'Need a ride in three hours, or tomorrow at 6am? Reserve it. A driver is matched close to the time you asked for.' },
+    { icon: 'calendar-sync', title: 'Set a routine ride', body: 'Every weekday at 5:05am, set once. Pause it when you are away, cancel it when the semester ends. It keeps booking itself.' },
+    { icon: 'gift', title: 'Split with friends', body: 'Organise a ride together and everyone pays their own share, instead of one person covering the car and chasing the rest.' },
+    { icon: 'person', title: 'Book for someone else', body: 'A friend without the app, or a visitor. Book and pay for them; they get the driver details and a tracking link by text. No account needed.' },
+    { icon: 'ticket', title: 'Passes and bundles', body: 'A pass for a set number of days, or a bundle of a fixed number of rides. Either way it covers your own seat — and the app says so before you buy.' },
+    { icon: 'pin', title: 'Save the spots you use', body: 'Drop a pin where you actually stand, name it yourself, pick it again next time. Your history records the nearest stop and how far off it was.' },
+    { icon: 'cash', title: 'Pay how you like', body: 'Settle with the driver after the ride, or from a wallet where your campus has a top-up rail running. A low balance never blocks a booking.' },
+    { icon: 'compass', title: 'Watch it come in', body: 'Once a driver accepts you get the car, the plate and a number to call. The route draws as the stops you already know by name.' },
+    { icon: 'star', title: 'Bring people in, earn on it', body: 'Every rider gets a code at sign-up. When someone joins on it you earn a share of the platform’s own cut — never of their fare — paid into your wallet automatically.' },
+    { icon: 'shield', title: 'Get help fast', body: 'One button texts a trusted contact your ride details and where you are. The alert is recorded, not only sent, so there is something to look at afterwards.' },
   ];
 
   function renderFeatures() {
-    $('#feature-grid').innerHTML = FEATURES.map(function (f, i) {
-      return '<article class="feature reveal" style="--reveal-delay:' + Math.min(i * 50, 300) + 'ms">' +
-        '<div class="feature__icon' + (f.gold ? ' feature__icon--gold' : '') + '">' + icon(f.icon) + '</div>' +
-        '<h3>' + esc(f.title) + '</h3>' +
-        '<p>' + esc(f.body) + '</p>' +
-      '</article>';
+    $('#feature-grid').innerHTML = FEATURES.map(function (f) {
+      return '<li class="card">' +
+        '<div class="card__text">' +
+          '<h3 class="card__title">' + esc(f.title) + '</h3>' +
+          '<p class="card__body">' + esc(f.body) + '</p>' +
+        '</div>' +
+        '<span class="card__art" aria-hidden="true">' + icon(f.icon) + '</span>' +
+      '</li>';
     }).join('');
   }
 
+  /* ======================================================================
+     Ride types
+     ====================================================================== */
+
   function seatRow(tier) {
     var meta = D.RIDE_TIERS.filter(function (t) { return t.tier === tier; })[0];
-    var capacity = 4;
     var out = [];
-    for (var i = 0; i < capacity; i++) {
-      if (i === 0) out.push('<span class="tier-card__seat is-you" title="You">' + icon('person', 'icon--sm') + '</span>');
-      else if (i < meta.seatsSold) out.push('<span class="tier-card__seat" title="Sold to someone else">' + icon('person', 'icon--sm') + '</span>');
-      else out.push('<span class="tier-card__seat is-empty" title="Not sold"></span>');
+    for (var i = 0; i < 4; i++) {
+      if (i === 0) out.push('<span class="seat is-you" title="You">' + icon('person', 'icon--sm') + '</span>');
+      else if (i < meta.seatsSold) out.push('<span class="seat" title="Sold to someone else">' + icon('person', 'icon--sm') + '</span>');
+      else out.push('<span class="seat is-empty" title="Not sold"></span>');
     }
     return out.join('');
   }
 
   /* No money on these cards, deliberately. A ride type is a choice about who
-     else is in the car, and the fare is a campus setting that differs by
-     school - putting a number here answered a question nobody was asking and
-     made the choice look like a price list. What a tier costs is still shown
-     where it belongs: in the rider app, on a real quote. */
+     else is in the car; what it costs is stated below, as prices. */
   function renderTiers() {
-    var s = school();
-    var offered = { standard: true, independent: s.independentEnabled };
-
+    var offered = { standard: true, independent: school.independentEnabled };
     $('#tier-cards').innerHTML = D.RIDE_TIERS.map(function (t) {
       var on = offered[t.tier];
-      return '<article class="tier-card' + (t.tier === 'standard' ? ' is-featured' : '') + '"' +
-        (on ? '' : ' style="opacity:.55"') + '>' +
-        (t.tier === 'standard' ? '<span class="tier-card__flag">Most booked</span>' : '') +
-        '<div style="display:flex;align-items:center;gap:10px">' + icon(t.icon, 'icon--lg') +
-          '<span class="tier-card__name">' + esc(t.label) + '</span></div>' +
+      return '<article class="tier-card' + (on ? '' : ' is-off') + '">' +
+        '<div class="tier-card__top">' +
+          '<h3 class="tier-card__name">' + icon(t.icon, 'icon--lg') + esc(t.label) + '</h3>' +
+          (t.tier === 'standard' ? '<span class="pill pill--black">Most booked</span>' : '') +
+        '</div>' +
         '<p class="tier-card__blurb">' + esc(t.blurb) + '</p>' +
-        (on
-          ? ''
-          : '<p class="tier-card__off">' + esc(s.short) + ' has this ride type switched off</p>') +
+        (on ? '' : '<p class="tier-card__off">' + esc(school.short) + ' has this ride type switched off</p>') +
         '<div class="tier-card__seats" aria-label="Seats sold on this ride type">' + seatRow(t.tier) + '</div>' +
       '</article>';
     }).join('');
@@ -190,72 +139,12 @@
 
   function renderPasses() {
     $('#pass-list').innerHTML = D.PASS_PRODUCTS.map(function (p) {
-      return '<div class="row">' +
-        '<span class="row__label" style="color:var(--on-surface);font-weight:700">' + esc(p.name) +
-          '<span style="display:block;font-weight:400;font-size:var(--fs-sm);color:var(--on-surface-variant)">' +
-            esc(D.describeProduct(p)) + '</span></span>' +
-        '<span class="row__value" style="font-size:var(--fs-sm)">Set by campus</span>' +
-      '</div>';
+      return '<li class="pass">' +
+        '<p><span class="pass__name">' + esc(p.name) + '</span>' +
+          '<span class="pass__desc">' + esc(D.describeProduct(p)) + '</span></p>' +
+        '<span class="pass__price">Set by campus</span>' +
+      '</li>';
     }).join('');
-  }
-
-  /* The campuses section is gone from the page - it was a pitch to a school
-     administrator, and this site sells to students and drivers only. Its
-     render function and the click handler that switched campus from those
-     cards went with it.
-
-     NOTE the handler ran at LOAD TIME against an element in that section, and
-     the selector helper returns null rather than throwing. Leaving it behind
-     would have thrown a TypeError on every page load and taken every later
-     line of this file's initialisation down with it - the tier cards, the
-     passes, the pool diagram and the reveal observer all run after it.
-
-     The campus SWITCHER in the nav and in the hero is a different control and
-     still works; it is the thing that repaints the page in a school's
-     colours. */
-
-  function renderHeroBits() {
-    var s = school();
-    $('#widget-origin').textContent = s.nodes[0].name;
-    $('#widget-destination').textContent = s.nodes[3].name;
-    // A discount clause only when the campus actually has one. There is no
-    // built-in group discount now, so the common case is no clause at all -
-    // and concatenating a null summary would print "· null" on every campus.
-    var discount = D.formatPartyDiscountSummary();
-    $('#widget-meta').textContent =
-      'Your campus sets the fare' + (discount ? ' · ' + discount : '');
-    // Count the campuses that are actually open, not the ones this page can
-    // draw. Summing all five read as five live services when there is one.
-    var live = D.liveSchools();
-    $('#stat-campuses').textContent = live.length;
-    $('#stat-campuses-label').textContent = live.length === 1 ? 'campus open now' : 'campuses open now';
-    // Stops for the campus on screen - the total across five schools is not a
-    // number any single rider can use.
-    $('#stat-stops').textContent = s.nodes.length;
-    // Ride types this campus actually offers. Standard is always on; Solo is
-    // an operator switch. Counted rather than typed, so withdrawing a tier
-    // cannot leave a stale number in the hero the way "3" did.
-    var ways = 1 + (s.independentEnabled ? 1 : 0);
-    $('#stat-tiers').textContent = ways;
-    $('#stat-tiers-label').textContent = ways === 1 ? 'way to ride' : 'ways to ride';
-    $('#footer-note').textContent = 'Showing ' + s.short + ' · ' + T.mode;
-  }
-
-  /* ======================================================================
-     Pooling diagram
-     ====================================================================== */
-
-  function renderPoolDiagram() {
-    var host = $('#pool-stage');
-    var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    host.innerHTML = '';
-    host.appendChild(svg);
-    M.render(svg, school(), {
-      originId: school().nodes[0].id,
-      destinationId: school().nodes[3].id,
-      cars: true,
-      labels: true,
-    });
   }
 
   /* ======================================================================
@@ -273,25 +162,32 @@
 
   function renderSteps() {
     $('#demo-steps').innerHTML = STEPS.map(function (s, i) {
-      return '<button class="demo__step press" role="listitem" data-target="' + s.target + '">' +
-        '<span class="demo__step-num">' + (i + 1) + '</span>' +
-        '<span><span class="demo__step-title" style="display:block">' + esc(s.title) + '</span>' +
-        '<span class="demo__step-body" style="display:block">' + s.body + '</span></span>' +
-      '</button>';
+      return '<li><button class="step" type="button" data-target="' + s.target + '">' +
+        '<span class="step__n" aria-hidden="true">' + (i + 1) + '</span>' +
+        '<span><span class="step__title">' + esc(s.title) + '</span>' +
+        '<span class="step__body">' + esc(s.body) + '</span></span>' +
+      '</button></li>';
     }).join('');
   }
 
   $('#demo-steps').addEventListener('click', function (ev) {
     var step = ev.target.closest('[data-target]');
     if (!step) return;
-    $$('.demo__step').forEach(function (n) { n.classList.remove('is-on'); });
+    $$('.step').forEach(function (n) { n.classList.remove('is-on'); n.removeAttribute('aria-current'); });
     step.classList.add('is-on');
+    step.setAttribute('aria-current', 'step');
     App.jumpTo(step.getAttribute('data-target'));
-    if (isNarrow()) openDemo();
+    if (isPhone()) openDemo();
+    else if (!inView($('#device-fit'))) $('#device-fit').scrollIntoView({ behavior: 'smooth', block: 'center' });
   });
 
+  function inView(el) {
+    var r = el.getBoundingClientRect();
+    return r.top >= 0 && r.bottom <= (global.innerHeight || document.documentElement.clientHeight);
+  }
+
   /* ======================================================================
-     FAQ
+     FAQ — native <details>, as uber.com/ride
      ====================================================================== */
 
   var FAQ = [
@@ -318,55 +214,61 @@
   ];
 
   function renderFaq() {
-    $('#faq').innerHTML = FAQ.map(function (row, i) {
-      return '<div class="faq__item">' +
-        '<button class="faq__q press" aria-expanded="false" aria-controls="faq-a-' + i + '">' +
-          esc(row[0]) +
-          '<span class="faq__sign">' + icon('plus', 'icon--sm') + '</span>' +
-        '</button>' +
-        '<div class="faq__a" id="faq-a-' + i + '"><div><p>' + row[1] + '</p></div></div>' +
-      '</div>';
+    $('#faq').innerHTML = FAQ.map(function (row) {
+      return '<details class="faq__item">' +
+        '<summary class="faq__q">' + esc(row[0]) + icon('chevron-down', 'icon--lg faq__chev') + '</summary>' +
+        '<p class="faq__a">' + esc(row[1]) + '</p>' +
+      '</details>';
     }).join('');
   }
-
-  $('#faq').addEventListener('click', function (ev) {
-    var q = ev.target.closest('.faq__q');
-    if (!q) return;
-    var item = q.parentElement;
-    var open = item.classList.toggle('is-open');
-    q.setAttribute('aria-expanded', String(open));
-  });
 
   /* ======================================================================
      Off-campus place list
 
-     The list ships open, so arriving on #off-campus normally needs nothing.
-     This only re-opens it for somebody who collapsed it earlier and then
-     followed the footer or nav link back expecting to see it.
-
-     Progressive, not required: with scripting off the <details> still opens
-     on click, which is why it is a <details> and not the FAQ's button.
+     The list ships open. This re-opens it for somebody who collapsed it and
+     then followed the footer link back expecting to see it.
      ====================================================================== */
 
-  function openOffCampusIfTargeted() {
-    if (window.location.hash !== '#off-campus') return;
-    var panel = document.querySelector('#off-campus .place-panel');
-    if (panel) panel.open = true;
+  function renderOffCampus() {
+    var places = $('#off-campus-places');
+    var elsewhere = $('#off-campus-elsewhere');
+    if (!places) return;
+    var belongsTo = places.getAttribute('data-campus');
+    var mine = !belongsTo || belongsTo === school.code;
+    places.hidden = !mine;
+    if (elsewhere) elsewhere.hidden = mine;
   }
 
-  window.addEventListener('hashchange', openOffCampusIfTargeted);
-  openOffCampusIfTargeted();
+  function openOffCampusIfTargeted() {
+    if (global.location.hash !== '#off-campus') return;
+    var panel = $('#off-campus .place-panel');
+    if (panel) panel.open = true;
+  }
+  global.addEventListener('hashchange', openOffCampusIfTargeted);
 
   /* ======================================================================
-     Demo overlay
+     The phone: sizing, and the full-screen overlay on a phone
      ====================================================================== */
+
+  var fit = $('#device-fit');
+  var DEVICE_W = 463; // iPhone 15 Pro Max body, in pt - see css/app.css
+
+  function sizeDevice() {
+    var avail = fit.parentElement.clientWidth;
+    var scale = Math.min(1, avail / DEVICE_W);
+    fit.style.setProperty('--device-scale', scale.toFixed(4));
+  }
+  if ('ResizeObserver' in global) new ResizeObserver(sizeDevice).observe(fit.parentElement);
+  else global.addEventListener('resize', sizeDevice);
 
   var overlay = $('#demo-overlay');
   var inlineHost = $('#device-screen');
   var overlayHost = $('#device-screen-overlay');
   var lastFocused = null;
 
-  function isNarrow() { return global.matchMedia('(max-width: 860px)').matches; }
+  // Below 600px the inline phone is a scaled-down preview, too small to use,
+  // so interacting opens the app full screen instead.
+  function isPhone() { return global.matchMedia('(max-width: 599px)').matches; }
 
   function openDemo() {
     lastFocused = document.activeElement;
@@ -379,144 +281,47 @@
   function closeDemo() {
     overlay.classList.remove('is-open');
     document.body.classList.remove('is-locked');
-    // Wait for the fade before moving the app back, otherwise the overlay
-    // visibly empties itself on the way out.
+    // Wait for the fade before moving the app back, or the overlay visibly
+    // empties itself on the way out.
     setTimeout(function () {
       if (!overlay.classList.contains('is-open')) App.mountInto(inlineHost);
-    }, 260);
+    }, 220);
     if (lastFocused && lastFocused.focus) lastFocused.focus();
   }
 
   $$('[data-open-demo]').forEach(function (btn) {
     btn.addEventListener('click', function () {
-      var target = btn.getAttribute('data-demo-screen');
-      if (target) App.jumpTo(target);
-      // On a wide screen the inline device is already visible, so the overlay
-      // would be a second copy of something the visitor can see. Scroll to it
-      // instead; only narrow screens, where the inline device does not fit,
-      // get the full-screen treatment.
-      if (isNarrow()) openDemo();
-      else document.getElementById('demo').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      if (isPhone()) openDemo();
+      else $('#device-fit').scrollIntoView({ behavior: 'smooth', block: 'center' });
     });
   });
+
+  // On a phone, tapping the preview itself opens the real-size app.
+  fit.addEventListener('click', function (ev) {
+    if (!isPhone()) return;
+    ev.preventDefault();
+    ev.stopPropagation();
+    openDemo();
+  }, true);
 
   $('#demo-close').addEventListener('click', closeDemo);
-
-  overlay.addEventListener('click', function (ev) {
-    if (ev.target === overlay) closeDemo();
+  document.addEventListener('keydown', function (ev) {
+    if (ev.key === 'Escape' && overlay.classList.contains('is-open')) closeDemo();
   });
-
-  /* ======================================================================
-     Reveal on scroll
-     ====================================================================== */
-
-  var observer = null;
-  function observeReveals() {
-    var nodes = $$('.reveal:not(.is-in)');
-    if (!('IntersectionObserver' in global)) {
-      nodes.forEach(function (n) { n.classList.add('is-in'); });
-      return;
-    }
-    if (!observer) {
-      observer = new IntersectionObserver(function (entries) {
-        entries.forEach(function (e) {
-          if (!e.isIntersecting) return;
-          e.target.classList.add('is-in');
-          observer.unobserve(e.target);
-        });
-      // A POSITIVE bottom margin, which grows the root box downward: an element
-      // 14% of a viewport below the fold already counts as intersecting, so its
-      // fade has started by the time it is actually looked at. With a negative
-      // margin (the more common copy-paste) the fade only begins once the
-      // element is well inside the viewport, and anyone scrolling briskly sees
-      // a band of blank page — which is exactly what this was doing.
-      }, { rootMargin: '0px 0px 14% 0px', threshold: 0 });
-    }
-    nodes.forEach(function (n) { observer.observe(n); });
-
-    // A visitor who never scrolls must still see the hero. IntersectionObserver
-    // does fire for already-visible elements, but only on its first callback
-    // tick — this is the belt to that braces, and it also covers the case where
-    // the observer is throttled on a slow device.
-    requestAnimationFrame(function () {
-      nodes.forEach(function (n) {
-        var r = n.getBoundingClientRect();
-        if (r.top < (global.innerHeight || 0) && r.bottom > 0) n.classList.add('is-in');
-      });
-    });
-  }
-
-  /* ======================================================================
-     Nav shadow
-     ====================================================================== */
-
-  var nav = $('#nav');
-  function onScroll() { nav.classList.toggle('is-stuck', global.scrollY > 8); }
-  global.addEventListener('scroll', onScroll, { passive: true });
 
   /* ======================================================================
      Boot
      ====================================================================== */
 
-  // The off-campus place list is a real list of real places around ONE campus.
-  // On any other campus it would be a promise about somewhere else entirely,
-  // so it is swapped for a line pointing at the phone number.
-  //
-  // Only the LIST is campus-scoped. This used to hide the whole #off-campus
-  // section, which meant switching campus removed the offer and the number
-  // along with the list - that is how the owner came to report the list as
-  // missing from the page. The offer is true on every campus and never hides.
-  //
-  // With scripting off nothing is swapped, which is correct: the default
-  // campus is the one the list belongs to.
-  function renderOffCampus() {
-    var places = $('#off-campus-places');
-    var elsewhere = $('#off-campus-elsewhere');
-    if (!places) return;
-    var belongsTo = places.getAttribute('data-campus');
-    var mine = !belongsTo || belongsTo === T.school;
-    places.hidden = !mine;
-    if (elsewhere) elsewhere.hidden = mine;
-  }
-
-  function renderAll() {
-    renderSwitcher();
-    renderOffCampus();
-    renderModeToggle();
-    renderHeroBits();
-    renderTiers();
-    renderPasses();
-    renderPoolDiagram();
-    observeReveals();
-  }
-
-  // Rebuilt on every theme change, because the campus drives prices, stop
-  // names, which tiers exist, and the map.
-  T.onChange(renderAll);
-
+  renderHero();
   renderFeatures();
+  renderTiers();
+  renderPasses();
+  drawMap($('#pool-stage'), { cars: true, labels: true });
   renderSteps();
   renderFaq();
-  // The inline device is the app's home on every screen size — on a phone it
-  // simply goes full-bleed. The overlay is a temporary borrow, so booting into
-  // it would leave the visible frame empty until something opened it.
+  renderOffCampus();
+  openOffCampusIfTargeted();
+  sizeDevice();
   App.mountInto(inlineHost);
-
-  // ...and it is never left waiting on a scroll animation to become visible.
-  //
-  // This is the page's centrepiece and it has already been invisible once, for
-  // a reason nobody would guess from looking: the grid centred its column,
-  // which made the frame shrink-to-fit, which made it 0px wide - and a
-  // zero-area element can never intersect the viewport, so the reveal observer
-  // never fired either and the wrapper stayed at opacity 0 on top of that.
-  //
-  // The width bug is fixed in CSS. This is the belt to that braces: a 633px
-  // interactive demo has no business being hidden by default and depending on
-  // an observer to un-hide it, because every way that observer can fail -
-  // zero area, a background tab that never renders, an engine that reports no
-  // intersection - fails to a blank rectangle with nothing to explain it.
-  var deviceReveal = inlineHost.closest && inlineHost.closest('.reveal');
-  if (deviceReveal) deviceReveal.classList.add('is-in');
-  T.apply();          // paints the palette and fires renderAll through onChange
-  onScroll();
 })(window);

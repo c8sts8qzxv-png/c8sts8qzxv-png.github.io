@@ -15,13 +15,34 @@
   'use strict';
 
   /* -- fare rules (prisma/schema.prisma School defaults) -------------- */
+  /* -- fares (prisma/schema.prisma School.distanceBands + School.fareTable) --
+     Distance-banded pricing replaced the flat fare on 2026-09-14. There is no
+     base fare any more: a campus states each price outright, by ride type,
+     distance band, party size, and whether the rider earned the promo column.
+
+     Party prices are TOTALS for the group, which is why each row's first entry
+     equals the solo price - the car was going anyway, so a second passenger is
+     not charged as though it cost a second trip.
+
+     The marketing page deliberately shows only the solo and whole-car prices
+     and the first party row. A rider does not measure their trip; they know
+     whether it is a hop or a haul, and the app quotes the exact fare before
+     they book either way. */
   var FARE = {
-    baseFarePesewas: 500,          // @default(500)
-    independentSurchargePct: 150,  // @default(150)
+    bands: ['short', 'medium', 'long'],
+    standard: {
+      short:  { normal: [600, 900, 1100, 1300], promo: [600, 900, 1100, 1300] },
+      medium: { normal: [1000, 1300, 1500, 1500], promo: [900, 1200, 1400, 1400] },
+      long:   { normal: [1200, 1500, 1700, 1900], promo: [1200, 1300, 1500, 1700] }
+    },
+    independent: {
+      short:  { normal: 1200, promo: 1200 },
+      medium: { normal: 1400, promo: 1200 },
+      long:   { normal: 1800, promo: 1500 }
+    },
     // Empty, matching the schema default. There is no built-in group discount
-    // any more - a campus gets one only when its operator sets it, so the demo
-    // must not show a saving the product does not ship with.
-    partyDiscountSchedule: {}, // @default("{}")
+    // any more - the party column above IS the group price.
+    partyDiscountSchedule: {}
   };
 
   /* -- ride tiers (rider-app/src/rideTier.ts) -------------------------
@@ -52,24 +73,7 @@
 
   /* -- campuses (prisma/seed.ts) -------------------------------------- */
   var SCHOOLS = [
-    {
-      code: 'UPSA',
-      name: 'University of Professional Studies, Accra',
-      short: 'UPSA',
-      live: false,
-      independentEnabled: true,
-      nodes: [
-        { name: 'Main Gate', type: 'gate', lat: 5.6614, lng: -0.16644 },
-        { name: 'Junior Common Room (JCR)', type: 'hall', lat: 5.6704, lng: -0.16294 },
-        { name: 'Dr. Matthew Opoku Prempeh Hostel', type: 'hall', lat: 5.6694, lng: -0.16144 },
-        { name: 'Joshua Alabi Library', type: 'landmark', lat: 5.667, lng: -0.16654 },
-        { name: 'UPSA Business School Block', type: 'department', lat: 5.6644, lng: -0.16794 },
-        { name: 'Student Canteen', type: 'landmark', lat: 5.6624, lng: -0.16194 },
-        { name: 'Ewontoma Medical Centre', type: 'landmark', lat: 5.6574, lng: -0.16944 },
-        { name: 'Central Administration Building', type: 'hall', lat: 5.6699, lng: -0.16444 },
-      ],
-    },
-    {
+{
       code: 'UG-LEGON',
       name: 'University of Ghana, Legon',
       short: 'Legon',
@@ -84,48 +88,6 @@
         { name: 'Business School', type: 'department', lat: 5.648, lng: -0.181 },
         { name: 'Night Market', type: 'landmark', lat: 5.6475, lng: -0.1855 },
         { name: 'Sarbah Hall', type: 'hall', lat: 5.644, lng: -0.187 },
-      ],
-    },
-    {
-      code: 'GIMPA',
-      name: 'Ghana Institute of Management and Public Administration',
-      short: 'GIMPA',
-      live: false,
-      independentEnabled: false,
-      nodes: [
-        { name: 'Main Gate', type: 'gate', lat: 5.6598, lng: -0.1668 },
-        { name: 'GIMPA Main Library', type: 'landmark', lat: 5.6584, lng: -0.1657 },
-        { name: 'Law Faculty Building', type: 'department', lat: 5.6578, lng: -0.1649 },
-        { name: 'GIMPA Executive Conference Centre', type: 'landmark', lat: 5.6591, lng: -0.1645 },
-        { name: 'School of Business Block', type: 'department', lat: 5.6572, lng: -0.1662 },
-      ],
-    },
-    {
-      code: 'CENTRAL-UNI',
-      name: 'Central University',
-      short: 'Central',
-      live: false,
-      independentEnabled: false,
-      nodes: [
-        { name: 'Main Gate', type: 'gate', lat: 5.7268, lng: 0.0338 },
-        { name: 'Central University Library', type: 'landmark', lat: 5.7279, lng: 0.0349 },
-        { name: 'Eagle Square', type: 'landmark', lat: 5.7274, lng: 0.0344 },
-        { name: 'Central Business School', type: 'department', lat: 5.7283, lng: 0.0356 },
-        { name: 'Administration Block', type: 'hall', lat: 5.7271, lng: 0.033 },
-      ],
-    },
-    {
-      code: 'ASHESI',
-      name: 'Ashesi University',
-      short: 'Ashesi',
-      live: false,
-      independentEnabled: true,
-      nodes: [
-        { name: 'Main Gate', type: 'gate', lat: 5.7601, lng: -0.2097 },
-        { name: 'Ashesi Library', type: 'landmark', lat: 5.7596, lng: -0.2088 },
-        { name: 'King Engineering Building', type: 'department', lat: 5.759, lng: -0.208 },
-        { name: 'Databank Foundation Hall', type: 'hall', lat: 5.7603, lng: -0.2078 },
-        { name: 'Natembea Health Centre', type: 'landmark', lat: 5.7588, lng: -0.2096 },
       ],
     },
   ];
@@ -192,10 +154,20 @@
     return perSeat * partySize;
   }
 
-  /** Mirrors tierFarePerSeat on the server. */
-  function tierPerSeatPesewas(tier) {
-    var pct = tier === 'independent' ? FARE.independentSurchargePct : 0;
-    return Math.round(FARE.baseFarePesewas * (1 + pct / 100));
+  /**
+   * What one rider pays, from the campus table.
+   *
+   * Mirrors SchoolFareService.quotePerSeatPesewas. The surcharge this used to
+   * multiply is gone: independent is not standard-plus-a-percentage any more,
+   * it is its own row in every band. `band` defaults to medium, the ordinary
+   * trip, because the demo has no distance to work from.
+   */
+  function tierPerSeatPesewas(tier, band, promo) {
+    band = band || 'medium';
+    var col = promo ? 'promo' : 'normal';
+    return tier === 'independent'
+      ? FARE.independent[band][col]
+      : FARE.standard[band][col][0];
   }
 
   /** e.g. "10% off for 3+ seats", or null when the campus set no discount. */

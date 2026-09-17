@@ -1,180 +1,117 @@
 /* ============================================================================
    Traverse — design tokens
    ----------------------------------------------------------------------------
-   Ported 1:1 from the rider app's theme layer so the web demo and the shipped
-   app cannot drift:
+   The visual system is uber.com's, measured on 17 Sep 2026 in Chrome from
+   uber.com/gh/en/ (home, /ride, /drive, a legal document and the 404) by
+   reading the CSS rules that match each element at every media query, plus
+   the 722 custom properties Uber ships on :root. Nothing here is eyeballed
+   from a screenshot. The substance on the page is ours; only the skin is
+   theirs.
 
-     rider-app/src/theme/spacing.ts        -> --sp-*      (8dp grid)
-     rider-app/src/theme/schoolPalettes.ts -> injected by js/theme.js
-     rider-app/src/theme/index.ts          -> --success / --danger / elevation
-     rider-app/src/components/ui/PressableScale.tsx -> --press-scale, --dur-press
+   Excluded on purpose, per the brief: Uber's logo and name, its licensed
+   typefaces (Uber Move / Uber Move Text), illustrations and photography.
 
-   Colour tokens are NOT written here. They are computed at runtime by
-   js/theme.js, which is a straight port of theme/color.ts + schoolPalettes.ts
-   (including deriveDarkPalette's tonal maths), so switching campus or mode
-   produces exactly the values the app would produce. The values below the
-   `fallback` comment exist only so the first paint before JS runs is the UPSA
-   light palette rather than unstyled black-on-white.
+   Typeface. Uber Move is licensed, so it is substituted. Albert Sans was
+   chosen by measurement, not by taste: rendered beside Uber Move in the same
+   page, its 700 headline "Go anywhere with Uber" at 52px ran 1.6% wider, its
+   cap height matched to the tenth of a pixel (36.4px), and body text at
+   16px/400 ran 1.3% wider. It beat 17 other open grotesques on that test.
+
+   There is one palette and no dark mode. Uber has neither campus colours nor
+   a dark theme, and the owner asked for the skin exactly.
    ========================================================================== */
 
 :root {
-  /* -- 8dp grid (spacing.ts) ------------------------------------------ */
-  --sp-xs: 4px;
-  --sp-sm: 8px;
-  --sp-md: 16px;
-  --sp-lg: 24px;
-  --sp-xl: 32px;
-  --sp-xxl: 40px;
+  /* -- colour (uber.com computed values) ------------------------------ */
+  --black: #000000;
+  --white: #FFFFFF;
+  --gray-50: #F6F6F6;   /* "It's easier in the apps" section ground */
+  --gray-100: #F3F3F3;  /* cards, inputs, FAQ dividers */
+  --gray-200: #E2E2E2;  /* grey control hover */
+  --gray-300: #CBCBCB;  /* resting underline on text links */
+  --gray-400: #AFAFAF;  /* footer copyright and legal links */
+  --gray-500: #757575;
+  --gray-600: #5E5E5E;  /* field labels, meta */
+  --gray-700: #4B4B4B;  /* placeholder text, dotted "See terms" link */
+  --gray-800: #333333;  /* running text inside content sections */
 
-  /* -- radii, read off the app's StyleSheets ------------------------- */
-  --r-sm: 10px;    /* book-confirmation button */
-  --r-md: 12px;    /* tier row, back button, fare error box */
-  --r-lg: 14px;    /* CTA, candidate card, icon badge */
-  --r-xl: 16px;    /* home primary/secondary buttons */
-  --r-2xl: 20px;   /* driver-list bottom sheet */
-  --r-3xl: 24px;   /* home bottom panel */
-  --r-pill: 999px; /* greeting chip, saved commute chip */
+  --border: rgba(0, 0, 0, 0.12);         /* app-download cards */
+  --border-faint: rgba(0, 0, 0, 0.04);   /* benefits panel and its rows */
+  --border-on-dark: rgba(255, 255, 255, 0.16);
 
-  /* -- type scale ----------------------------------------------------
-     The app's sizes (22/17/16/15/13/12 at weight 800/700/600) extended
-     upward for the marketing page, which has no equivalent in the app.
-     Display sizes get negative tracking; small caps-y labels get positive. */
-  --fs-display: clamp(2.5rem, 1.4rem + 4.6vw, 4.5rem);
-  --fs-h1: clamp(2rem, 1.3rem + 2.8vw, 3.25rem);
-  --fs-h2: clamp(1.5rem, 1.15rem + 1.5vw, 2.25rem);
-  --fs-h3: 1.375rem;   /* 22px — app's screen title */
-  --fs-lg: 1.0625rem;  /* 17px — app's primary button / candidate name */
-  --fs-md: 1rem;       /* 16px — app's CTA text */
-  --fs-base: 0.9375rem;/* 15px — app's link text */
-  --fs-sm: 0.8125rem;  /* 13px — app's subtitle / meta */
-  --fs-xs: 0.75rem;    /* 12px — app's uppercase section label */
+  --focus: #276EF1;                      /* focus-visible outline */
+  --positive: #098042;                   /* --base-green-53 */
+  --negative: #CC2609;                   /* --base-red-53 */
 
-  --tracking-display: -0.035em;
-  --tracking-tight: -0.02em;
-  --tracking-body: -0.011em;
-  --tracking-label: 0.06em;   /* savedTitle letterSpacing 0.6 at 12px */
+  /* Hover / press overlays, drawn as a 999px inset shadow the way Uber does
+     it, so the control's own background never has to change. */
+  --hover-on-dark: inset 999px 999px 0 rgba(255, 255, 255, 0.10);
+  --press-on-dark: inset 999px 999px 0 rgba(255, 255, 255, 0.20);
+  --hover-on-light: inset 999px 999px 0 rgba(0, 0, 0, 0.04);
+  --press-on-light: inset 999px 999px 0 rgba(0, 0, 0, 0.08);
 
-  /* Display face. Archivo carries a width axis, and the headline sets it
-     expanded - that is the one type move on this page you will not find on
-     Uber, Bolt or Lyft, all three of which run a single-width grotesque.
-     Every fallback is a real font, so a failed webfont degrades rather than
-     collapsing to Times. */
-  --font-display: "Archivo", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  --font-sans: "Inter", ui-sans-serif, -apple-system, BlinkMacSystemFont,
-    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono",
-    Menlo, monospace;
+  /* -- type ----------------------------------------------------------- */
+  --font-display: "Albert Sans", system-ui, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-text: "Albert Sans", system-ui, "Helvetica Neue", Helvetica, Arial, sans-serif;
 
-  /* Measured off bolt.eu and apple.com rather than guessed: Bolt runs its
-     72px display at -0.035em, Apple its 17px body at -0.022em. Tracking has
-     to tighten as size grows, which is why this is three tokens and not one. */
-  --wdth-display: 118;   /* Archivo width axis, 75..125 */
+  /* Responsive steps are Uber's: base, >=600px, >=1136px. */
+  --fs-h1: 36px;  --lh-h1: 44px;
+  --fs-h2: 28px;  --lh-h2: 36px;
+  --fs-h3: 24px;  --lh-h3: 32px;   /* app-download card title, legal H3 */
+  --fs-h4: 20px;  --lh-h4: 28px;   /* "Benefits" panel title */
+  --fs-h5: 18px;  --lh-h5: 24px;   /* value-prop item title, footer column head */
+  --fs-body: 16px; --lh-body: 24px;
+  --fs-sm: 14px;  --lh-sm: 20px;
+  --fs-xs: 12px;  --lh-xs: 20px;
 
-  /* -- motion --------------------------------------------------------
-     Custom curves, not the CSS built-ins. The built-ins are too weak to read
-     as intentional; these are the strong variants. `ease-in` is deliberately
-     absent — it delays the first frame, which is the frame the user is
-     watching hardest. */
-  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
-  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
-  --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1); /* iOS drawer curve */
+  /* -- radii (--base-corner-radius-*) ---------------------------------- */
+  --r-8: 8px;
+  --r-12: 12px;
+  --r-16: 16px;
+  --r-full: 999px;
 
-  /* Durations, banded by what is moving. Everything interactive stays
-     under 300ms; only the sheet — a large surface travelling a long way —
-     is allowed more. */
-  --dur-press: 160ms;   /* PressableScale: 100–160ms band */
-  --dur-tip: 140ms;
-  --dur-pop: 200ms;
-  --dur-screen: 260ms;
-  --dur-sheet: 420ms;
-
-  --press-scale: 0.97;  /* PressableScale.PRESS_SCALE, unchanged */
-
-  /* -- elevation -----------------------------------------------------
-     The app shadows off #0F172A (slate-900) rather than pure black, which
-     is why its cards read as cool rather than muddy. Kept. */
-  --shadow-hue: 15 23 42;
-  --shadow-1: 0 2px 8px rgb(var(--shadow-hue) / 0.06);
-  --shadow-2: 0 4px 12px rgb(var(--shadow-hue) / 0.10);
-  --shadow-3: 0 8px 24px rgb(var(--shadow-hue) / 0.10);
-  --shadow-4: 0 16px 40px rgb(var(--shadow-hue) / 0.12);
-  --shadow-sheet: 0 -4px 24px rgb(var(--shadow-hue) / 0.10);
-  --shadow-cta: 0 8px 20px rgb(var(--shadow-hue) / 0.22);
-
-  /* -- layout -------------------------------------------------------- */
-  --page-max: 1200px;
-  --page-pad: clamp(1rem, 0.5rem + 2.4vw, 3rem);
+  /* -- layout --------------------------------------------------------- */
+  --page-max: 1280px;
+  --gutter: 24px;        /* 32px >=600, 64px >=1136 */
+  --section-y: 40px;     /* 56px >=600, 64px >=1136 */
+  --grid-cols: 4;        /* 8 >=600, 12 >=1136 */
+  --grid-gap-x: 16px;    /* 36px >=600 */
+  --grid-gap-y: 36px;
   --nav-h: 64px;
 
-  /* -- fallback palette: UPSA / light (schoolPalettes.ts UPSA) -------- */
-  --primary: #0E1F3D;
-  --on-primary: #FFFFFF;
-  --primary-container: #1C3259;
-  --on-primary-container: #FFFFFF;
-  --secondary: #C9962C;
-  --on-secondary: #2A1F00;
-  --secondary-container: #F3E2C0;
-  --on-secondary-container: #3A2C00;
-  --tertiary: #C9962C;
-  --on-tertiary: #2A1F00;
+  /* -- motion (read off Uber's transitions) ---------------------------- */
+  --ease-link: cubic-bezier(0.22, 1, 0.36, 1);   /* underline grow, 0.5s */
+  --ease-menu: cubic-bezier(0.2, 0.8, 0.4, 1);   /* mobile menu, 0.4s */
+  --dur-link: 500ms;
+  --dur-menu: 400ms;
+  --dur-fast: 200ms;                             /* FAQ chevron */
 
-  --background: #F8FAFC;
-  --surface: #FFFFFF;
-  --on-surface: #1C1B1F;
-  --on-surface-variant: #49454F;
-  --surface-variant: #E7E0EC;
-  --outline: #79747E;
-  --outline-variant: #CAC4D0;
-
-  --success: #059669;
-  --danger: #DC2626;
-
-  /* Contrast-corrected brand accent — see readableOn() in js/theme.js.
-     UPSA's gold already clears 4.5:1, so the fallback is the gold itself. */
-  --accent-text: #8A6415;
-  --accent-on-surface: #8A6415;
-
-  --elev-1: #FFFFFF;
-  --elev-2: #FFFFFF;
-  --elev-3: #FFFFFF;
-
-  /* Map ink — derived from primary at runtime; fallback is UPSA navy. */
-  --map-land: #EEF2F7;
+  /* -- demo map ink (monochrome, from the palette above) --------------- */
+  --map-land: #EEEEEE;
   --map-road: #FFFFFF;
-  --map-road-line: #DCE3EC;
-  --map-green: #DCEBDE;
-  --map-water: #CFE0F0;
+  --map-road-line: #DDDDDD;
+  --map-green: #E4E4E4;
+  --map-water: #E0E0E0;
+  --map-ink: #000000;
 }
 
-/* Dark-mode fallback for first paint. js/theme.js replaces these with values
-   derived by the same deriveDarkPalette() maths the app uses. */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-mode="light"]) {
-    --primary: #8FA4CC;
-    --on-primary: #1B2740;
-    --primary-container: #17284A;
-    --on-primary-container: #C3CFE6;
-    --secondary: #E7C88E;
-    --on-secondary: #4A3708;
-    --secondary-container: #E8CD96;
-    --on-secondary-container: #F1DEB8;
-    --tertiary: #E7C88E;
+@media (min-width: 600px) {
+  :root {
+    --fs-h1: 44px;  --lh-h1: 52px;
+    --fs-h2: 32px;  --lh-h2: 40px;
+    --gutter: 32px;
+    --section-y: 56px;
+    --grid-cols: 8;
+    --grid-gap-x: 36px;
+  }
+}
 
-    --background: #1C1B1F;
-    --surface: #1C1B1F;
-    --on-surface: #E6E1E5;
-    --on-surface-variant: #CAC4D0;
-    --surface-variant: #49454F;
-    --outline: #938F99;
-    --outline-variant: #49454F;
-
-    --accent-text: #E7C88E;
-    --accent-on-surface: #E7C88E;
-    --shadow-hue: 0 0 0;
-    --map-land: #23252B;
-    --map-road: #2E3138;
-    --map-road-line: #3A3E47;
-    --map-green: #223026;
-    --map-water: #1E2A38;
+@media (min-width: 1136px) {
+  :root {
+    --fs-h1: 52px;  --lh-h1: 64px;
+    --fs-h2: 36px;  --lh-h2: 44px;
+    --gutter: 64px;
+    --section-y: 64px;
+    --grid-cols: 12;
   }
 }

@@ -1,0 +1,243 @@
+/* ============================================================================
+   site.css — the shell every page shares
+   ----------------------------------------------------------------------------
+   Nav, the phone menu, the footer, legal-document typography, the 404 and the
+   connection banner. The landing page, /legal/* and 404.html all load this,
+   so the three kinds of page cannot drift into three different sites.
+   ========================================================================== */
+
+/* ---------------------------------------------------------------------------
+   Nav — black, 64px, sticky
+   ---------------------------------------------------------------------------
+   uber.com: 64px bar, 12px vertical padding, wordmark 20px (24px >=1136),
+   pill links 14/16 medium with 10/12 padding and 4px between them. The link
+   row appears at 1120px; below that a 36px round menu button takes its place.
+   -------------------------------------------------------------------------- */
+
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 300;
+  height: var(--nav-h);
+  background: var(--black);
+  color: var(--white);
+}
+
+.nav__inner {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  max-width: 1328px;
+  margin-inline: auto;
+  padding-inline: 24px;
+}
+
+.wordmark {
+  display: inline-flex;
+  align-items: center;
+  height: 40px;
+  margin-right: 24px;
+  font-family: var(--font-display);
+  font-size: 20px;
+  line-height: 24px;
+  font-weight: 500;
+  color: var(--white);
+}
+@media (min-width: 1136px) { .wordmark { font-size: 24px; } }
+
+.nav__links { display: none; gap: 4px; }
+@media (min-width: 1120px) { .nav__links { display: flex; } }
+
+.nav .pill--black:hover,
+.nav .pill--black[aria-expanded="true"] { background: var(--gray-100); color: var(--black); }
+
+.nav__right { margin-left: auto; display: flex; align-items: center; gap: 4px; }
+.nav__right .pill--white:hover { box-shadow: var(--hover-on-light); }
+
+.nav__menu-btn {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--black); color: var(--white);
+  margin-left: 4px;
+}
+.nav__menu-btn:hover { box-shadow: var(--hover-on-dark); }
+.nav__menu-btn .icon-close { display: none; }
+.nav__menu-btn[aria-expanded="true"] .icon-open { display: none; }
+.nav__menu-btn[aria-expanded="true"] .icon-close { display: block; }
+@media (min-width: 1120px) { .nav__menu-btn { display: none; } }
+
+/* ---------------------------------------------------------------------------
+   Phone / tablet menu
+   ---------------------------------------------------------------------------
+   uber.com: fixed under the bar, white, full height; links in the display face
+   at 32/40 bold, in 72px rows, 24px gutters; fades and rises over 0.4s.
+   -------------------------------------------------------------------------- */
+
+.menu {
+  position: fixed;
+  top: var(--nav-h);
+  left: 0; right: 0; bottom: 0;
+  z-index: 290;
+  background: var(--white);
+  color: var(--black);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 24px 96px;
+  opacity: 0;
+  transform: translateY(-8px);
+  visibility: hidden;
+  transition: opacity var(--dur-menu) var(--ease-menu),
+              transform var(--dur-menu) var(--ease-menu),
+              visibility 0s linear var(--dur-menu);
+}
+.menu.is-open {
+  opacity: 1;
+  transform: none;
+  visibility: visible;
+  transition-delay: 0s;
+}
+@media (min-width: 1120px) { .menu { display: none; } }
+
+.menu__list a {
+  display: flex;
+  align-items: center;
+  min-height: 72px;
+  font-family: var(--font-display);
+  font-size: 32px;
+  line-height: 40px;
+  font-weight: 700;
+}
+.menu__actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+
+body.menu-open { overflow: hidden; }
+
+/* ---------------------------------------------------------------------------
+   Footer — black
+   ---------------------------------------------------------------------------
+   Wordmark in a 112px-tall row; column heads 18/24 medium with 20px under;
+   links 14/20 with 16px between; copyright and legal links 12/20 #AFAFAF.
+   Columns: 1 on a phone, 2 at 600, 4 at 1136.
+   -------------------------------------------------------------------------- */
+
+.footer { background: var(--black); color: var(--white); padding-block: var(--section-y); }
+
+.footer__brand {
+  display: flex; align-items: center;
+  min-height: 112px;
+  font-family: var(--font-display);
+  font-size: 20px; line-height: 24px; font-weight: 500;
+}
+@media (min-width: 1136px) { .footer__brand { font-size: 24px; } }
+
+.footer__lede { font-size: var(--fs-body); line-height: var(--lh-body); margin-bottom: 36px; }
+@media (min-width: 1136px) { .footer__lede { margin-bottom: 48px; } }
+
+.footer__cols { row-gap: 36px; }
+@media (min-width: 600px)  { .footer__cols > * { grid-column: span 4; } }
+@media (min-width: 1136px) { .footer__cols > * { grid-column: span 3; } }
+
+.footer__head { font-family: var(--font-text); font-size: var(--fs-h5); line-height: var(--lh-h5); font-weight: 500; margin-bottom: 20px; }
+.footer__list li { margin-bottom: 16px; }
+.footer__list a { font-size: var(--fs-sm); line-height: var(--lh-sm); }
+.footer__list a:hover { text-decoration: underline; text-underline-offset: 2px; }
+
+.footer__bottom {
+  display: flex; flex-direction: column; gap: 16px;
+  margin-top: 48px;
+  font-size: var(--fs-xs); line-height: var(--lh-xs);
+  color: var(--gray-400);
+}
+.footer__bottom ul { display: flex; flex-wrap: wrap; gap: 8px 32px; }
+.footer__bottom a:hover { color: var(--white); }
+@media (min-width: 1136px) {
+  .footer__bottom { flex-direction: row; justify-content: space-between; align-items: center; }
+}
+
+/* Small label above a section heading. Set like uber.com's "Accra, GH"
+   location line: body size, medium weight, black - not an uppercase eyebrow,
+   which Uber does not use anywhere. */
+.kicker {
+  font-size: var(--fs-body);
+  line-height: 20px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+.head .kicker { color: var(--black); }
+.section--black .kicker, .section--black .head .kicker { color: var(--white); }
+
+/* ---------------------------------------------------------------------------
+   Legal documents
+   ---------------------------------------------------------------------------
+   Uber's legal page: H1 in the page heading scale, section heads 32/40 at the
+   tablet step, sub-heads 24/32, body 16/24, 15px paragraph rhythm.
+   -------------------------------------------------------------------------- */
+
+.doc { padding-block: var(--section-y); }
+.doc__body { max-width: 760px; }
+.doc h1 { margin-bottom: 16px; }
+.doc h2 { margin: 48px 0 16px; }
+.doc h3 { margin: 32px 0 15px; }
+.doc p, .doc li { font-size: var(--fs-body); line-height: var(--lh-body); }
+.doc p { margin: 15px 0; }
+.doc ul { list-style: disc; padding-left: 24px; margin: 15px 0; }
+.doc ol { list-style: decimal; padding-left: 24px; margin: 15px 0; }
+.doc li { margin: 8px 0; }
+.doc strong { font-weight: 600; }
+/* Running-text links only: the 404 puts a button and text links in .doc too. */
+.doc a:not(.btn):not(.tlink) { text-decoration: underline; text-underline-offset: 2px; }
+.doc a:not(.btn):not(.tlink):hover { text-decoration-thickness: 2px; }
+.doc .actions { margin-top: 24px; }
+.doc hr { border: 0; border-top: 1px solid var(--gray-100); margin: 48px 0; }
+.doc code { background: var(--gray-100); padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
+.doc .updated { color: var(--gray-600); }
+.doc table { width: 100%; border-collapse: collapse; margin: 24px 0; display: block; overflow-x: auto; }
+.doc th, .doc td { text-align: left; vertical-align: top; padding: 12px 16px 12px 0; border-bottom: 1px solid var(--gray-100); font-size: var(--fs-sm); line-height: var(--lh-sm); }
+.doc th { font-weight: 500; }
+
+/* ---------------------------------------------------------------------------
+   404 — uber.com's: H1, one line, a black button, then lists of real links
+   -------------------------------------------------------------------------- */
+
+.nf__lists { margin-top: 56px; row-gap: 36px; }
+@media (min-width: 600px)  { .nf__lists > * { grid-column: span 4; } }
+@media (min-width: 1136px) { .nf__lists > * { grid-column: span 3; } }
+.nf__head { font-family: var(--font-text); font-size: var(--fs-h5); line-height: var(--lh-h5); font-weight: 500; margin-bottom: 16px; }
+.nf__list li { margin-bottom: 15px; }
+
+/* ---------------------------------------------------------------------------
+   Connection banner (js/connection.js)
+   ---------------------------------------------------------------------------
+   Fixed and translated rather than inserted into the flow: a banner that
+   mounts and unmounts reflows the page, and losing signal mid-tap would move
+   the button out from under the thumb.
+   -------------------------------------------------------------------------- */
+
+.conn {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 500;
+  display: flex;
+  justify-content: center;
+  padding: calc(env(safe-area-inset-top, 0px) + 72px) 16px 0;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-12px);
+  transition: opacity var(--dur-fast) linear, transform var(--dur-menu) var(--ease-menu);
+}
+.conn.is-on { opacity: 1; transform: none; }
+
+.conn__pill {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 16px;
+  border-radius: var(--r-full);
+  background: var(--black);
+  color: var(--white);
+  font-size: var(--fs-sm); line-height: 16px; font-weight: 500;
+  max-width: 100%;
+}
+.conn.is-restored .conn__pill { background: var(--positive); }
+
+@media (prefers-reduced-motion: reduce) {
+  .menu, .conn { transform: none; }
+}
