@@ -158,7 +158,7 @@
     { target: 'drivers', title: 'Choose a ride', body: 'Prices from your campus’s fare table, by distance. Cards show seats taken, ETA, and whether it is a shared car.' },
     { target: 'confirm', title: 'Confirm and pay', body: 'Add seats and watch the group price appear. Paying from the wallet costs less. Nothing is charged yet.' },
     { target: 'trip', title: 'Follow the trip', body: 'Driver, car, plate, and a route that moves. The fare comes out at drop-off.' },
-    { target: 'wallet', title: 'Check the wallet', body: 'Where the money went, topped up from campus MoMo. Passes and promo codes live here too.' },
+    { target: 'wallet', title: 'Check the wallet', body: 'Where the money went, and how to add more. Passes and promo codes live here too.' },
   ];
 
   function renderSteps() {
