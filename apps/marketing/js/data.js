@@ -16,29 +16,28 @@
 
   /* -- fare rules (prisma/schema.prisma School defaults) -------------- */
   /* -- fares (prisma/schema.prisma School.distanceBands + School.fareTable) --
-     Distance-banded pricing replaced the flat fare on 2026-09-14. There is no
-     base fare any more: a campus states each price outright, by ride type,
+     Distance-banded pricing replaced the flat fare on 2026-09-14; the
+     operator's 2026-09-18 list has two bands, short (up to 3 km) and long.
+     There is no base fare: a campus states each price outright, by ride type,
      distance band, party size, and whether the rider earned the promo column.
 
-     Party prices are TOTALS for the group, which is why each row's first entry
-     equals the solo price - the car was going anyway, so a second passenger is
-     not charged as though it cost a second trip.
+     Party prices are TOTALS for the group (index 0 = one rider). The four-rider
+     column is a full car - sold on busy days, or when one booking asks for four.
 
      The marketing page deliberately shows only the solo and whole-car prices
      and the first party row. A rider does not measure their trip; they know
      whether it is a hop or a haul, and the app quotes the exact fare before
      they book either way. */
   var FARE = {
-    bands: ['short', 'medium', 'long'],
+    bands: ['short', 'long'],
+    shortMaxM: 3000,
     standard: {
-      short:  { normal: [600, 900, 1100, 1300], promo: [600, 900, 1100, 1300] },
-      medium: { normal: [1000, 1300, 1500, 1500], promo: [900, 1200, 1400, 1400] },
-      long:   { normal: [1200, 1500, 1700, 1900], promo: [1200, 1300, 1500, 1700] }
+      short: { normal: [800, 1200, 1200, 1400], promo: [700, 1050, 1050, 1250] },
+      long:  { normal: [1500, 1700, 1700, 1900], promo: [1300, 1500, 1500, 1700] }
     },
     independent: {
-      short:  { normal: 1200, promo: 1200 },
-      medium: { normal: 1400, promo: 1200 },
-      long:   { normal: 1800, promo: 1500 }
+      short: { normal: 1400, promo: 1200 },
+      long:  { normal: 1700, promo: 1500 }
     },
     // Empty, matching the schema default. There is no built-in group discount
     // any more - the party column above IS the group price.
@@ -149,12 +148,12 @@
   /**
    * What a whole party pays, read from the table - never the solo price
    * multiplied. Mirrors SchoolFareService.quoteParty: a standard party is its
-   * own column (two riders on a medium trip pay GHS 13, not 2 × GHS 10), an
+   * own column (two riders on a short trip pay GHS 12, not 2 × GHS 8), an
    * independent car is one price however many ride in it, and `promo` is the
    * column earned by paying from the wallet or booking ahead.
    */
   function partyTotalPesewas(tier, partySize, band, promo) {
-    band = band || 'medium';
+    band = band || 'short';
     var col = promo ? 'promo' : 'normal';
     if (tier === 'independent') return FARE.independent[band][col];
     var row = FARE.standard[band][col];
@@ -166,11 +165,11 @@
    *
    * Mirrors SchoolFareService.quotePerSeatPesewas. The surcharge this used to
    * multiply is gone: independent is not standard-plus-a-percentage any more,
-   * it is its own row in every band. `band` defaults to medium, the ordinary
+   * it is its own row in every band. `band` defaults to short, the ordinary
    * trip, because the demo has no distance to work from.
    */
   function tierPerSeatPesewas(tier, band, promo) {
-    band = band || 'medium';
+    band = band || 'short';
     var col = promo ? 'promo' : 'normal';
     return tier === 'independent'
       ? FARE.independent[band][col]

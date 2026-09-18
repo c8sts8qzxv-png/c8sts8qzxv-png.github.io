@@ -17,26 +17,33 @@
    cap height matched to the tenth of a pixel (36.4px), and body text at
    16px/400 ran 1.3% wider. It beat 17 other open grotesques on that test.
 
-   There is one palette and no dark mode. Uber has neither campus colours nor
-   a dark theme, and the owner asked for the skin exactly.
+   Colours are Legon's, not Uber's (18 Sep 2026): the same tokens the apps
+   and the dashboard use (traverse/rider-app/src/theme/uber.ts). Uber's
+   black became Legon navy for every control, pill and dark section; running
+   text is the navy ink; the greys are the navy-tinted scale. Light only -
+   there is no dark mode anywhere in the system.
    ========================================================================== */
 
 :root {
-  /* -- colour (uber.com computed values) ------------------------------ */
-  --black: #000000;
+  /* -- colour (Legon's, on Uber's structure) --------------------------- */
+  /* `--black` keeps its name because every rule already reads it, but it is
+     Legon navy now: the primary control, pills, dark sections. */
+  --black: #191970;
+  --ink: #0B0B23;       /* running text */
+  --gold: #C5B358;      /* the crest's gold - savings and highlights */
   --white: #FFFFFF;
-  --gray-50: #F6F6F6;   /* "It's easier in the apps" section ground */
-  --gray-100: #F3F3F3;  /* cards, inputs, FAQ dividers */
-  --gray-200: #E2E2E2;  /* grey control hover */
-  --gray-300: #CBCBCB;  /* resting underline on text links */
-  --gray-400: #AFAFAF;  /* footer copyright and legal links */
-  --gray-500: #757575;
-  --gray-600: #5E5E5E;  /* field labels, meta */
-  --gray-700: #4B4B4B;  /* placeholder text, dotted "See terms" link */
-  --gray-800: #333333;  /* running text inside content sections */
+  --gray-50: #F4F5FA;   /* "It's easier in the apps" section ground */
+  --gray-100: #EEF0F9;  /* cards, inputs, FAQ dividers */
+  --gray-200: #E3E5F0;  /* grey control hover */
+  --gray-300: #CBCEDD;  /* resting underline on text links */
+  --gray-400: #A9B3CC;  /* footer copyright and legal links */
+  --gray-500: #757A8C;
+  --gray-600: #5A5C74;  /* field labels, meta */
+  --gray-700: #4B4B5C;  /* placeholder text, dotted "See terms" link */
+  --gray-800: #333348;  /* running text inside content sections */
 
-  --border: rgba(0, 0, 0, 0.12);         /* app-download cards */
-  --border-faint: rgba(0, 0, 0, 0.04);   /* benefits panel and its rows */
+  --border: rgba(11, 11, 35, 0.12);         /* app-download cards */
+  --border-faint: rgba(11, 11, 35, 0.04);   /* benefits panel and its rows */
   --border-on-dark: rgba(255, 255, 255, 0.16);
 
   --focus: #276EF1;                      /* focus-visible outline */
@@ -92,7 +99,7 @@
   --map-road-line: #DDDDDD;
   --map-green: #E4E4E4;
   --map-water: #E0E0E0;
-  --map-ink: #000000;
+  --map-ink: #191970;
 }
 
 @media (min-width: 600px) {

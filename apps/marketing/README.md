@@ -42,6 +42,10 @@ chosen by measurement: rendered beside Uber Move in the same page, its 700
 headline ran 1.6% wider, matched cap height to 0.1px, and body text ran 1.3%
 wider. It came first of 18 open grotesques on that test.
 
+**Colours are Legon's since 18 Sep 2026** — navy controls and dark sections,
+navy ink for text, the navy-tinted greys; the same tokens as the apps and the
+dashboard (`css/tokens.css`). The structure is still uber.com's.
+
 **Removed with the reskin.** The campus switcher (nav and headline), which
 repainted the page in each school's colours; the dark-mode toggle; and the
 scroll-reveal fade. uber.com has none of them, and only one campus is open, so
@@ -74,10 +78,10 @@ This matters if you are showing it to someone who will ask.
 | Ride tier names and copy | `rider-app/src/rideTier.ts` |
 | Pass wording | `rider-app/src/campusPassCopy.ts` |
 
-**The page states prices** — GHS 6 / 10 / 12 shared, 12 / 14 / 18 for the whole
-car — and the off-campus GHS 18 a seat. The walkthrough's amounts come from the
-same table in `js/data.js`; its "From GHS 6.00" is the table's cheapest shared
-fare. That line used to read `FARE.baseFarePesewas`, which the price table
+**The page states prices** — the operator's 2026-09-18 list: GHS 8 short (up
+to 3 km) and 15 long shared, 14 / 17 for the whole car — and the off-campus
+GHS 18 a seat. The walkthrough's amounts come from the same table in
+`js/data.js`; its "From GHS 8.00" is the table's cheapest shared fare. That line used to read `FARE.baseFarePesewas`, which the price table
 removed, and printed "GHS NaN" on two screens.
 
 **Not real:**

@@ -61,7 +61,7 @@
   display: flex;
   flex-direction: column;
   isolation: isolate;
-  color: var(--black);
+  color: var(--ink);
   font-size: var(--fs-body);
   line-height: var(--lh-body);
 
@@ -84,7 +84,7 @@
   transform: translateX(-50%);
   width: 126px; height: 37px;
   border-radius: var(--r-full);
-  background: #000;
+  background: var(--black);
   z-index: 60;
   pointer-events: none;
 }
@@ -96,7 +96,7 @@
   transform: translateX(-50%);
   width: 134px; height: 5px;
   border-radius: 3px;
-  background: #000;
+  background: var(--black);
   z-index: 60;
   pointer-events: none;
 }
@@ -168,7 +168,7 @@
   border-radius: 50%;
   display: grid; place-items: center;
   background: var(--gray-100);
-  color: var(--black);
+  color: var(--ink);
   flex: none;
 }
 .appbar__title { font-family: var(--font-display); font-size: var(--fs-h3); line-height: var(--lh-h3); font-weight: 700; }
@@ -228,7 +228,7 @@
 .sheet__badge {
   width: 40px; height: 40px; border-radius: 50%;
   display: grid; place-items: center;
-  background: var(--gray-100); color: var(--black);
+  background: var(--gray-100); color: var(--ink);
   flex: none;
 }
 .sheet__title { font-family: var(--font-display); font-size: var(--fs-h3); line-height: var(--lh-h3); font-weight: 700; }
@@ -250,9 +250,9 @@
 }
 .a-btn--primary { background: var(--black); color: var(--white); }
 .a-btn--primary:active { box-shadow: var(--press-on-dark); }
-.a-btn--secondary { background: var(--gray-100); color: var(--black); margin-top: 8px; }
+.a-btn--secondary { background: var(--gray-100); color: var(--ink); margin-top: 8px; }
 .a-btn--secondary:active { background: var(--gray-200); }
-.a-btn--ghost { background: none; color: var(--black); min-height: 48px; font-size: var(--fs-body); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--gray-300); }
+.a-btn--ghost { background: none; color: var(--ink); min-height: 48px; font-size: var(--fs-body); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--gray-300); }
 @media (hover: hover) {
   .a-btn--primary:hover { box-shadow: var(--hover-on-dark); }
   .a-btn--secondary:hover { background: var(--gray-200); }
@@ -264,7 +264,7 @@
   display: inline-flex; align-items: center; gap: 6px;
   padding: 8px 4px;
   font-size: var(--fs-sm); line-height: var(--lh-sm); font-weight: 500;
-  color: var(--black);
+  color: var(--ink);
 }
 
 .saved { margin-top: 16px; }
@@ -318,7 +318,7 @@
 .stop__icon {
   width: 40px; height: 40px; border-radius: 50%;
   display: grid; place-items: center;
-  background: var(--gray-100); color: var(--black);
+  background: var(--gray-100); color: var(--ink);
   flex: none;
 }
 .stop__name { display: block; font-size: var(--fs-body); line-height: var(--lh-body); font-weight: 500; }
@@ -396,7 +396,7 @@
 .row__label { font-size: var(--fs-sm); line-height: var(--lh-sm); color: var(--gray-600); }
 .row__value { font-size: var(--fs-sm); line-height: var(--lh-sm); font-weight: 600; text-align: right; }
 .row__value--good, .row__label--good { color: var(--positive); }
-.row--total .row__label { color: var(--black); font-weight: 600; }
+.row--total .row__label { color: var(--ink); font-weight: 600; }
 .row--total .row__value { font-size: var(--fs-h5); line-height: var(--lh-h5); font-weight: 700; }
 
 .stepper { display: flex; align-items: center; gap: 8px; }
@@ -508,7 +508,7 @@
   color: var(--gray-500);
   transition: color var(--dur-fast) linear;
 }
-.tab.is-on { color: var(--black); }
+.tab.is-on { color: var(--ink); }
 .tab__label { font-size: 11px; line-height: 14px; font-weight: 500; }
 
 /* ---------------------------------------------------------------------------
@@ -523,7 +523,7 @@
 
 .ledger__row { display: flex; align-items: center; gap: 12px; padding: 12px 0; }
 .ledger__row + .ledger__row { border-top: 1px solid var(--gray-100); }
-.ledger__icon { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; flex: none; background: var(--gray-100); color: var(--black); }
+.ledger__icon { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; flex: none; background: var(--gray-100); color: var(--ink); }
 .ledger__kind { font-weight: 500; }
 .ledger__detail { font-size: var(--fs-xs); line-height: 16px; color: var(--gray-600); }
 .ledger__amt { margin-left: auto; font-weight: 600; white-space: nowrap; }

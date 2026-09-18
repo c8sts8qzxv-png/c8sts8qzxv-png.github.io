@@ -105,9 +105,9 @@
     return state.tier === 'independent' ? normalTotal() : perSeat() * state.partySize;
   }
 
-  function normalTotal() { return D.partyTotalPesewas(state.tier, state.partySize, 'medium', false); }
+  function normalTotal() { return D.partyTotalPesewas(state.tier, state.partySize, 'short', false); }
 
-  function walletTotal() { return D.partyTotalPesewas(state.tier, state.partySize, 'medium', true); }
+  function walletTotal() { return D.partyTotalPesewas(state.tier, state.partySize, 'short', true); }
 
   /* The column this booking pays: the promo column only when the wallet pays. */
   function fareAfterGroup() { return state.payment === 'prepaid' ? walletTotal() : normalTotal(); }

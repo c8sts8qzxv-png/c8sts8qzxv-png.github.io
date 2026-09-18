@@ -21,7 +21,7 @@ body {
   font-size: var(--fs-body);
   line-height: var(--lh-body);
   font-weight: 400;
-  color: var(--black);
+  color: var(--ink);
   background: var(--white);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -67,7 +67,7 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .skip-link {
   position: absolute; left: 8px; top: -100px; z-index: 400;
   padding: 10px 12px; border-radius: var(--r-8);
-  background: var(--white); color: var(--black);
+  background: var(--white); color: var(--ink);
   font-size: var(--fs-sm); font-weight: 500;
 }
 .skip-link:focus-visible { top: 8px; }
@@ -144,12 +144,12 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 @media (hover: hover) { .btn:hover { box-shadow: var(--hover-on-dark); } .btn:active { box-shadow: var(--press-on-dark); } }
 
 /* On a black section the primary inverts: white, black text (uber.com/drive). */
-.btn--white { background: var(--white); color: var(--black); }
+.btn--white { background: var(--white); color: var(--ink); }
 .btn--white:active { box-shadow: var(--press-on-light); }
 @media (hover: hover) { .btn--white:hover { box-shadow: var(--hover-on-light); } .btn--white:active { box-shadow: var(--press-on-light); } }
 
 /* Secondary: the grey control, #F3F3F3 -> #E2E2E2 on hover. */
-.btn--grey { background: var(--gray-100); color: var(--black); }
+.btn--grey { background: var(--gray-100); color: var(--ink); }
 .btn--grey:active { background: var(--gray-200); box-shadow: none; }
 @media (hover: hover) { .btn--grey:hover { background: var(--gray-200); box-shadow: none; } }
 
@@ -172,9 +172,9 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   transition: background-color var(--dur-fast) linear, color var(--dur-fast) linear, box-shadow var(--dur-fast) linear;
   -webkit-tap-highlight-color: transparent;
 }
-.pill--white { background: var(--white); color: var(--black); }
+.pill--white { background: var(--white); color: var(--ink); }
 .pill--black { background: var(--black); color: var(--white); }
-.pill--grey  { background: var(--gray-100); color: var(--black); }
+.pill--grey  { background: var(--gray-100); color: var(--ink); }
 
 /* ---------------------------------------------------------------------------
    Text link
@@ -187,7 +187,7 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .tlink {
   display: inline;
   padding-bottom: 6px;
-  color: var(--black);
+  color: var(--ink);
   background-image:
     linear-gradient(transparent calc(100% - 1px), var(--black) 1px),
     linear-gradient(transparent calc(100% - 1px), var(--gray-300) 1px);

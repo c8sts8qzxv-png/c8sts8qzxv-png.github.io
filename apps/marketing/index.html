@@ -5,14 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Traverse — campus rides in Ghana</title>
 <meta name="description" content="Traverse is a ride-sharing app for university campuses in Ghana. Book a ride, share one to pay less, reserve ahead, or set a routine ride. This is a working walkthrough of the rider app.">
-<meta name="theme-color" content="#000000">
+<meta name="theme-color" content="#191970">
 <meta name="color-scheme" content="light">
 
 <meta property="og:title" content="Traverse — campus rides in Ghana">
 <meta property="og:description" content="Book a ride, share one to pay less, and pay from a wallet that works with campus MoMo. A working walkthrough of the rider app.">
 <meta property="og:type" content="website">
 
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23000'/><path d='M26 62h48M32 62l6-22h24l6 22M38 70a5 5 0 100-10 5 5 0 000 10zM62 70a5 5 0 100-10 5 5 0 000 10z' stroke='%23fff' stroke-width='6' stroke-linecap='round' stroke-linejoin='round' fill='none'/></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23191970'/><path d='M26 62h48M32 62l6-22h24l6 22M38 70a5 5 0 100-10 5 5 0 000 10zM62 70a5 5 0 100-10 5 5 0 000 10z' stroke='%23fff' stroke-width='6' stroke-linecap='round' stroke-linejoin='round' fill='none'/></svg>">
 
 <!-- Albert Sans stands in for Uber Move, which is licensed. Chosen by
      measurement against Uber Move in the same page - see css/tokens.css. -->
@@ -56,9 +56,9 @@
       "publisher": { "@id": "https://traversegh.com/#organization" },
       "offers": {
         "@type": "Offer",
-        "price": "6.00",
+        "price": "8.00",
         "priceCurrency": "GHS",
-        "description": "Campus rides from GHS 6.00. The price depends on distance and how many of you travel."
+        "description": "Campus rides from GHS 8.00. The price depends on distance and how many of you travel."
       }
     }
   ]
@@ -344,9 +344,9 @@
       </div>
       <div class="tiers-grid" id="tier-cards"></div>
 
-      <!-- Prices, stated outright. Deliberately no distances and no bands:
-           a rider does not measure their trip, they know whether it is a hop
-           or a haul, and the app tells them the fare before they book. -->
+      <!-- Prices, stated outright: the operator's 2026-09-18 list, two bands
+           cut at 3 km. The app still quotes the exact fare before a rider
+           books, from the same per-campus table. -->
       <div class="block">
         <div class="head">
           <h3>What it costs</h3>
@@ -358,22 +358,16 @@
 
         <div class="prices">
           <div class="price-card">
-            <p class="price-card__name">A quick hop</p>
-            <p class="price-card__note">Somewhere you could walk, if it weren't this hot.</p>
-            <p class="price"><span class="price__cur">GHS</span>6</p>
-            <p class="price-card__sub">sharing &middot; <strong>GHS&nbsp;12</strong> with the car to yourself</p>
-          </div>
-          <div class="price-card">
-            <p class="price-card__name">Across campus</p>
-            <p class="price-card__note">Hall to lecture, lecture to the other end of the day.</p>
-            <p class="price"><span class="price__cur">GHS</span>10</p>
+            <p class="price-card__name">A short trip</p>
+            <p class="price-card__note">Up to 3&nbsp;km. Hall to lecture, and anywhere you could walk if it weren't this hot.</p>
+            <p class="price"><span class="price__cur">GHS</span>8</p>
             <p class="price-card__sub">sharing &middot; <strong>GHS&nbsp;14</strong> with the car to yourself</p>
           </div>
           <div class="price-card">
-            <p class="price-card__name">The long way</p>
-            <p class="price-card__note">The far side, the one nobody wants to walk at night.</p>
-            <p class="price"><span class="price__cur">GHS</span>12</p>
-            <p class="price-card__sub">sharing &middot; <strong>GHS&nbsp;18</strong> with the car to yourself</p>
+            <p class="price-card__name">A long trip</p>
+            <p class="price-card__note">Over 3&nbsp;km. The far side, the one nobody wants to walk at night.</p>
+            <p class="price"><span class="price__cur">GHS</span>15</p>
+            <p class="price-card__sub">sharing &middot; <strong>GHS&nbsp;17</strong> with the car to yourself</p>
           </div>
         </div>
 
@@ -382,25 +376,26 @@
             <p class="panel__title">Bring people</p>
             <p>
               The price is for the <em>trip</em>, not a headcount. A friend riding
-              along on a quick hop takes the fare from <strong>GHS&nbsp;6</strong> to
-              <strong>GHS&nbsp;9</strong> — for both of you, together. A third makes it
-              <strong>GHS&nbsp;11</strong>. A fourth, <strong>GHS&nbsp;13</strong>.
+              along on a short trip takes the fare from <strong>GHS&nbsp;8</strong> to
+              <strong>GHS&nbsp;12</strong> — for both of you, together. A third rides
+              for the same <strong>GHS&nbsp;12</strong>. Book for four and the whole car
+              is <strong>GHS&nbsp;14</strong>.
             </p>
             <p class="panel__aside">
-              The car was going anyway. We are not going to charge you twice for that.
+              A shared car usually takes three, so nobody is squeezed into the middle
+              seat. On busy days, or when you book for four, it takes four.
             </p>
           </div>
           <div class="panel">
             <p class="panel__title">Pay less, easily</p>
             <p>
               Ask a couple of hours ahead, or pay from your wallet, and the fare
-              drops — across campus falls to <strong>GHS&nbsp;9</strong>, and the whole
-              car on a long run to <strong>GHS&nbsp;15</strong>.
+              drops — a short trip falls to <strong>GHS&nbsp;7</strong>, a long one to
+              <strong>GHS&nbsp;13</strong>, and the whole car on a long run to
+              <strong>GHS&nbsp;15</strong>.
             </p>
             <p class="panel__aside">
-              Time is what lets us find someone already heading your way. Where a
-              fare is already at the bone, it simply stays there — we would rather
-              say so than invent a discount.
+              Time is what lets us find someone already heading your way.
             </p>
           </div>
         </div>
