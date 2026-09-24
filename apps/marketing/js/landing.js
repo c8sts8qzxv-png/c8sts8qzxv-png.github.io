@@ -16,6 +16,39 @@
   var M = global.TraverseMap;
 
   function $(sel, ctx) { return (ctx || document).querySelector(sel); }
+
+  /**
+   * A stand-in for an element that is not on the page.
+   *
+   * This page is edited by hand. On 24 Sep 2026 a decorative line
+   * (#widget-meta) was deleted from index.html while this file still wrote to
+   * it; the write threw, and because every render runs inside one IIFE, the
+   * FAQ, the off-campus section and the entire demo below it never drew. One
+   * deleted line blanked half the page.
+   *
+   * `el()` returns this instead of null, so writing to something that is no
+   * longer there costs you that one line and nothing else. Reads through `$()`
+   * are untouched - a genuine "is it there?" test still gets null.
+   */
+  var MISSING = {
+    textContent: '',
+    innerHTML: '',
+    value: '',
+    style: {},
+    dataset: {},
+    classList: { add: function () {}, remove: function () {}, toggle: function () {}, contains: function () { return false; } },
+    setAttribute: function () {},
+    removeAttribute: function () {},
+    addEventListener: function () {},
+    removeEventListener: function () {},
+    appendChild: function () {},
+    focus: function () {},
+    scrollIntoView: function () {},
+    getBoundingClientRect: function () { return { top: 0, left: 0, width: 0, height: 0 }; },
+    querySelector: function () { return MISSING; },
+    querySelectorAll: function () { return []; },
+  };
+  function el(sel, ctx) { return $(sel, ctx) || MISSING; }
   function $$(sel, ctx) { return Array.prototype.slice.call((ctx || document).querySelectorAll(sel)); }
 
   function esc(s) {
@@ -37,23 +70,21 @@
      ====================================================================== */
 
   function renderHero() {
-    $('#hero-campus').textContent = school.short;
-    $('#hero-campus-title').textContent = school.short;
-    $('#widget-origin').textContent = school.nodes[0].name;
-    $('#widget-destination').textContent = school.nodes[3].name;
+    el('#hero-campus').textContent = school.short;
+    el('#hero-campus-title').textContent = school.short;
+    el('#widget-origin').textContent = school.nodes[0].name;
+    el('#widget-destination').textContent = school.nodes[3].name;
 
-    // The table prices a party as one total, so that is the thing worth saying.
-    $('#widget-meta').textContent = 'Your campus sets the fare · groups pay one price';
 
     // Counted, never typed: a hand-typed "3" outlived the tier it counted.
     var live = D.liveSchools();
-    $('#stat-campuses').textContent = live.length;
-    $('#stat-campuses-label').textContent = live.length === 1 ? 'campus open now' : 'campuses open now';
+    el('#stat-campuses').textContent = live.length;
+    el('#stat-campuses-label').textContent = live.length === 1 ? 'campus open now' : 'campuses open now';
     // The real count, not the length of the demo sample (see data.js stopCount).
-    $('#stat-stops').textContent = school.stopCount || school.nodes.length;
+    el('#stat-stops').textContent = school.stopCount || school.nodes.length;
     var ways = 1 + (school.independentEnabled ? 1 : 0);
-    $('#stat-tiers').textContent = ways;
-    $('#stat-tiers-label').textContent = ways === 1 ? 'way to ride' : 'ways to ride';
+    el('#stat-tiers').textContent = ways;
+    el('#stat-tiers-label').textContent = ways === 1 ? 'way to ride' : 'ways to ride';
 
     drawMap($('#hero-map'), { cars: true, labels: true });
   }
@@ -95,7 +126,7 @@
   ];
 
   function renderFeatures() {
-    $('#feature-grid').innerHTML = FEATURES.map(function (f) {
+    el('#feature-grid').innerHTML = FEATURES.map(function (f) {
       return '<li class="card">' +
         '<div class="card__text">' +
           '<h3 class="card__title">' + esc(f.title) + '</h3>' +
@@ -125,7 +156,7 @@
      else is in the car; what it costs is stated below, as prices. */
   function renderTiers() {
     var offered = { standard: true, independent: school.independentEnabled };
-    $('#tier-cards').innerHTML = D.RIDE_TIERS.map(function (t) {
+    el('#tier-cards').innerHTML = D.RIDE_TIERS.map(function (t) {
       var on = offered[t.tier];
       return '<article class="tier-card' + (on ? '' : ' is-off') + '">' +
         '<div class="tier-card__top">' +
@@ -140,7 +171,7 @@
   }
 
   function renderPasses() {
-    $('#pass-list').innerHTML = D.PASS_PRODUCTS.map(function (p) {
+    el('#pass-list').innerHTML = D.PASS_PRODUCTS.map(function (p) {
       return '<li class="pass">' +
         '<p><span class="pass__name">' + esc(p.name) + '</span>' +
           '<span class="pass__desc">' + esc(D.describeProduct(p)) + '</span></p>' +
@@ -163,7 +194,7 @@
   ];
 
   function renderSteps() {
-    $('#demo-steps').innerHTML = STEPS.map(function (s, i) {
+    el('#demo-steps').innerHTML = STEPS.map(function (s, i) {
       return '<li><button class="step" type="button" data-target="' + s.target + '">' +
         '<span class="step__n" aria-hidden="true">' + (i + 1) + '</span>' +
         '<span><span class="step__title">' + esc(s.title) + '</span>' +
@@ -172,7 +203,7 @@
     }).join('');
   }
 
-  $('#demo-steps').addEventListener('click', function (ev) {
+  el('#demo-steps').addEventListener('click', function (ev) {
     var step = ev.target.closest('[data-target]');
     if (!step) return;
     $$('.step').forEach(function (n) { n.classList.remove('is-on'); n.removeAttribute('aria-current'); });
@@ -180,7 +211,7 @@
     step.setAttribute('aria-current', 'step');
     App.jumpTo(step.getAttribute('data-target'));
     if (isPhone()) openDemo();
-    else if (!inView($('#device-fit'))) $('#device-fit').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    else if (!inView($('#device-fit'))) el('#device-fit').scrollIntoView({ behavior: 'smooth', block: 'center' });
   });
 
   function inView(el) {
@@ -218,7 +249,7 @@
   ];
 
   function renderFaq() {
-    $('#faq').innerHTML = FAQ.map(function (row) {
+    el('#faq').innerHTML = FAQ.map(function (row) {
       return '<details class="faq__item">' +
         '<summary class="faq__q">' + esc(row[0]) + icon('chevron-down', 'icon--lg faq__chev') + '</summary>' +
         '<p class="faq__a">' + esc(row[1]) + '</p>' +
@@ -279,7 +310,7 @@
     App.mountInto(overlayHost);
     overlay.classList.add('is-open');
     document.body.classList.add('is-locked');
-    $('#demo-close').focus();
+    el('#demo-close').focus();
   }
 
   function closeDemo() {
@@ -296,7 +327,7 @@
   $$('[data-open-demo]').forEach(function (btn) {
     btn.addEventListener('click', function () {
       if (isPhone()) openDemo();
-      else $('#device-fit').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      else el('#device-fit').scrollIntoView({ behavior: 'smooth', block: 'center' });
     });
   });
 
@@ -308,7 +339,7 @@
     openDemo();
   }, true);
 
-  $('#demo-close').addEventListener('click', closeDemo);
+  el('#demo-close').addEventListener('click', closeDemo);
   document.addEventListener('keydown', function (ev) {
     if (ev.key === 'Escape' && overlay.classList.contains('is-open')) closeDemo();
   });
