@@ -49,7 +49,8 @@
     var live = D.liveSchools();
     $('#stat-campuses').textContent = live.length;
     $('#stat-campuses-label').textContent = live.length === 1 ? 'campus open now' : 'campuses open now';
-    $('#stat-stops').textContent = school.nodes.length;
+    // The real count, not the length of the demo sample (see data.js stopCount).
+    $('#stat-stops').textContent = school.stopCount || school.nodes.length;
     var ways = 1 + (school.independentEnabled ? 1 : 0);
     $('#stat-tiers').textContent = ways;
     $('#stat-tiers-label').textContent = ways === 1 ? 'way to ride' : 'ways to ride';
