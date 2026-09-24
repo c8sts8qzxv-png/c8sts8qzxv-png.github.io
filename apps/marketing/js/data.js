@@ -83,7 +83,7 @@
          would bloat the page for no gain - but the headline number has to be
          the real one, so it is stated here rather than counted from the sample.
          Check it against admin -> Campus stops when it changes. */
-      stopCount: 300,
+      stopCount: 294,
       nodes: [
         { name: 'Main Gate', type: 'gate', lat: 5.6465, lng: -0.1919 },
         { name: 'Commonwealth Hall', type: 'hall', lat: 5.6464, lng: -0.18668 },
