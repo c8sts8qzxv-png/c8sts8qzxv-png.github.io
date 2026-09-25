@@ -81,12 +81,46 @@
     el('#stat-campuses').textContent = live.length;
     el('#stat-campuses-label').textContent = live.length === 1 ? 'campus open now' : 'campuses open now';
     // The real count, not the length of the demo sample (see data.js stopCount).
+    // The number in data.js is only the opening bid: refreshStopCount() below
+    // replaces it with the live one.
     el('#stat-stops').textContent = school.stopCount || school.nodes.length;
+    refreshStopCount();
     var ways = 1 + (school.independentEnabled ? 1 : 0);
     el('#stat-tiers').textContent = ways;
     el('#stat-tiers-label').textContent = ways === 1 ? 'way to ride' : 'ways to ride';
 
     drawMap($('#hero-map'), { cars: true, labels: true });
+  }
+
+  /**
+   * Ask the API how many campus stops there actually are.
+   *
+   * This page is static and its stop count was typed by hand. It read 8 while
+   * the database held several hundred, and on 25 Sep 2026 the real figure went
+   * 302 -> 294 -> 228 within two hours while stops were edited in the
+   * dashboard. Anything maintained by remembering to edit a file is wrong
+   * almost immediately, so the page asks.
+   *
+   * Deliberately last and deliberately silent: the number from data.js is
+   * already on screen, so a blocked request, an offline visitor or an API
+   * outage leaves a sensible figure rather than a blank or a spinner. A reply
+   * only wins if it is a plausible whole number - a 0, a string or an error
+   * page must never be allowed to replace a real count with nonsense.
+   */
+  function refreshStopCount() {
+    if (typeof fetch !== 'function') return;
+    var done = false;
+    var timer = setTimeout(function () { done = true; }, 4000);
+    fetch('https://api.traversegh.com/public/stats', { mode: 'cors', credentials: 'omit' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        if (done || !data) return;
+        clearTimeout(timer);
+        var n = data.stops;
+        if (typeof n !== 'number' || !isFinite(n) || n < 1 || n % 1 !== 0) return;
+        el('#stat-stops').textContent = n;
+      })
+      .catch(function () { /* the typed number stays: see above */ });
   }
 
   function drawMap(host, opts) {
