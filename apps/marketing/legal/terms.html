@@ -2,73 +2,63 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Terms of Service — Traverse</title>
 <meta name="description" content="Terms of Service for Traverse, campus ride-sharing in Ghana.">
-<meta name="theme-color" content="#191970">
-<meta name="color-scheme" content="light">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23191970'/><path d='M26 62h48M32 62l6-22h24l6 22M38 70a5 5 0 100-10 5 5 0 000 10zM62 70a5 5 0 100-10 5 5 0 000 10z' stroke='%23fff' stroke-width='6' stroke-linecap='round' stroke-linejoin='round' fill='none'/></svg>">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/tokens.css">
-<link rel="stylesheet" href="/css/base.css">
-<link rel="stylesheet" href="/css/site.css">
-<link rel="canonical" href="https://traversegh.com/legal/terms.html">
-<meta property="og:url" content="https://traversegh.com/legal/terms.html">
+<style>
+:root {
+  color-scheme: light;
+  --ink: #0B0B23;
+  --ink-soft: #5A5C74;
+  --bg: #ffffff;
+  --bg-soft: #F4F5FA;
+  --rule: #E3E5F0;
+  --accent: #191970;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-text-size-adjust: 100%;
+}
+.wrap { max-width: 44rem; margin: 0 auto; padding: 2.5rem 1.25rem 5rem; }
+nav.top {
+  border-bottom: 1px solid var(--rule);
+  padding: 1rem 1.25rem;
+  font-size: .875rem;
+}
+nav.top a { color: var(--ink-soft); text-decoration: none; margin-right: 1rem; }
+nav.top a:hover, a:focus { color: var(--accent); text-decoration: underline; }
+h1 { font-size: 1.9rem; line-height: 1.2; letter-spacing: -.02em; margin: 0 0 .35rem; }
+h2 { font-size: 1.2rem; margin: 2.5rem 0 .6rem; letter-spacing: -.01em; }
+h3 { font-size: 1rem; margin: 1.8rem 0 .4rem; }
+p, li { color: var(--ink); }
+strong { font-weight: 650; }
+ul { padding-left: 1.2rem; }
+li { margin: .35rem 0; }
+a { color: var(--accent); }
+hr { border: 0; border-top: 1px solid var(--rule); margin: 2.5rem 0; }
+code {
+  background: var(--bg-soft); padding: .1em .35em;
+  border-radius: 4px; font-size: .9em;
+}
+.updated { color: var(--ink-soft); font-size: .875rem; margin: 0 0 2rem; }
+footer { margin-top: 3.5rem; padding-top: 1.25rem; border-top: 1px solid var(--rule);
+         color: var(--ink-soft); font-size: .8125rem; }
+</style>
 </head>
 <body>
-<a class="skip-link" href="#main">Skip to main content</a>
-
-<!-- The site shell. Same nav, menu and footer as the landing page (css/site.css,
-     js/site.js); the links here are absolute because these pages live below
-     the root. -->
-<header class="nav">
-  <div class="nav__inner">
-    <a class="wordmark" href="/" aria-label="Traverse home">Traverse</a>
-    <nav class="nav__links" aria-label="Sections">
-      <a class="pill pill--black" href="/#demo">The app</a>
-      <a class="pill pill--black" href="/#features">What you can do</a>
-      <a class="pill pill--black" href="/#fares">Ride types</a>
-      <a class="pill pill--black" href="/#sharing">Sharing</a>
-      <a class="pill pill--black" href="/#safety">Safety</a>
-      <a class="pill pill--black" href="/#off-campus">Off campus</a>
-      <a class="pill pill--black" href="/#drivers">Drivers</a>
-      <a class="pill pill--black" href="/#get-the-app">Get the app</a>
-    </nav>
-    <div class="nav__right">
-      <a class="pill pill--black" href="https://driver.traversegh.com/">Drive</a>
-      <a class="pill pill--white" href="https://rider.traversegh.com/">Ride</a>
-      <button class="nav__menu-btn" type="button" aria-label="Menu" aria-expanded="false" aria-controls="menu">
-        <svg class="icon icon-open" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 9h14M5 15h14"/></svg>
-        <svg class="icon icon-close" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
-      </button>
-    </div>
-  </div>
-</header>
-
-<div class="menu" id="menu" aria-label="Menu">
-  <ul class="menu__list">
-    <li><a href="/#demo">The app</a></li>
-    <li><a href="/#features">What you can do</a></li>
-    <li><a href="/#fares">Ride types</a></li>
-    <li><a href="/#sharing">Sharing</a></li>
-    <li><a href="/#safety">Safety</a></li>
-    <li><a href="/#off-campus">Off campus</a></li>
-    <li><a href="/#drivers">Drivers</a></li>
-    <li><a href="/#get-the-app">Get the app</a></li>
-  </ul>
-  <div class="menu__actions">
-    <a class="btn" href="https://rider.traversegh.com/">Ride with Traverse</a>
-    <a class="btn btn--grey" href="https://driver.traversegh.com/">Drive with Traverse</a>
-  </div>
-</div>
-
-<main id="main" class="doc">
-<div class="wrap">
-<div class="doc__body">
+<nav class="top">
+  <a href="/">Traverse</a>
+  <a href="/legal/">Legal</a>
+  <a href="/ride/">Ride</a>
+  <a href="/drive/">Drive</a>
+</nav>
+<main class="wrap">
 <h1>Traverse — Terms of Service</h1>
-<p><strong>Last updated: 28 August 2026</strong></p>
+<p><strong>Last updated: 3 October 2026</strong></p>
 <p>These terms are an agreement between you and <strong>Traverse</strong> ("Traverse",
 "we", "us"), operating in <strong>Accra, Greater Accra Region, Ghana</strong>.</p>
 <p>They apply to everyone who uses the Traverse rider app, driver app, or
@@ -103,18 +93,18 @@ employment relationship, a partnership, or an agency beyond collecting fares.</p
 <ul>
 <li>Booking creates a request. A ride is confirmed only once a driver accepts.</li>
 <li>We do not guarantee a driver will be available at any particular time. That
-  applies to scheduled and routine bookings too.</li>
-<li>Routine and scheduled bookings match you with whoever is available at that
-  time. <strong>They do not reserve a specific driver.</strong></li>
+  applies to bookings scheduled in advance too.</li>
+<li>A booking scheduled in advance matches you with whoever is available at that
+  time. <strong>It does not reserve a specific driver.</strong></li>
 <li>Rides may be shared with other riders travelling a similar route. Where
   that happens, each rider pays their own share, shown before booking.</li>
 </ul>
-<h2>4. Fares, wallets and payment</h2>
+<h2>4. Fares and payment</h2>
 <ul>
 <li>Fares are set by your school and calculated by us. The fare shown before
   you book is what you pay, except for the wait charge below.</li>
-<li>You can pay from your in-app wallet, or directly to the driver after the
-  ride where offered.</li>
+<li>You pay the driver directly during the ride. There is no in-app payment,
+  and nothing is charged to you in the app.</li>
 <li><strong>Wait charge:</strong> if you keep a driver waiting beyond the free waiting
   period at pickup, an additional amount may be added to your fare. The app
   shows this when it applies.</li>
@@ -122,20 +112,23 @@ employment relationship, a partnership, or an agency beyond collecting fares.</p
   may be withdrawn or changed at any time, have no cash value, and must not
   be shared, sold or transferred.</li>
 </ul>
-<h3>Your wallet</h3>
-<p>Your wallet holds <strong>prepaid credit for rides</strong>. It is not a bank account, not
-a deposit, and earns no interest. We are not a bank and your wallet balance
-is not protected by any deposit-protection scheme.</p>
-<p><strong>Your wallet balance is your money.</strong> You may ask for any unused balance to
-be returned to you at any time, by contacting your school's Traverse
-administrator or us at the address above. We will return it by the same
-method you paid in where practical.</p>
-<p>We do not expire unused wallet balances.</p>
+<h3>Credit on your account</h3>
+<p>Traverse does not hold prepaid credit for rides, and there is no way to load
+money into the app. We are not a bank, we hold no deposit for you, and nothing
+you hold with us is protected by any deposit-protection scheme.</p>
+<p>If we owe you something — a fare refunded after a dispute, for example — it is
+recorded as credit against your account rather than paid into the app.</p>
+<p><strong>Any such credit is your money.</strong> You may ask for it to be returned to you at
+any time, by contacting your school's Traverse administrator or us at the
+address above. Because you never pay us through the app, there is no original
+payment method to reverse: we agree a way to pay you and pay you directly. We
+do not expire it.</p>
 <h2>5. Cancellations and refunds</h2>
 <ul>
 <li>A ride cancelled before a driver has collected you is <strong>not charged</strong>, and
   <strong>there is no cancellation fee</strong>.</li>
-<li>Where money has already been taken, it goes back to your wallet.</li>
+<li>Because nothing is charged in the app, cancelling means no money has moved
+  and there is nothing to give back.</li>
 <li>If you think you have been charged wrongly, contact your school's
   administrator. They can review the ride and either refund what was actually
   charged or issue you a ride credit.</li>
@@ -234,8 +227,8 @@ that cannot lawfully be limited.</strong> No wording below overrides this paragr
 terms, for suspected fraud, or on safety grounds.</p>
 <p>You may delete your rider account at any time in the app. You will be asked
 first to finish or cancel any ride in progress, settle any unpaid fare, and
-deal with any remaining wallet balance, so that deleting never quietly costs
-you money.</p>
+deal with any remaining credit on your account, so that deleting never
+quietly costs you money.</p>
 <h2>11. Changes to these terms</h2>
 <p>We may change these terms. Where a change materially affects your rights we
 will notify you in the app before it takes effect. Continuing to use Traverse
@@ -253,63 +246,10 @@ courts of Ghana have exclusive jurisdiction.</p>
 <p><strong>Traverse</strong>
 Accra, Greater Accra Region, Ghana
 <strong>traversegh@gmail.com</strong></p>
-<p class="updated">
+<footer>
   Traverse, Accra, Ghana. Questions about your data:
   <a href="mailto:traversegh@gmail.com">traversegh@gmail.com</a>.
-</p>
-</div>
-</div>
-</main>
-
-<footer class="footer">
-  <div class="wrap">
-    <a class="footer__brand" href="/">Traverse</a>
-    <p class="footer__lede">Ride-sharing for university campuses in Ghana.</p>
-    <div class="grid footer__cols">
-      <div>
-        <h2 class="footer__head">Riders</h2>
-        <ul class="footer__list">
-          <li><a href="/#demo">Book a ride</a></li>
-          <li><a href="/#fares">Ride types and passes</a></li>
-          <li><a href="/#sharing">Sharing a ride</a></li>
-          <li><a href="/#off-campus">Staying off campus</a></li>
-        </ul>
-      </div>
-      <div>
-        <h2 class="footer__head">Get the app</h2>
-        <ul class="footer__list">
-          <li><a href="/#get-the-app">On your phone</a></li>
-          <li><a href="https://wa.me/233500530354?text=Hi%20Traverse%20%E2%80%94%20please%20send%20me%20the%20app." target="_blank" rel="noopener">Ask us on WhatsApp</a></li>
-        </ul>
-      </div>
-      <div>
-        <h2 class="footer__head">Drivers</h2>
-        <ul class="footer__list">
-          <li><a href="/#drivers">Driving on Traverse</a></li>
-          <li><a href="/#drivers">Earnings</a></li>
-        </ul>
-      </div>
-      <div>
-        <h2 class="footer__head">Legal</h2>
-        <ul class="footer__list">
-          <li><a href="/legal/privacy-riders.html">Privacy — riders</a></li>
-          <li><a href="/legal/privacy-drivers.html">Privacy — drivers</a></li>
-          <li><a href="/legal/terms.html">Terms of Service</a></li>
-          <li><a href="/delete-account">Delete my account</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="footer__bottom">
-      <p>Traverse — demonstration build.</p>
-      <ul>
-        <li><a href="/legal/privacy-riders.html">Privacy</a></li>
-        <li><a href="/legal/terms.html">Terms</a></li>
-        <li><a href="mailto:traversegh@gmail.com">traversegh@gmail.com</a></li>
-      </ul>
-    </div>
-  </div>
 </footer>
-
-<script src="/js/site.js"></script>
+</main>
 </body>
 </html>
