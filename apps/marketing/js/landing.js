@@ -148,7 +148,7 @@
     { icon: 'users', title: 'Share it and pay less', body: 'If someone is already heading your way, the app pools you into their car instead of sending a second one. Same driver, a route that already made sense.' },
     { icon: 'pin', title: 'Set your pickup on the map', body: 'Not standing at a stop you can name? Drop a pin on the map instead. Your history records the nearest stop and how far off it was.' },
     { icon: 'pin', title: 'Save the spots you use', body: 'Drop a pin where you actually stand, name it yourself, pick it again next time. Only you ever see your saved places.' },
-    { icon: 'calendar-clock', title: 'Reserve for later', body: 'Book a ride for a specific time, from 30 minutes ahead up to two weeks out. A driver is matched automatically as it gets close.' },
+    { icon: 'calendar-clock', title: 'Reserve for later', body: 'Book a ride for a specific time, from 30 minutes ahead up to two weeks out. A driver is matched automatically as it gets close. Book at least an hour ahead and the fare is lower.' },
     { icon: 'calendar-clock', title: 'A full time slot is not a dead end', body: 'If the time you picked has no seats left, join the waitlist and get the slot if someone cancels, take a nearby time instead, hold both at once, or split your group across two cars. The app shows what splitting costs before you agree.' },
     { icon: 'users', title: 'Ride as a group', body: 'Book several seats on one trip, up to four. A group pays one price for the trip, less than separate seats.' },
     { icon: 'cash', title: 'Pay the driver', body: 'You settle with the driver directly during the ride. Nothing is charged inside the app.' },
