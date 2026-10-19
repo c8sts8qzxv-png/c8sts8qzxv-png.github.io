@@ -277,30 +277,6 @@
   }
 
   /* ======================================================================
-     Off-campus place list
-
-     The list ships open. This re-opens it for somebody who collapsed it and
-     then followed the footer link back expecting to see it.
-     ====================================================================== */
-
-  function renderOffCampus() {
-    var places = $('#off-campus-places');
-    var elsewhere = $('#off-campus-elsewhere');
-    if (!places) return;
-    var belongsTo = places.getAttribute('data-campus');
-    var mine = !belongsTo || belongsTo === school.code;
-    places.hidden = !mine;
-    if (elsewhere) elsewhere.hidden = mine;
-  }
-
-  function openOffCampusIfTargeted() {
-    if (global.location.hash !== '#off-campus') return;
-    var panel = $('#off-campus .place-panel');
-    if (panel) panel.open = true;
-  }
-  global.addEventListener('hashchange', openOffCampusIfTargeted);
-
-  /* ======================================================================
      The phone: sizing, and the full-screen overlay on a phone
      ====================================================================== */
 
@@ -373,8 +349,6 @@
   drawMap($('#pool-stage'), { cars: true, labels: true });
   renderSteps();
   renderFaq();
-  renderOffCampus();
-  openOffCampusIfTargeted();
   sizeDevice();
   App.mountInto(inlineHost);
 })(window);
