@@ -24,35 +24,27 @@
      Party prices are TOTALS for the group (index 0 = one rider). The four-rider
      column is a full car - sold on busy days, or when one booking asks for four.
 
-     The marketing page deliberately shows only the solo and whole-car prices
-     and the first party row. A rider does not measure their trip; they know
-     whether it is a hop or a haul, and the app quotes the exact fare before
-     they book either way. */
+     Live table read from the API on 19 Oct 2026. Solo (`independent`) is
+     switched off on the campus, and nothing is cheaper for booking ahead (the
+     advance-booking lead time is 0) or for paying a particular way (the wallet
+     is gone), so the `promo` columns are not reachable and are not kept here.
+     A rider does not measure their trip; they know whether it is a hop or a
+     haul, and the app quotes the exact fare before they book either way. */
   var FARE = {
     bands: ['short', 'long'],
     shortMaxM: 3000,
     standard: {
-      short: { normal: [800, 1200, 1200, 1400], promo: [700, 1050, 1050, 1250] },
-      long:  { normal: [1500, 1700, 1700, 1900], promo: [1300, 1500, 1500, 1700] }
-    },
-    independent: {
-      short: { normal: 1400, promo: 1200 },
-      long:  { normal: 1700, promo: 1500 }
+      short: { normal: [800, 1200, 1200, 1400] },
+      long:  { normal: [1500, 1700, 1700, 1900] }
     },
     // Empty, matching the schema default. There is no built-in group discount
     // any more - the party column above IS the group price.
     partyDiscountSchedule: {}
   };
 
-  /* -- ride tiers (rider-app/src/rideTier.ts) -------------------------
-     Two tiers, matching prisma/schema.prisma's `enum RideTier { standard,
-     independent }` after migration 20260910120000_remove_comfort_tier. The
-     comfort tier is gone from the product, so it is gone from here.
-
-     The KEY stays `independent` because that is the enum value the backend
-     stores and the rider app switches on; only the LABEL a rider reads is
-     "Solo", which is what people actually call it. Renaming the key would
-     desync this fixture from every other copy of the tier list. */
+  /* -- ride type ----------------------------------------------------
+     One. Solo (the `independent` tier) is switched off on the live campus, so
+     it is not offered here either. */
   var RIDE_TIERS = [
     {
       tier: 'standard',
@@ -60,13 +52,6 @@
       blurb: 'Share the ride. Someone else may be going your way.',
       icon: 'car',
       seatsSold: 4,
-    },
-    {
-      tier: 'independent',
-      label: 'Solo',
-      blurb: 'The whole car to you. Nobody else joins.',
-      icon: 'car-key',
-      seatsSold: 1,
     },
   ];
 
@@ -77,7 +62,7 @@
       name: 'University of Ghana, Legon',
       short: 'Legon',
       live: true,
-      independentEnabled: true,
+      independentEnabled: false,
       /* How many stops the campus actually has. The eight below are a sample
          for the demo widget and the hero map - putting all 300 in a static file
          would bloat the page for no gain - but the headline number has to be
@@ -154,32 +139,23 @@
   /**
    * What a whole party pays, read from the table - never the solo price
    * multiplied. Mirrors SchoolFareService.quoteParty: a standard party is its
-   * own column (two riders on a short trip pay GHS 12, not 2 × GHS 8), an
-   * independent car is one price however many ride in it, and `promo` is the
-   * column earned by paying from the wallet or booking ahead.
+   * own column (two riders on a short trip pay GHS 12, not 2 × GHS 8).
    */
-  function partyTotalPesewas(tier, partySize, band, promo) {
+  function partyTotalPesewas(tier, partySize, band) {
     band = band || 'short';
-    var col = promo ? 'promo' : 'normal';
-    if (tier === 'independent') return FARE.independent[band][col];
-    var row = FARE.standard[band][col];
+    var row = FARE.standard[band].normal;
     return row[Math.max(1, Math.min(row.length, partySize)) - 1];
   }
 
   /**
    * What one rider pays, from the campus table.
    *
-   * Mirrors SchoolFareService.quotePerSeatPesewas. The surcharge this used to
-   * multiply is gone: independent is not standard-plus-a-percentage any more,
-   * it is its own row in every band. `band` defaults to short, the ordinary
-   * trip, because the demo has no distance to work from.
+   * Mirrors SchoolFareService.quotePerSeatPesewas. `band` defaults to short,
+   * the ordinary trip, because the demo has no distance to work from.
    */
-  function tierPerSeatPesewas(tier, band, promo) {
+  function tierPerSeatPesewas(tier, band) {
     band = band || 'short';
-    var col = promo ? 'promo' : 'normal';
-    return tier === 'independent'
-      ? FARE.independent[band][col]
-      : FARE.standard[band][col][0];
+    return FARE.standard[band].normal[0];
   }
 
   /** e.g. "10% off for 3+ seats", or null when the campus set no discount. */
@@ -216,30 +192,6 @@
     return low === high ? low + ' min' : low + '-' + high + ' min';
   }
 
-  /* -- passes (mirrors campusPassCopy.ts shapes) ---------------------- */
-  var PASS_PRODUCTS = [
-    { id: 'p-week', name: 'Week pass', pricePesewas: 2500, durationDays: 7, ridesIncluded: null, maxRidesPerDay: 4, coversIndependent: false },
-    { id: 'p-bundle20', name: '20-ride bundle', pricePesewas: 8000, durationDays: 60, ridesIncluded: 20, maxRidesPerDay: 0, coversIndependent: false },
-    { id: 'p-term', name: 'Semester pass', pricePesewas: 18000, durationDays: 120, ridesIncluded: null, maxRidesPerDay: 3, coversIndependent: false },
-  ];
-
-  function describeProduct(p) {
-    // The price is deliberately not part of this description. A pass costs
-    // whatever the school charges for it, and this page is read by people at
-    // five different campuses - quoting one number here would be wrong for at
-    // least four of them. What a pass *covers* is the same everywhere, so
-    // that is what the description carries.
-    var parts = [];
-    if (p.ridesIncluded != null) {
-      parts.push(p.ridesIncluded + ' ride' + (p.ridesIncluded === 1 ? '' : 's'));
-      parts.push('use within ' + p.durationDays + ' days');
-    } else {
-      parts.push('unlimited for ' + p.durationDays + ' days');
-    }
-    if (p.maxRidesPerDay > 0) parts.push('up to ' + p.maxRidesPerDay + ' a day');
-    return parts.join(' · ');
-  }
-
   /* -- demo rider -----------------------------------------------------
      A generic student, deliberately not anyone real: this page is public, and
      a demo persona is the sort of detail that quietly becomes a person's name
@@ -248,33 +200,19 @@
   var RIDER = {
     fullName: 'Akosua Danso',
     phone: '+233 24 555 0142',
-    email: 'a.danso@upsamail.edu.gh',
-    schoolCode: 'UPSA',
-    balancePesewas: 4250,
+    schoolCode: 'UG-LEGON',
     tripCount: 38,
     reservedCount: 2,
-    referralCode: 'AKOS-7T3P',
   };
 
+  /* Invented rides on real Legon stops, priced from the table above: 8 for one
+     on a short trip, 12 for two or three together, 15 for one on a long one. */
   var TRIP_HISTORY = [
-    { from: 'Main Gate', to: 'Joshua Alabi Library', when: 'Today, 8:12 AM', farePesewas: 500, tier: 'standard', pooled: true, seats: 1 },
-    { from: 'Student Canteen', to: 'Junior Common Room (JCR)', when: 'Yesterday, 6:40 PM', farePesewas: 1350, tier: 'standard', pooled: false, seats: 3, note: 'Group of 3' },
-    // Was a comfort trip at the 50% surcharge (750). Comfort is withdrawn, and
-    // migration 20260910120000_remove_comfort_tier relabels such rows standard
-    // - but its own note warns that leaving the surcharged fare on a standard
-    // row makes the fare disagree with the tier. This is invented demo data,
-    // so the fare is restated at the standard 500 rather than left disagreeing.
-    { from: 'Joshua Alabi Library', to: 'Main Gate', when: 'Mon, 9:05 PM', farePesewas: 500, tier: 'standard', pooled: true, seats: 1 },
-    { from: 'Central Administration Building', to: 'Ewontoma Medical Centre', when: 'Sun, 11:20 AM', farePesewas: 1250, tier: 'independent', pooled: false, seats: 1 },
-    { from: 'Main Gate', to: 'UPSA Business School Block', when: 'Fri, 7:55 AM', farePesewas: 500, tier: 'standard', pooled: true, seats: 1, note: 'Picked up at ≈80 m from Main Gate' },
-  ];
-
-  var WALLET_LEDGER = [
-    { kind: 'Top-up', detail: 'MTN MoMo · 024•••0142', amountPesewas: +2000, when: 'Today, 7:58 AM' },
-    { kind: 'Ride', detail: 'Main Gate → Joshua Alabi Library', amountPesewas: -500, when: 'Today, 8:12 AM' },
-    { kind: 'Referral', detail: 'Kwame joined on AKOS-7T3P', amountPesewas: +120, when: 'Yesterday' },
-    { kind: 'Ride', detail: 'Canteen → JCR (×3)', amountPesewas: -1350, when: 'Yesterday, 6:40 PM' },
-    { kind: 'Top-up', detail: 'MTN MoMo · 024•••0142', amountPesewas: +5000, when: 'Mon' },
+    { from: 'Main Gate', to: 'Balme Library', when: 'Today, 8:12 AM', farePesewas: 800, tier: 'standard', pooled: true, seats: 1 },
+    { from: 'Night Market', to: 'Akuafo Hall', when: 'Yesterday, 6:40 PM', farePesewas: 1200, tier: 'standard', pooled: false, seats: 2, note: 'Two seats' },
+    { from: 'Balme Library', to: 'Main Gate', when: 'Mon, 9:05 PM', farePesewas: 800, tier: 'standard', pooled: true, seats: 1 },
+    { from: 'Business School', to: 'Volta Hall', when: 'Sun, 11:20 AM', farePesewas: 800, tier: 'standard', pooled: false, seats: 1 },
+    { from: 'Main Gate', to: 'Sarbah Hall', when: 'Fri, 7:55 AM', farePesewas: 800, tier: 'standard', pooled: true, seats: 1, note: 'Picked up at ≈80 m from Main Gate' },
   ];
 
   global.TraverseData = {
@@ -282,10 +220,8 @@
     RIDE_TIERS: RIDE_TIERS,
     SCHOOLS: SCHOOLS,
     DRIVER_POOL: DRIVER_POOL,
-    PASS_PRODUCTS: PASS_PRODUCTS,
     RIDER: RIDER,
     TRIP_HISTORY: TRIP_HISTORY,
-    WALLET_LEDGER: WALLET_LEDGER,
     schoolByCode: schoolByCode,
     liveSchools: liveSchools,
     schoolsForDisplay: schoolsForDisplay,
@@ -298,6 +234,5 @@
     formatSeatRatio: formatSeatRatio,
     formatMinutes: formatMinutes,
     formatEtaRange: formatEtaRange,
-    describeProduct: describeProduct,
   };
 })(window);

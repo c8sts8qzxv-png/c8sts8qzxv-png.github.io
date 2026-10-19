@@ -85,9 +85,6 @@
     // replaces it with the live one.
     el('#stat-stops').textContent = school.stopCount || school.nodes.length;
     refreshStopCount();
-    var ways = 1 + (school.independentEnabled ? 1 : 0);
-    el('#stat-tiers').textContent = ways;
-    el('#stat-tiers-label').textContent = ways === 1 ? 'way to ride' : 'ways to ride';
 
     drawMap($('#hero-map'), { cars: true, labels: true });
   }
@@ -140,23 +137,25 @@
      Features — uber.com "Explore" cards
      ====================================================================== */
 
+  /* Taken from the rider app's own "What you can do" page
+     (rider-app/app/what-you-can-do.tsx), which lists what the product offers
+     today. Wallet, passes, routines, split-with-friends, referral earnings,
+     promo codes and booking for a guest are all gone from the product and so
+     from here. Calls are left out until a build that can place them is in
+     the stores. */
   var FEATURES = [
-    { icon: 'car', title: 'Book a ride right now', body: 'Pick where you are going, see who is actually nearby, and book. The list shows real seat counts, not a spinner and a promise.' },
+    { icon: 'car', title: 'Find a ride now', body: 'Pick your stop and where you are going, check the price, and we find you the nearest driver. If nobody is free yet we keep looking for a couple of minutes, even with your phone in your pocket.' },
     { icon: 'users', title: 'Share it and pay less', body: 'If someone is already heading your way, the app pools you into their car instead of sending a second one. Same driver, a route that already made sense.' },
-    { icon: 'calendar-clock', title: 'Book ahead', body: 'Need a ride in three hours, or tomorrow at 6am? Reserve it. A driver is matched close to the time you asked for.' },
-    { icon: 'calendar-sync', title: 'Set a routine ride', body: 'Every weekday at 5:05am, set once. Pause it when you are away, cancel it when the semester ends. It keeps booking itself.' },
-    { icon: 'gift', title: 'Split with friends', body: 'Organise a ride together and everyone pays their own share, instead of one person covering the car and chasing the rest.' },
-    { icon: 'person', title: 'Book for someone else', body: 'A friend without the app, or a visitor. Book and pay for them; they get the driver details and a tracking link by text. No account needed.' },
-    { icon: 'ticket', title: 'Passes and bundles', body: 'A pass for a set number of days, or a bundle of a fixed number of rides. Either way it covers your own seat — and the app says so before you buy.' },
-    { icon: 'pin', title: 'Save the spots you use', body: 'Drop a pin where you actually stand, name it yourself, pick it again next time. Your history records the nearest stop and how far off it was.' },
-    { icon: 'cash', title: 'Pay how you like', body: 'Settle with the driver after the ride, or from a wallet where your campus has a top-up rail running. A low balance never blocks a booking.' },
-    { icon: 'compass', title: 'Watch it come in', body: 'Once a driver accepts you get the car, the plate and a number to call. The route draws as the stops you already know by name.' },
-    { icon: 'star', title: 'Bring people in, earn on it', body: 'Every rider gets a code at sign-up. When someone joins on it you earn a share of the platform’s own cut — never of their fare — paid into your wallet automatically.' },
-    { icon: 'shield', title: 'Get help fast', body: 'One button texts a trusted contact your ride details and where you are. The alert is recorded, not only sent, so there is something to look at afterwards.' },
-    { icon: 'phone', title: 'Call without swapping numbers', body: 'Ring your driver from inside the app or the website. Neither of you ever sees the other\u2019s number, and the call goes through a relay when a campus network will not let two phones talk directly.' },
-    { icon: 'users', title: 'More of you than one car holds', body: 'Six friends are a car of four and a car of two, each priced on its own and each matched to its own driver. Nobody is left working out who owes what.' },
-    { icon: 'calendar-clock', title: 'A full time slot is not a dead end', body: 'If the hour you asked for is taken, join the waitlist, take a nearby time, do both, or split the party across two times \u2014 the app prices each option before you choose.' },
-    { icon: 'ticket', title: 'Promo codes', body: 'A code takes an amount off the fare or off a pass, and the app shows the new total before you book rather than after.' },
+    { icon: 'pin', title: 'Set your pickup on the map', body: 'Not standing at a stop you can name? Drop a pin on the map instead. Your history records the nearest stop and how far off it was.' },
+    { icon: 'pin', title: 'Save the spots you use', body: 'Drop a pin where you actually stand, name it yourself, pick it again next time. Only you ever see your saved places.' },
+    { icon: 'calendar-clock', title: 'Reserve for later', body: 'Book a ride for a specific time, from 30 minutes ahead up to two weeks out. A driver is matched automatically as it gets close.' },
+    { icon: 'calendar-clock', title: 'A full time slot is not a dead end', body: 'If the time you picked has no seats left, join the waitlist and get the slot if someone cancels, take a nearby time instead, hold both at once, or split your group across two cars. The app shows what splitting costs before you agree.' },
+    { icon: 'users', title: 'Ride as a group', body: 'Book several seats on one trip, up to four. A group pays one price for the trip, less than separate seats.' },
+    { icon: 'cash', title: 'Pay the driver', body: 'You settle with the driver directly during the ride. Nothing is charged inside the app.' },
+    { icon: 'compass', title: 'Watch it come in', body: 'Once a driver is on the way you can see where they are on a map, with the route drawn and the time to pickup and drop-off, so you know whether to start walking to the stop.' },
+    { icon: 'message', title: 'Know the moment a driver accepts', body: 'Allow notifications when the app asks and your phone tells you the moment a driver takes your ride, so you do not have to keep the app open.' },
+    { icon: 'shield', title: 'Get help fast', body: 'Add someone you trust as your emergency contact. One button texts them your ride details and where you are, and the alert is recorded, not only sent. You can also share a link so they can follow your ride.' },
+    { icon: 'ticket', title: 'Report a problem with a trip', body: 'Open History, pick the trip, and tell us what happened.' },
   ];
 
   function renderFeatures() {
@@ -204,16 +203,6 @@
     }).join('');
   }
 
-  function renderPasses() {
-    el('#pass-list').innerHTML = D.PASS_PRODUCTS.map(function (p) {
-      return '<li class="pass">' +
-        '<p><span class="pass__name">' + esc(p.name) + '</span>' +
-          '<span class="pass__desc">' + esc(D.describeProduct(p)) + '</span></p>' +
-        '<span class="pass__price">Set by campus</span>' +
-      '</li>';
-    }).join('');
-  }
-
   /* ======================================================================
      Demo steps
      ====================================================================== */
@@ -222,9 +211,9 @@
     { target: 'home', title: 'Open the app', body: 'Campus map, and one question: where are you going?' },
     { target: 'plan', title: 'Pick your stops', body: 'Only the stops your campus actually has. Pickup and dropoff cannot be the same one.' },
     { target: 'drivers', title: 'Choose a ride', body: 'Prices from your campus’s fare table, by distance. Cards show seats taken, ETA, and whether it is a shared car.' },
-    { target: 'confirm', title: 'Confirm and pay', body: 'Add seats and watch the group price appear. Paying from the wallet costs less. Nothing is charged yet.' },
-    { target: 'trip', title: 'Follow the trip', body: 'Driver, car, plate, and a route that moves. The fare comes out at drop-off.' },
-    { target: 'wallet', title: 'Check the wallet', body: 'Where the money went, and how to add more. Passes and promo codes live here too.' },
+    { target: 'confirm', title: 'Confirm your ride', body: 'Add seats and watch the group price appear. Nothing is charged in the app; you pay the driver.' },
+    { target: 'trip', title: 'Follow the trip', body: 'Driver, car, plate, and a route that moves. You settle with the driver during the ride.' },
+    { target: 'history', title: 'Look back', body: 'Every trip you have taken, with the stop you were picked up from.' },
   ];
 
   function renderSteps() {
@@ -261,19 +250,15 @@
     ['Is the price on screen the price I pay?',
       'Yes. The app will not let you book until the server has quoted the fare — there is no compiled-in fallback price anywhere in the rider app, deliberately. If the quote has not arrived, the button says “Getting the fare…” rather than guessing a number that looks right and is not.'],
     ['What happens if I cancel?',
-      'Nothing is refunded, because nothing has been charged. The fare comes out at drop-off, not when you book. The driver is told straight away so the seat goes back to the car.'],
+      'Nothing is charged in the app, so there is nothing to refund. The driver is told straight away so the seat goes back to the car. Once the driver has tapped Arrived you can no longer cancel the seat from the app.'],
     ['Does sharing make me late?',
       'It is allowed to, but only by an amount the campus sets. Every pooled match is scored on the extra delay it adds to the trip already running, and if that exceeds the cap the match is rejected and you get your own car instead.'],
-    ['Does a pass cover my friends?',
-      'No — a pass covers your own seat. If you book for three, you pay for the other two. The app says this on the pass before you buy it, because the wrong moment to find out is at drop-off.'],
-    ['What if I have no money in the wallet?',
-      'Book anyway. “Pay later” settles with the driver directly, or you can top up before the ride ends. A low balance disables the wallet option, not the booking.'],
     ['Do I need money in the app before I can ride?',
-      'No. Paying the driver after the trip works on every campus and always has. The wallet is the other option, and which top-up rail is switched on is a campus decision — the app offers wallet payment only where one is actually running.'],
+      'No. There is no balance to top up. You pay the driver during the ride.'],
     ['Do I have to install anything?',
-      'No. rider.traversegh.com is the same app, opened as a web page \u2014 booking, tracking, calling, SOS, reserving, routines, the wallet, all of it. The Android and iOS builds are the same code for people who would rather have an icon on their home screen.'],
+      'No. rider.traversegh.com is the same app, opened as a web page \u2014 booking, tracking, SOS and reserving. The Android and iOS builds are the same code for people who would rather have an icon on their home screen.'],
     ['Why is there no password?',
-      'Because a password on a phone that already receives a code is one more thing to forget and one more thing to leak. Signing in is a code to your email, then a code to your phone. Administrators still use passwords; riders and drivers do not.'],
+      'Because a password on a phone that already receives a code is one more thing to forget and one more thing to leak. Signing in is a code to your phone. Administrators still use passwords; riders and drivers do not.'],
     ['Can a driver see who I am before the ride?',
       'No. Rider and driver identities stay hidden from each other until a ride is confirmed. That is deliberate — it stops anyone reading a list, picking a person out of it, and going around the app to reach them.'],
     ['What if the paperwork on a car has lapsed?',
@@ -385,7 +370,6 @@
   renderHero();
   renderFeatures();
   renderTiers();
-  renderPasses();
   drawMap($('#pool-stage'), { cars: true, labels: true });
   renderSteps();
   renderFaq();

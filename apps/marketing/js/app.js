@@ -7,7 +7,7 @@
 
    Flow, matching rider-app/app/:
      login -> (tabs)/index -> plan-ride -> driver-list -> book-confirmation
-           -> waiting -> (tabs)/trip, with wallet / history / profile alongside.
+           -> waiting -> (tabs)/trip, with history / profile alongside.
    ========================================================================== */
 (function (global) {
   'use strict';
@@ -62,10 +62,7 @@
     picking: 'origin',
     tier: 'standard',
     partySize: 1,
-    payment: 'prepaid',
-    promo: null,
-    promoError: null,
-    balancePesewas: D.RIDER.balancePesewas,
+    payment: 'pay_driver',
     driver: null,
     candidates: [],
     tripProgress: 0,
@@ -105,25 +102,11 @@
     return state.tier === 'independent' ? normalTotal() : perSeat() * state.partySize;
   }
 
-  function normalTotal() { return D.partyTotalPesewas(state.tier, state.partySize, 'short', false); }
+  function normalTotal() { return D.partyTotalPesewas(state.tier, state.partySize, 'short'); }
 
-  function walletTotal() { return D.partyTotalPesewas(state.tier, state.partySize, 'short', true); }
-
-  /* The column this booking pays: the promo column only when the wallet pays. */
-  function fareAfterGroup() { return state.payment === 'prepaid' ? walletTotal() : normalTotal(); }
-
-  /* A promo is a share of the fare it was applied to, so it follows the fare
-     when the party or the payment column changes rather than keeping the
-     amount it was first shown with. */
-  function repricePromo() {
-    if (state.promo) state.promo.discountPesewas = Math.round(fareAfterGroup() * 0.2);
-  }
-
-  function fareFinal() {
-    var f = fareAfterGroup();
-    if (state.promo) f = Math.max(0, f - state.promo.discountPesewas);
-    return f;
-  }
+  /* Nothing is paid inside the app: the rider settles with the driver, so the
+     fare is the table's normal column and nothing else. */
+  function fareFinal() { return normalTotal(); }
 
   /* Solo (the `independent` tier) books the whole car, so the party cap is one
      booking rather than the four seats standard sells. Mirrors
@@ -164,7 +147,7 @@
 
   /* ---- navigation --------------------------------------------------- */
 
-  var TABS = ['home', 'trip', 'wallet', 'history', 'profile'];
+  var TABS = ['home', 'trip', 'history', 'profile'];
 
   function current() { return stack[stack.length - 1]; }
 
@@ -237,7 +220,7 @@
         '<div class="login__mark">' + icon('car', 'icon--lg') + '</div>' +
         '<p class="login__title">Campus rides,<br>without the wait.</p>' +
         '<p class="login__sub">Ride with drivers who already serve ' + esc(school().short) + '. ' +
-          'No password — a code to your email, then one to your phone.</p>' +
+          'No password — a code to your phone.</p>' +
         '<a class="a-btn a-btn--primary press" href="ride/?new=1">Create an account</a>' +
         '<a class="a-btn a-btn--secondary press" href="ride/">I already have one</a>' +
         '<button class="a-btn a-btn--ghost press" data-act="tour">Just show me around</button>' +
@@ -251,11 +234,6 @@
 
   function screenHome() {
     var s = school();
-    var saved = [
-      s.nodes[0].name + ' → ' + s.nodes[3].name,
-      s.nodes[5].name + ' → ' + s.nodes[1].name,
-    ];
-
     return '<div class="screen screen--map" data-screen="home">' +
       '<div class="map" data-map></div>' +
       '<div class="greet"><span class="greet__hi">Hi,</span><span class="greet__name">' + esc(D.RIDER.fullName.split(' ')[0]) + '</span></div>' +
@@ -271,18 +249,8 @@
           '</div>' +
           '<button class="a-btn a-btn--primary press" data-act="plan" data-mode="now">' + icon('search') + 'Find a ride</button>' +
           '<button class="a-btn a-btn--secondary press" data-act="plan" data-mode="reserve">' + icon('calendar-clock', 'icon--sm') + 'Reserve for later</button>' +
-          '<button class="a-btn a-btn--secondary press" data-act="plan" data-mode="routine">' + icon('calendar-sync', 'icon--sm') + 'Set up a routine ride</button>' +
           '<div class="a-links">' +
             '<button class="a-link press" data-act="soon" data-label="My reservations">' + icon('calendar-clock', 'icon--sm') + 'My reservations</button>' +
-            '<button class="a-link press" data-act="soon" data-label="My routine rides">' + icon('calendar-sync', 'icon--sm') + 'My routine rides</button>' +
-          '</div>' +
-          '<div class="saved">' +
-            '<div class="saved__title">Saved commutes</div>' +
-            '<div class="saved__row">' +
-              saved.map(function (label) {
-                return '<button class="saved__chip press" data-act="plan" data-mode="now">' + esc(label) + '</button>';
-              }).join('') +
-            '</div>' +
           '</div>' +
         '</div>' +
       '</div>' +
@@ -379,8 +347,8 @@
                 '<span class="cand__eta">' + D.formatEtaRange(c.etaSeconds, 180) + '</span>' +
               '</span>' +
               '<span class="cand__meta" style="display:block">' +
-                D.formatSeatRatio(c.seatsAvailable, c.capacity) + ' · ' + D.formatGhs(fareAfterGroup()) +
-                (rawFare() > fareAfterGroup() ? ' (save ' + D.formatGhs(rawFare() - fareAfterGroup()) + ')' : '') +
+                D.formatSeatRatio(c.seatsAvailable, c.capacity) + ' · ' + D.formatGhs(fareFinal()) +
+                (rawFare() > fareFinal() ? ' (save ' + D.formatGhs(rawFare() - fareFinal()) + ')' : '') +
               '</span>' +
               '<span class="cand__route" style="display:block">' + (c.pooled ? '🔀 ' : '📍 ') + esc(c.routeHeadline) + '</span>' +
               (c.pooled ? '<span class="pool-badge">' + icon('users', 'icon--sm') + 'Sharing · +' + Math.round(c.addedDetourSeconds / 60) + ' min detour</span>' : '') +
@@ -416,9 +384,7 @@
     if (!c) return '<div class="screen" data-screen="confirm"></div>';
 
     var tierLabel = (D.RIDE_TIERS.filter(function (o) { return o.tier === state.tier; })[0] || {}).label || 'Standard';
-    var canAfford = state.balancePesewas >= walletTotal();
     var groupSaving = rawFare() - normalTotal();
-    var walletSaving = state.payment === 'prepaid' ? normalTotal() - walletTotal() : 0;
 
     return '<div class="screen" data-screen="confirm">' +
       '<div class="appbar">' +
@@ -447,25 +413,6 @@
             '</span>' +
           '</div>' +
 
-          '<div class="label-cap">Promo code</div>' +
-          '<div class="field">' +
-            '<input id="promo-input" placeholder="Optional" value="' + esc(state.promo ? state.promo.code : '') + '" aria-label="Promo code">' +
-            '<button class="field__btn press" data-act="promo">Apply</button>' +
-          '</div>' +
-          (state.promo
-            ? '<p class="note note--good">' + esc(state.promo.code) + ': −' + D.formatGhs(state.promo.discountPesewas) +
-              ' → ' + D.formatGhs(fareFinal()) + '</p>'
-            : '') +
-          (state.promoError ? '<p class="note note--bad">' + esc(state.promoError) + '</p>' : '') +
-          (!state.promo && !state.promoError ? '<p class="note note--muted">Try <strong>FRESHER</strong> for 20% off.</p>' : '') +
-
-          '<div class="label-cap">Payment</div>' +
-          '<div class="seg" role="group" aria-label="Payment method">' +
-            '<button class="seg__btn press' + (state.payment === 'prepaid' ? ' is-on' : '') + '" data-act="pay" data-mode="prepaid"' + (canAfford ? '' : ' disabled') + '>Wallet</button>' +
-            '<button class="seg__btn press' + (state.payment === 'pay_after' ? ' is-on' : '') + '" data-act="pay" data-mode="pay_after">Pay later</button>' +
-          '</div>' +
-          (!canAfford ? '<p class="note note--muted">Balance is low — you can still book and pay cash or top up before the ride ends.</p>' : '') +
-
           '<div class="row" style="border-top:1px solid var(--outline-variant);margin-top:var(--sp-sm)">' +
             '<span class="row__label">Fare' + (state.partySize > 1 && state.tier !== 'independent' ? ' (' + state.partySize + ' separate seats)' : '') + '</span>' +
             '<span class="row__value">' + D.formatGhs(rawFare()) + '</span></div>' +
@@ -473,33 +420,13 @@
             ? '<div class="row"><span class="row__label row__label--good">Group price</span>' +
               '<span class="row__value row__value--good">−' + D.formatGhs(groupSaving) + '</span></div>'
             : '') +
-          (walletSaving > 0
-            ? '<div class="row"><span class="row__label row__label--good">Paying from wallet</span>' +
-              '<span class="row__value row__value--good">−' + D.formatGhs(walletSaving) + '</span></div>'
-            : '') +
-          (state.promo
-            ? '<div class="row"><span class="row__label row__label--good">Promo ' + esc(state.promo.code) + '</span>' +
-              '<span class="row__value row__value--good">−' + D.formatGhs(state.promo.discountPesewas) + '</span></div>'
-            : '') +
-          '<div class="row"><span class="row__label">Current balance</span>' +
-            '<span class="row__value">' + D.formatGhs(state.balancePesewas) + '</span></div>' +
+          '<div class="row"><span class="row__label">Pay</span><span class="row__value">The driver, during the ride</span></div>' +
           '<div class="row row--total">' +
-            '<span class="row__label">' + (state.payment === 'prepaid' ? 'Balance after this trip' : 'Total due') + '</span>' +
-            '<span class="row__value">' +
-              D.formatGhs(state.payment === 'prepaid' ? state.balancePesewas - fareFinal() : fareFinal()) +
-            '</span></div>' +
+            '<span class="row__label">Total due</span>' +
+            '<span class="row__value">' + D.formatGhs(fareFinal()) + '</span></div>' +
         '</div>' +
 
-        (state.partySize >= 2
-          ? '<button class="a-btn a-btn--secondary press" data-act="soon" data-label="Split with friends" style="margin-bottom:var(--sp-md)">' +
-            icon('users', 'icon--sm') + 'Split with friends (each pays their share)</button>'
-          : '') +
-
-        '<p class="disclaimer">' +
-          (state.payment === 'prepaid'
-            ? 'Wallet is debited only once the driver accepts — nothing is charged yet.'
-            : 'No wallet charge now. Settle with the driver or top up your wallet before the ride ends.') +
-        '</p>' +
+        '<p class="disclaimer">Nothing is charged in the app. You settle with the driver during the ride.</p>' +
 
         '<button class="a-btn a-btn--primary press" data-act="request">Confirm &amp; request driver</button>' +
       '</div>' +
@@ -514,9 +441,7 @@
         '<div class="radar"><span class="radar__ring"></span><span class="radar__ring"></span><span class="radar__ring"></span><span class="radar__core"></span></div>' +
         '<div class="center-state__title">Waiting for your driver…</div>' +
         '<p class="center-state__body">' +
-          (state.payment === 'prepaid'
-            ? 'You&rsquo;ll be charged ' + D.formatGhs(fareFinal()) + ' only once they accept.'
-            : 'Fare ' + D.formatGhs(fareFinal()) + ' — settle with the driver (or top up) before the ride ends.') +
+          'Fare ' + D.formatGhs(fareFinal()) + ' — you settle with the driver during the ride.' +
         '</p>' +
         '<button class="a-btn a-btn--secondary press" style="max-width:230px;margin-top:var(--sp-md)" data-act="cancel-request">Cancel request</button>' +
       '</div>' +
@@ -584,58 +509,14 @@
           '<div class="a-card">' +
             '<div class="row"><span class="row__label">Fare</span><span class="row__value">' + D.formatGhs(fareFinal()) + '</span></div>' +
             '<div class="row"><span class="row__label">Paid with</span><span class="row__value">' +
-              (state.payment === 'prepaid' ? 'Wallet' : 'Cash to driver') + '</span></div>' +
+              'The driver' + '</span></div>' +
             '<div class="row"><span class="row__label">Seats</span><span class="row__value">' + state.partySize + '</span></div>' +
           '</div>' +
 
           (arrived
             ? '<button class="a-btn a-btn--primary press" data-act="finish">Rate and finish</button>'
             : '<button class="a-btn a-btn--secondary press" data-act="cancel-trip">Cancel ride</button>') +
-          (arrived ? '' : '<p class="disclaimer">Nothing is refunded on cancelling because nothing has been charged — the fare comes out at drop-off.</p>') +
-        '</div>' +
-      '</div>' +
-    '</div>';
-  }
-
-  /* -- wallet --------------------------------------------------------- */
-
-  function screenWallet() {
-    return '<div class="screen" data-screen="wallet">' +
-      '<div class="appbar"><div class="appbar__title">Wallet</div></div>' +
-      '<div class="screen__body">' +
-        '<button class="balance press" data-act="topup" style="width:100%;text-align:left;display:block">' +
-          '<span class="balance__label" style="display:block">Wallet balance</span>' +
-          '<span class="balance__amount" style="display:block">' + D.formatGhs(state.balancePesewas) + '</span>' +
-          '<span class="balance__hint" style="display:block">' + icon('plus', 'icon--sm') + ' Tap to add funds</span>' +
-        '</button>' +
-
-        '<div class="a-card" style="margin-top:var(--sp-md)">' +
-          '<div class="label-cap" style="margin-top:0">Campus passes</div>' +
-          D.PASS_PRODUCTS.map(function (p) {
-            return '<button class="menu__item press" data-act="soon" data-label="' + esc(p.name) + '">' +
-              '<span class="ledger__icon">' + icon('ticket', 'icon--sm') + '</span>' +
-              '<span class="menu__label">' + esc(p.name) +
-                '<span style="display:block;font-size:12px;font-weight:500;color:var(--on-surface-variant)">' + esc(D.describeProduct(p)) + '</span>' +
-              '</span>' + icon('chevron-right', 'icon--sm') +
-            '</button>';
-          }).join('') +
-          '<p class="note note--muted" style="padding:var(--sp-sm) var(--sp-sm) 0">Covers your own seat on each ride — anyone else you book pays their own fare.</p>' +
-        '</div>' +
-
-        '<div class="a-card">' +
-          '<div class="label-cap" style="margin-top:0">Recent activity</div>' +
-          D.WALLET_LEDGER.map(function (r) {
-            var inbound = r.amountPesewas > 0;
-            return '<div class="ledger__row">' +
-              '<span class="ledger__icon">' + icon(inbound ? 'cash' : 'car', 'icon--sm') + '</span>' +
-              '<span>' +
-                '<span class="ledger__kind" style="display:block">' + esc(r.kind) + '</span>' +
-                '<span class="ledger__detail" style="display:block">' + esc(r.detail) + ' · ' + esc(r.when) + '</span>' +
-              '</span>' +
-              '<span class="ledger__amt' + (inbound ? ' ledger__amt--in' : '') + '">' +
-                (inbound ? '+' : '−') + D.formatGhs(Math.abs(r.amountPesewas)) + '</span>' +
-            '</div>';
-          }).join('') +
+          (arrived ? '' : '<p class="disclaimer">Nothing is charged in the app, so there is nothing to refund.</p>') +
         '</div>' +
       '</div>' +
     '</div>';
@@ -679,7 +560,6 @@
       '</div>' +
       '<div class="screen__body">' +
         '<div class="glance">' +
-          '<div class="glance__cell"><div class="glance__value">' + D.formatGhs(state.balancePesewas) + '</div><div class="glance__label">Wallet</div></div>' +
           '<div class="glance__cell"><div class="glance__value">' + D.RIDER.tripCount + '</div><div class="glance__label">Trips</div></div>' +
           '<div class="glance__cell"><div class="glance__value">' + D.RIDER.reservedCount + '</div><div class="glance__label">Reserved</div></div>' +
         '</div>' +
@@ -687,17 +567,14 @@
         '<div class="a-card" style="margin-top:var(--sp-md)">' +
           '<div class="label-cap" style="margin-top:0">Ride info</div>' +
           '<div class="row"><span class="row__label">Fares from</span><span class="row__value">' + D.formatGhs(fromFarePesewas()) + '</span></div>' +
-          '<div class="row"><span class="row__label">Solo</span><span class="row__value">' + (s.independentEnabled ? D.formatGhs(D.tierPerSeatPesewas('independent')) : 'Not offered here') + '</span></div>' +
           '<div class="row"><span class="row__label">Groups</span><span class="row__value">One price for the whole group</span></div>' +
-          '<div class="row"><span class="row__label">Pay later</span><span class="row__value">Available when balance is low</span></div>' +
+          '<div class="row"><span class="row__label">Paying</span><span class="row__value">The driver, during the ride</span></div>' +
         '</div>' +
 
         '<div class="a-card">' +
           '<div class="label-cap" style="margin-top:0">Your details</div>' +
           '<div class="row"><span class="row__label">Phone</span><span class="row__value">' + esc(D.RIDER.phone) + '</span></div>' +
-          '<div class="row"><span class="row__label">Email</span><span class="row__value">' + esc(D.RIDER.email) + '</span></div>' +
           '<div class="row"><span class="row__label">Campus code</span><span class="row__value">' + esc(s.code) + '</span></div>' +
-          '<div class="row"><span class="row__label">Referral code</span><span class="row__value">' + esc(D.RIDER.referralCode) + '</span></div>' +
         '</div>' +
 
         '<div class="a-card">' +
@@ -724,7 +601,6 @@
   var TAB_META = [
     { id: 'home', label: 'Home', icon: 'home' },
     { id: 'trip', label: 'Trip', icon: 'route' },
-    { id: 'wallet', label: 'Wallet', icon: 'wallet' },
     { id: 'history', label: 'History', icon: 'history' },
     { id: 'profile', label: 'Profile', icon: 'account' },
   ];
@@ -748,7 +624,7 @@
   var BUILDERS = {
     login: screenLogin, home: screenHome, plan: screenPlan, drivers: screenDrivers,
     confirm: screenConfirm, waiting: screenWaiting, trip: screenTrip,
-    wallet: screenWallet, history: screenHistory, profile: screenProfile,
+    history: screenHistory, profile: screenProfile,
   };
 
   var SCROLLERS = '.screen__body, .sheet__scroll';
@@ -873,7 +749,7 @@
       state.picking = 'origin';
       go('plan');
       if (mode && mode !== 'now') {
-        toast(mode === 'reserve' ? 'Reserve: pick your stops first' : 'Routine ride: pick your stops first');
+        toast('Reserve: pick your stops first');
       }
     },
 
@@ -926,28 +802,11 @@
     seats: function (el) {
       var delta = Number(el.getAttribute('data-delta'));
       state.partySize = Math.max(1, Math.min(maxPartySize(), state.partySize + delta));
-      repricePromo();
       render('none');
     },
 
     pay: function (el) {
       state.payment = el.getAttribute('data-mode');
-      repricePromo();
-      render('none');
-    },
-
-    promo: function () {
-      var input = root.querySelector('#promo-input');
-      var code = (input ? input.value : '').trim().toUpperCase();
-      if (!code) return;
-      if (code === 'FRESHER') {
-        var base = fareAfterGroup();
-        state.promo = { code: code, discountPesewas: Math.round(base * 0.2) };
-        state.promoError = null;
-      } else {
-        state.promo = null;
-        state.promoError = 'Invalid promo';
-      }
       render('none');
     },
 
@@ -956,9 +815,6 @@
       clearTimeout(searchTimer);
       searchTimer = setTimeout(function () {
         if (current() !== 'waiting') return;
-        if (state.payment === 'prepaid') {
-          state.balancePesewas = Math.max(0, state.balancePesewas - fareFinal());
-        }
         state.tab = 'trip';
         stack = ['trip'];
         render('push');
@@ -992,12 +848,6 @@
       toast('Thanks — trip saved to your history');
     },
 
-    topup: function () {
-      state.balancePesewas += 2000;
-      render('none');
-      toast('GHS 20.00 added from MoMo');
-    },
-
     tab: function (el) { selectTab(el.getAttribute('data-tab')); },
 
     back: function () { back(); },
@@ -1025,14 +875,6 @@
       if (!el || !root.contains(el)) return;
       var fn = ACTIONS[el.getAttribute('data-act')];
       if (fn) { ev.preventDefault(); fn(el); }
-    });
-
-    // Enter in the promo field applies it, rather than doing nothing.
-    root.addEventListener('keydown', function (ev) {
-      if (ev.key === 'Enter' && ev.target.id === 'promo-input') {
-        ev.preventDefault();
-        ACTIONS.promo();
-      }
     });
 
     render('none');
